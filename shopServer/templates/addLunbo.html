@@ -1,0 +1,121 @@
+{% extends "base.html" %} {% load staticfiles %} {% block css %}
+<style>
+    .ll {
+        text-align: center;
+    }
+    
+    #preview {
+        height: 500px;
+        width: 600px;
+    }
+</style>
+{% endblock %} {% block content %}
+<div class="ll">
+    <div class="row">
+        <div class="col-xs-6 col-sm-2">
+
+        </div>
+        <div class="col-xs-6 col-sm-1">
+
+        </div>
+        <div class="col-xs-6 col-sm-1" style="margin-top: 20px;">
+
+
+
+        </div>
+        <div class="col-xs-6 col-sm-3" style="margin-top: 20px;">
+            <form id="uplodaForm" action="/addGoodsLunbo/" method="POST" enctype="multipart/form-data">
+
+
+                <img id="preview" />
+                <textbox>
+
+                    <input name="goodsid" class="myGoodsid" type="text" value="" hidden>
+
+                    <input type="file" name="imgsFile" id="images" onchange="imgPreview(this)" accept="image/gif, image/jpeg">
+                </textbox>
+
+                <input class="btn btn-info" type="submit">
+            </form>
+        </div>
+
+
+        <div class="col-xs-6 col-sm-5" style="margin-top: 20px;">
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+{% endblock %} {% block script %}
+<script type="text/javascript">
+    function imgPreview(fileDom) {
+        //判断是否支持FileReader
+        if (window.FileReader) {
+            var reader = new FileReader();
+        } else {
+            alert("您的设备不支持图片预览功能，如需该功能请升级您的设备！");
+        }
+
+        //获取文件
+        var file = fileDom.files[0];
+
+        var imageType = /^image\//;
+        //是否是图片
+        if (!imageType.test(file.type)) {
+            alert("请选择图片！");
+            return;
+        }
+        //读取完成
+        reader.onload = function(e) {
+            //获取图片dom
+            var img = document.getElementById("preview");
+            //图片路径设置为读取的图片
+            img.src = e.target.result;
+        };
+
+        reader.readAsDataURL(file);
+
+    }
+
+    // cursor.execute("ALTER TABLE yyy.user MODIFY COLUMN username VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;");
+
+
+
+    function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
+
+    var goodsid = getUrlParam("goodsid")
+    $(".myGoodsid").val(goodsid);
+
+
+    $('#uplodaForm').on('submit', function(e) {
+        e.preventDefault();
+        $(this).ajaxSubmit({
+            success: function(result) {
+                layer.msg(result.message);
+                if (result.status == "ok") {
+
+                    setTimeout(function() {
+                        window.location.href = "/changePic/?goodsid=" + goodsid;
+                    }, 500)
+                } else {
+
+                }
+
+            },
+            error: function(err) {
+                layer.msg("添加异常,请联系管理员。。。。")
+            }
+        })
+    });
+</script>
+{% endblock %}

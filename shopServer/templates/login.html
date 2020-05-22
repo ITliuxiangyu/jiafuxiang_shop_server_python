@@ -1,0 +1,263 @@
+﻿{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title></title>
+    <meta http-equiv="X-UA-Compatible" content="IE = edge" />
+    <link rel="stylesheet" type="text/css" href="../static/css/comm.css" />
+    <link rel="stylesheet" type="text/css" href="../static/css/login.css" />
+    <link rel="stylesheet" type="text/css" href="../static/css/drag.css" />
+    <script type="text/javascript" src="../static/js/jquery.js"></script>
+    <script type="text/javascript" src="../static/js/jquery.flexslider-min.js"></script>
+    <script type="text/javascript" src="../static/js/jquery.form.min.js"></script>
+</head>
+
+<body>
+
+    <div class="header header_fixed clearfix">
+        <div class="header1">
+            <div class="header1in">
+                <ul class="headerul1">
+                    <li>欢迎来到嘉福祥商城!</li>
+                </ul>
+                <ul class="headerul2">
+                    <li class="hreder-hover"><a href="" target="_blank" style="border-right:none;_width:213px;padding-left:30px"><i class="header_phone"></i>在线客服 : <b style="font-size:16px;">400-654-1024</b></a></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <!-- 导航   start  -->
+
+
+
+    <div class="login">
+        <div class="login_bg">
+            <div id="loadingPicBlock" class="login_banner"><img src="static/myfile/login.png"></div>
+            <div class="login_box" id="LoginDiv">
+                <form id="loginForm" method="post" action="/loginApi/">
+                    <p><b style="float:left">会员登录</b><span class="rapidregister"></span><span>还不是微分销会员?</span></p>
+                    <!--想拥有 注册 功能  请 注释掉上面一行代码  并 打开下面一行代码-->
+                    <!--<p ><b style="float:left">会员登录</b><span class="rapidregister"><a style="color:#e23c40">快速注册</a></span><span  >还不是微分销会员?</span></p>-->
+                    <ul>
+                        <li class="click">
+                            <input class="text_password" name="username" id="name" type="text" placeholder="用户名" /> <i class="login_user"></i>
+                        </li>
+
+                        <li>
+                            <input class="text_password" name="password" id="pwd" type="password" placeholder="输入登录密码" /> <i class="login_password"></i>
+                        </li>
+
+                        <!-- <li class = "code">
+					<input type="text" name="msgCode" id = "msgCode" placeholder="请输入手机接到的验证码">
+					<button class = "getMsgCode" >获取手机验证码</button>
+				</li> -->
+                        <br>
+                        <li>
+                            <!--<input class="text_password" name="code" id="code" type="text" placeholder="输入验证码"/> <i class="login_password"></i>-->
+                            <div class="htmleaf-container">
+
+                                <div class="container">
+                                    <div id="drag"></div>
+                                </div>
+
+                            </div>
+                        </li>
+
+                        <br>
+
+
+
+                        <p style="width:100%;height:20px;clear:both">
+                            <p>
+                                <li class="end"><input type="submit" id="submit" value="登录" class="login_login"></li>
+                    </ul>
+                </form>
+
+            </div>
+            <div class="login_box register_box" id="RegisterDiv" style="display:none">
+                <form id="registerForm" class="registerform">
+                    <p style="margin-left:110px;"><b style="float:left">会员注册</b></p>
+                    <ul>
+                        <li>
+                            <input class="text_password ss" name="invitecode" type="text" placeholder="邀请码">
+                        </li>
+                        <!-- <li>
+						<input type="text" name="phone" id="phone" placeholder="请输入手机号码">
+						<button  class="msgcode">获取手机验证码</button>
+					</li> -->
+                        <br>
+                        <li class="click">
+                            <input class="text_password ss" name="username" type="text" placeholder="用户名" /> <i class="login_user"></i>
+                        </li>
+                        <li>
+                            <input class="text_password ss" name="password" type="password" placeholder="输入登录密码" /> <i class="login_password"></i>
+                        </li>
+                        <!-- <li>
+					<input type="text" name="msgcode" id="msgcode" placeholder="请输入收到的验证码">
+				</li> -->
+                        <p style="width:100%;height:20px;clear:both">
+                        </p>
+                        <a class="sbOne" style="color:red; float:right;">已有账号>>>>></a>
+                        <p style="width:100%;height:20px;clear:both"></p>
+
+                        <li class="end"><input id="register" name="submit" value="注册" class="login_login"> </li>
+                    </ul>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="footer-time-list" style="border-top:0">
+        <div class="yFootBottomRight" style="text-align:inherit;color: #7b7b7b;">
+            <!-- <a href="http://www.baidu.com">百度</a> -->
+            <a href="https://www.miitbeian.gov.cn">豫ICP备18020508号-1</a>
+        </div>
+
+    </div>
+
+
+</body>
+<script src="{% static 'layer/layer.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/tool.js' %}"></script>
+<script src="{% static 'js/drag.js' %}"></script>
+<script>
+    $('body').append("<div style='display:none;width:100%; margin:0 auto;position:fixed;left:0;top:0;bottom: 0;z-index: 111;opacity: 0.5;' id='loading'><a style='left: 50%;position: absolute;top:50%'><img src='/static/myfile/loading.gif' /></a></div>")
+    $(document).ajaxStart(function() {　　
+        $("#loading").show();
+    })
+    $(document).ajaxComplete(function() {　　
+        $("#loading").hide();
+    })
+
+    // 判断是否验证通过
+    var isVerify = false;
+
+    // 验证码函数
+    $('#drag').drag({
+        success: function(data) {
+            if (data.status == "ok") {
+                isVerify = true;
+            }
+        }
+    });
+
+    //调用注册按钮
+    $("#register").click(function() {
+        myPost(
+            "/register/",
+            $("#registerForm").serialize(),
+            function(data) {
+                alert(data.message);
+            }
+        )
+
+    });
+    //登陆切换按钮切换
+    $(".rapidregister").click(function() {
+        $(".login_box").css("display", "none")
+        $(".register_box").css("display", "block")
+    });
+
+    $(".sbOne").click(function() {
+        $(".login_box").css("display", "block")
+        $(".register_box").css("display", "none")
+    });
+    // 看不清 换一张
+    $('#imgclick').click(function(e) {
+
+        changeCode();
+
+    })
+
+    // changeCode();
+
+    // // 刷新验证码的方法
+    function changeCode() {
+        $.ajax({
+            url: "/identificode/",
+            success: function(result) {
+                $("#bbb").attr("src", "/" + result.imgPath + "?aaa=" + Math.random() * 350)
+            }
+        });
+    }
+
+    // 不要删
+    // $(".getMsgCode").click(function(e){
+    // 	e.preventDefault()
+    // 	e.stopPropagation()
+    // 	var username = $("#name").val()
+    // 	var objData = "username=" + username;
+    // 	// console.log(username)
+    // 	myPost("shortMsgFromName" , objData , function(data){
+    // 		if (data["status"]=="ok"){
+    // 			layer.msg("短信验证码发送成功")
+    // 		}
+    // 		else{
+    // 			layer.msg("短信验证码发送失败")
+    // 		}
+    // 	})
+    // })
+
+    // $(".msgcode").click(function(e){
+    // 	e.preventDefault();
+    // 	e.stopPropagation();
+    // 	var phone = $("#phone").val();
+    // 	var objData = "phone=" + phone;
+    // 	myPost("shortMsgFromPhone" , objData , function(data){
+    // 		if (data["status"]=="ok"){
+    // 			layer.msg("短信验证码发送成功")
+    // 		}
+    // 		else{
+    // 			layer.msg("短信验证码发送失败")
+    // 		}
+    // 	})
+    // })
+
+    $('#loginForm').on('submit', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var pwd = document.getElementById("pwd").value.replace(/\s/g, "");
+        // var code = document.getElementById("code").value.replace(/\s/g, "");
+        var name = document.getElementById("name").value.replace(/\s/g, "");
+
+        if (name.length <= 0) {
+            layer.msg("请输入用户名...")
+            return
+        }
+        if (pwd.length <= 0) {
+            layer.msg("请输入密码...")
+            return
+        }
+        if (isVerify == false) {
+            layer.msg("请通过验证码验证...")
+            return
+        }
+
+        $(this).ajaxSubmit({
+            success: function(result) {
+                if (result.status == "ok") {
+                    layer.msg("登录成功...")
+                    var str = {
+                        'names': name
+                    }
+                    localStorage.setItem("logMsg", JSON.stringify(str));
+                    localStorage.setItem("keySss", "ok")
+                    isVerify = false;
+                    setTimeout(function() {
+                        window.location.href = "/goodsManage/";
+                    }, 200)
+                } else {
+                    // changeCode()
+                    layer.msg(result.message);
+                }
+            },
+            error: function(err) {
+                layer.msg("连接失败,请刷新界面或检查网络....")
+            }
+        })
+    });
+</script>
+
+</html>

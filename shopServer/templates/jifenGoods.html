@@ -1,0 +1,377 @@
+{% extends "base.html" %} {% load staticfiles %} {% block css %}
+
+<style type="text/css">
+    .a-upload {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .a-upload input {
+        position: absolute;
+        font-size: 100px;
+        right: 0;
+        top: 0;
+        opacity: 0;
+        display: inline-block;
+        filter: alpha(opacity=0);
+        cursor: pointer;
+        border: 1px solid blue;
+    }
+    
+    .a-upload:hover {
+        color: #444;
+        background: #eee;
+        border-color: #ccc;
+        text-decoration: none
+    }
+    
+    .biaojuzhong th {
+        text-align: center;
+    }
+    
+    .biaojuzhong td {
+        text-align: center;
+    }
+    
+    .biaojuzhong td button {
+        padding: 2px 8px;
+        background-color: white;
+    }
+    
+    .sumdiv {
+        background-color: #fff;
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.42857143;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    
+    #bigdiv {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-collapse: collapse;
+    }
+    
+    .black_overlay {
+        display: none;
+        position: absolute;
+        top: 0%;
+        left: 0%;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        z-index: 1001;
+        -moz-opacity: 0.8;
+        opacity: .50;
+        filter: alpha(opacity=80);
+    }
+    
+    .white_content {
+        display: none;
+        position: absolute;
+        top: 10%;
+        left: 10%;
+        width: 80%;
+        height: 80%;
+        border: 8px solid lightblue;
+        background-color: white;
+        z-index: 1002;
+        overflow: auto;
+    }
+    
+    #myListTableId td,
+    #myListTableId th {
+        vertical-align: middle;
+    }
+    
+    #myListTableId tr:nth-last-child(2n) {
+        background-color: #e0ebee
+    }
+    
+    #myListTableId tr:nth-last-child(2n + 1) {
+        background-color: rgb(210, 221, 233)
+    }
+</style>
+{% endblock %} {% block content %}
+<div class="row">
+    <div class="col-md-4 col-md-offset-3">
+        <div><input type="text" class="form-control" id="goodsSelectName" placeholder="商品名"></div>
+    </div>
+    <div>
+        <button type="submit" class="btn btn-success" id="goodsSelectBtn"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>商品查询</button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="row" style="height: 50px;">
+        <div class="col-md-6" style="text-align: left;">
+            <button id="deleteBtn" type="button" class="btn btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>批量删除</button>
+
+
+            <a href="/goodsManage/" class="btn btn-info">添加商品到积分商城</a>
+
+        </div>
+        <div class="col-md-6" style="text-align: right;">
+            <p>共有数据:<strong id="goodsNumber">0</strong>条</p>
+        </div>
+    </div>
+
+    <div class="" id="bigdiv">
+        <table class="table table-bordered" style=" margin-bottom: 0px;">
+            <caption><strong style="color: #000000;">积分商城列表</strong></caption>
+            <thead>
+                <tr class="biaojuzhong">
+                    <th>
+                        <input type="checkbox" id="checkbox-all" value="$(goodsid)">
+                    </th>
+                    <th>序号</th>
+                    <th>图片</th>
+                    <th>
+                        <button id="nameBtn" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-download" aria-hidden="true">名称</span></button>
+                    </th>
+                    <th>分类 关键字</th>
+                    <th>
+                        <button id="priceBtn" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-download" aria-hidden="true">价钱</span></button>
+                    </th>
+                    <th>
+                        <button id="jifenpriceBtn" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-download" aria-hidden="true">积分价格</span></button>
+                    </th>
+                    <th>
+                        <button id="sellcountBtn" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-download" aria-hidden="true">销量</span></button>
+                    </th>
+                    <th>删除</th>
+                </tr>
+            </thead>
+
+            <tbody id="myListTableId" class="myListTable">
+            </tbody>
+
+        </table>
+
+
+
+        <div class="row" id="div3" style=" padding: 1% 0;">
+            <div class="col-md-12" style="text-align: left;">
+                <div class="text-center">
+                    <ul id="visible-pages-example"></ul>
+
+
+                    <ul id="xxx"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    {% endblock %} {% block contentRight %}
+
+    <ol class="breadcrumb">
+        <li>
+            <a href="#"><i class="fa fa-dashboard"></i> Home</a>
+        </li>
+        <li class="active">积分商城列表</li>
+    </ol>
+
+
+    {% endblock %} {% block contentLeft %} 积分商城列表
+    <small>Version 5.0</small> {% endblock %} {% block script %}
+    <script src="{% static 'js/md5.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+        $('body').append("<div style='display:none;width:100%; margin:0 auto;position:fixed;left:0;top:0;bottom: 0;z-index: 111;opacity: 0.5;' id='loading'><a style='left: 50%;position: absolute;top:50%'><img src='/static/myfile/loading.gif' /></a></div>")
+        $(document).ajaxStart(function() {　　
+            $("#loading").show();
+        })
+        $(document).ajaxComplete(function() {　　
+            $("#loading").hide();
+        })
+
+
+        var thispage = 1
+        var sortType = "jifenprice"
+        var sortDirection = "desc"
+        var commName = ""
+
+        var fenye = $('#visible-pages-example');
+
+        // 获取积分商城的数据
+        function getJifenListData() {
+            myPost("commodityQuery", {
+                page: thispage,
+                sortType: sortType,
+                sortDirection: sortDirection,
+                "commName": commName,
+                "clientType": "server",
+                from: "jifenshangcheng"
+            }, function(data) {
+                if (data.data.length <= 0) {
+                    layer.msg("没查到数据")
+                    return
+                }
+                parseJifenData(data.data)
+
+                var goodsCount = data.count
+                $("#goodsNumber").text(goodsCount)
+                var yushu = goodsCount % 10 > 0 ? 1 : 0
+                goodsListPages = (goodsCount / 10) + yushu
+
+                $("#visible-pages-example").children(".sumdiv").remove()
+                createPageNav('#visible-pages-example', goodsListPages, function(event, page) {
+                    thispage = page;
+                    getJifenListData();
+                });
+            })
+        }
+
+        getJifenListData()
+
+        // 解析数据的方法
+        function parseJifenData(dataArr) {
+            $("#myListTableId").empty()
+            for (var i = 0; i < dataArr.length; i++) {
+                appendOneDataToDocument(dataArr[i], i)
+            }
+            $(".demo8").click(function() {
+                var goodsid = $(this).parents("tr").attr("goodsid")
+                updteGoodsJifenPriceToZero(goodsid)
+            })
+        }
+
+        // 将一个商品数据做成标签并拼接到界面上
+        function appendOneDataToDocument(data, index) {
+
+            var goodsid = data["goodsid"];
+            var goods_image = data.lunbo.length > 0 ? data.lunbo[0].image : "";
+            var market_price = data["market_price"];
+            var shop_price = data["shop_price"]
+            var goodsName = data.goodsname;
+            var sellCount = data["sellcount"];
+            var goodskeywords = data["keywords"]
+
+            var jifenPrice = data["jifenprice"]
+
+            shop_price = "￥" + shop_price
+            market_price = "￥" + market_price
+
+
+            var fenlei_str = data.xiaoClassiData.bigName + data.xiaoClassiData.midName + data.xiaoClassiData.minName
+
+
+            index = index + 1
+            var ele = '<tr class="biaojuzhong" goodsid="' + goodsid + '"><td><input class="checkbox-one" type="checkbox"></td><th scope="row">' + index + '</th><td><img style="width:85px;" src="/' + goods_image + '" /></td><td>' + goodsName + '</td><td style="width:10%;">' + fenlei_str + '<hr /><span>' + goodskeywords + '<span></td><td><span style="color:red;">' + shop_price + '</span><br><span style="text-decoration:line-through; color:#aaa;">' + market_price + '</span></td><td>' + jifenPrice + '</td><td>' + sellCount + '</td><td><button class="btn btn-default demo8"type="button"><span class="glyphicon glyphicon-trash"  aria-hidden="true"></span></button></td></tr>'
+            $("#myListTableId").append(ele)
+        }
+
+        // 根据商品id将商品的积分价格置0
+        function updteGoodsJifenPriceToZero(goodsid) {
+            myPost("goodsManageJsonUpdata", {
+                goodsid: goodsid,
+                jifenprice: "0"
+            }, function(data) {
+                if (data["status"] == "ok") {
+                    layer.msg("修改商品信息成功");
+                    window.location.reload()
+                } else {
+                    layer.msg("修改商品信息失败");
+                }
+            })
+        }
+
+
+        // 升降序 改变 方法
+        function changeSorDirection(currentelement, sortParam) {
+            if ($(currentelement).children("span").hasClass("glyphicon-download")) {
+                $(currentelement).children("span").removeClass("glyphicon-download")
+                $(currentelement).children("span").addClass("glyphicon-upload")
+                sortType = sortParam
+                sortDirection = "desc"
+            } else {
+                $(currentelement).children("span").removeClass("glyphicon-upload")
+                $(currentelement).children("span").addClass("glyphicon-download")
+                sortType = sortParam
+                sortDirection = "asc"
+            }
+            thispage = fenye.twbsPagination('getCurrentPage');
+            getJifenListData()
+        }
+
+        // 销量 升降序 按钮
+        $("#sellcountBtn").click(function() {
+            changeSorDirection(this, "sellcount")
+        })
+
+
+        // 价钱 升降序 按钮
+        $("#priceBtn").click(function() {
+            changeSorDirection(this, "shop_price")
+        })
+
+
+        // 状态 升降序 按钮
+        $("#jifenpriceBtn").click(function() {
+            changeSorDirection(this, "jifenprice")
+        })
+
+        // 状态 升降序 按钮
+        $("#nameBtn").click(function() {
+            changeSorDirection(this, "goodsname")
+        })
+
+        // 批量删除按钮
+        $("#deleteBtn").click(function() {
+            var goodsArr = []
+            var checkboxs = $('.checkbox-one')
+            for (var i = 0; i < checkboxs.length; i++) {
+                if ($(checkboxs[i]).is(':checked')) {
+                    var goodsidOne = $(checkboxs[i]).parents("tr").attr("goodsid")
+                    goodsArr.push(goodsidOne)
+                }
+            }
+
+            goodsArr = JSON.stringify(goodsArr)
+            myPost("deleteManyJifenprice", {
+                goodsids: goodsArr,
+            }, function(data) {
+                layer.msg(data.message)
+                if (data.status == "ok") {
+                    setTimeout(function() {
+                        window.location.reload()
+                    }, 500)
+                }
+            })
+        })
+
+        // 商品查询按钮点击事件
+        $("#goodsSelectBtn").click(function() {
+            selectCommonFn()
+        });
+
+        // 按下enter键查询
+        document.onkeydown = function(event) {
+            var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
+            if (keyCode == 13) {
+                thispage = 1
+                commName = $("#goodsSelectName").val()
+                if ($('#goodsSelectName').is(':focus')) {
+                    selectCommonFn()
+                }
+
+            }
+        }
+
+        // 回车键 和 查询按钮用到的 更新界面功能
+        function selectCommonFn() {
+            thispage = 1
+            $("#visible-pages-example").twbsPagination("destroy") //销毁分页栏
+            $("#visible-pages-example").empty()
+            commName = $("#goodsSelectName").val()
+
+            getJifenListData()
+        }
+    </script>
+    {% endblock %}

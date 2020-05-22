@@ -1,0 +1,511 @@
+{% extends "base.html" %} {% load staticfiles %} {% block css %}
+<style type="text/css">
+    #table_list img {
+        height: 60px;
+    }
+    
+    #table_list {
+        padding-right: 0;
+        margin-bottom: 0;
+        text-align: center;
+        vertical-align: middle;
+    }
+    
+    #table_list td {
+        vertical-align: middle;
+        max-width: 50px;
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+    
+    th {
+        text-align: center;
+    }
+    
+    #imagesdiv {
+        height: 60px;
+    }
+    
+    #img {
+        src: static/myfile/1.jpg;
+        height: 60px;
+    }
+    
+    .trash,
+    .delete {
+        background-color: #D33A3C;
+    }
+    
+    .sumdiv {
+        background-color: #fff;
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.42857143;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    
+    .addBtn {
+        background-color: #00c0ef;
+        border-color: #00acd6;
+    }
+    
+    .checkbox-one {
+        float: left;
+    }
+    
+    .form-header {
+        margin-left: 200px;
+        margin-top: 20px;
+    }
+    
+    #myimages {
+        height: 120px;
+    }
+    /* .guanggaoAddress{
+        display: inline-block;
+        max-width: 3em;
+    } */
+</style>
+
+{% endblock %} {% block content %}
+<div class="form-header">
+    <form class="form-inline searchForm" id="searchForm" role="form" method="post">
+        <div class="form-group">
+            <label class="">广告位置:</label>
+            <input type="text" class="form-control" name="position" id="exampleUsername" placeholder="请输入广告位置">
+        </div>
+        <input class="btn btn-default submit search" style="background-color: #00c0ef" type="submit" value="按位置查询广告">
+        <!-- <button type="submit" class="btn btn-default submit search"><span class = "glyphicon glyphicon-search">查询会员</span></button> -->
+    </form>
+</div>
+<button class="btn btn-default trash AllDelete"><span class = "glyphicon glyphicon-trash">批量删除</span></button>
+<button type="button" class="btn btn-default btn-primary addBtn" data-toggle="modal" data-target="#myModal" style="margin:5px;"><span class="glyphicon glyphicon-plus"></span>添加广告</button>
+<div id="xxx" class="" style="padding:0;">
+    <a class="" style="margin:5px; padding-left:0; color: black;margin-right:0;"><strong>广告列表</strong></a>
+    <table id="tables" class="table table-bordered">
+        <tr name="row" class="heading">
+            <th>
+                <input class="checkbox-one" id="checkbox-all" type="checkbox" />
+            </th>
+            <th>广告简介</th>
+            <th>图片</th>
+            <th>位置</th>
+            <th>添加时间</th>
+            <th>编辑</th>
+        </tr>
+        <tbody id="table_list">
+
+        </tbody>
+    </table>
+    <div class="text-center pagediv">
+        <ul id="visible-pages-example" class="page"></ul>
+    </div>
+</div>
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    添加广告
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form id="myform" action="" enctype="multipart/form-data" method="post">
+                    <div>
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">广告简介/名字:</label>
+                            <input type="text" class="form-control modalInput" name="adName">
+                            <label for="recipient-name" class="control-label">广告地址:</label>
+                            <input type="text" class="form-control modalInput" name="adAddress">
+                            <label for="recipient-name" class="control-label">广告位置:</label>
+                            <!-- <input type="text" class="form-control modalInput" name="adPosition"> -->
+                            <select name="adPosition" class="form-control modalInput">
+                                <option value="首页">首页</option>
+                                <option value="轮播图">轮播图</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="">添加图片:</label>
+                        <input type="file" class="myfile modalInput" name="images">
+                    </div>
+                    <div id="img">
+                        <img src="static/myfile/1.jpg" alt="" id="myimages">
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                </button>
+                <button type="button" class="btn btn-primary" id="submitBtn" onclick="ajaxSubmitForm()">
+                    提交
+                </button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal -->
+</div>
+
+{% endblock %} {% block contentLeft %} 广告管理
+<small>Version 5.0</small> {% endblock %} {% block contentRight %}
+<ol class="breadcrumb">
+    <li>
+        <a href="#"><i class="fa fa-dashboard"></i> Home</a>
+    </li>
+    <li class="active">广告管理</li>
+</ol>
+{% endblock %} {% block script %}
+<script type="text/javascript">
+    var defaultPageOptioins = "";
+    var adMainData = "";
+    var currpage = 1;
+    var prePages = 0;
+
+    var columnName = ""
+        //添加item函数
+
+    function adEleFn(data) {
+
+
+        imgPath = data.imgPath;
+        adid = data.adid;
+        position = data.position;
+        adtime = data.adtime;
+        if (adtime == "") {
+            var currentTime = new Date()
+            adtime = currentTime.pattern("yyyy-M-d h:m:s.S").split(".")[0];
+        }
+        adAddress = data.address;
+        adIntroduce = data.introduce;
+        var Tr = '<tr adId="' + adid + '" name="row" class="myrow"><td><input class="checkbox-one" name="checkbox-one" type="checkbox"/></td><td><span columnName="adIntroduce" class="adPosition">' + adIntroduce + '</span><br /><span class="addressWrap"> <a class="guanggaoAddress" href="' + data.address + '">' + data.address + '</a></span><span>  </span><button class="btn btn-xs adAddressBtn"><span class="glyphicon glyphicon-pencil"></span></button></td><td><div id="imagesdiv"><img class="guanggaoImg" src="' + HomeUrl + imgPath + '"/></div></td><td columnName="position" class="adPosition">' + position + '</td><td>' + adtime + '</td><td><button class="btn btn-danger deleteBtn btn-xs"><span class="glyphicon glyphicon-trash"></span></button></td></tr>';
+        $("#table_list").append(Tr);
+    }
+
+    // 输入框丢失焦点事件
+    function inputBlurFn(that) {
+
+        if (columnName == "") {
+            return
+        }
+
+        var adid = removeStringSpace($(that).parents("tr").attr("adid"))
+        if (adid != "") {
+            // 修改广告位置
+            myPost("adManageJsonUpdate", {
+                columnName: columnName,
+                columnValue: $(that).val(),
+                adid: adid
+            }, function(data) {
+                columnName = ""
+                layer.msg(data.message)
+                if (data.status == "ok") {
+                    var tdEle = $(that).parent()
+                    tdEle.text($(that).val())
+                }
+            })
+        }
+
+
+    }
+
+    //解析数据函数
+    function parseDataFn() {
+        data = adMainData.data;
+
+        for (var i = (currpage - 1) * 8, j = 0; i < data.length && j < 8; i++, j++) {
+            perdata = data[i];
+            adEleFn(perdata);
+        }
+
+        $(".adAddressBtn").click(function() {
+            if ($(this).children("span").hasClass("glyphicon-pencil")) {
+                var adAddress = $(this).parents("tr").find(".guanggaoAddress").text()
+                $(this).parents("tr").find(".addressWrap").empty()
+                var inputEle = '<input type="text" value="' + adAddress + '" />'
+                $(this).parents("tr").find(".addressWrap").append(inputEle)
+                $(this).children("span").removeClass("glyphicon-pencil")
+                $(this).children("span").addClass("glyphicon-ok")
+            } else {
+                var that = this
+                var adAddress = $(that).parents("tr").find(".addressWrap").children("input").val()
+                var adid = $(that).parents("tr").attr("adid")
+                columnName = "adAddress"
+                    // 修改广告位置
+                myPost("adManageJsonUpdate", {
+                    columnName: columnName,
+                    columnValue: adAddress,
+                    adid: adid
+                }, function(data) {
+                    columnName = ""
+                    layer.msg(data.message)
+                    if (data.status == "ok") {
+                        $(that).parents("tr").find(".addressWrap").empty()
+                        var aEle = '<a class="guanggaoAddress" href="' + adAddress + '" >' + adAddress + '</a>'
+                        $(that).parents("tr").find(".addressWrap").append(aEle)
+                        $(that).children("span").removeClass("glyphicon-ok")
+                        $(that).children("span").addClass("glyphicon-pencil")
+                    }
+                })
+
+
+            }
+
+        })
+
+        // 位置点击事件
+        $(".adPosition").dblclick(function() {
+            var currentText = $(this).text()
+            columnName = $(this).attr("columnName")
+            $(this).text("")
+            var inputEle = '<input onblur="inputBlurFn(this)" type="text" value="' + currentText + '" />'
+            $(this).append(inputEle)
+        })
+
+        $(".guanggaoImg").click(function() {})
+
+        // 删除按钮事件
+        $(".deleteBtn").click(function() {
+            var that = this
+            var adid = removeStringSpace($(this).parents("tr").attr("adid"))
+            if (adid == "") {
+                return
+            }
+            var adids = []
+            adids.push(adid)
+
+            var imgs = []
+            imgs.push("static" + $(this).parents("tr").find(".guanggaoImg").attr("src").split("static")[1])
+
+
+            myPost("adManageJsonDelete", {
+                adids: JSON.stringify(adids),
+                imgs: JSON.stringify(imgs)
+            }, function(data) {
+                layer.msg(data.message)
+                if (data.status == "ok") {
+                    $(that).parents("tr").remove()
+                }
+            })
+        })
+
+
+
+        adcounts = data.length
+        if (adcounts == 0) {
+            return
+        }
+        countPages = Math.ceil(parseInt(adcounts) / 8);
+        if (prePages != countPages) {
+            $(".pagediv").html('<ul id="visible-pages-example" class="page"></ul>');
+        }
+        prePages = countPages;
+        var spanele = '<span class="sumdiv">共' + countPages + '页,当前第' + currpage + '页,共' + adcounts + '条数据</span>';
+        $("#visible-pages-example").append(spanele);
+        createPageNav('#visible-pages-example', countPages, function(event, page) {
+            currpage = page;
+            ajaxfn();
+        });
+    }
+    //请求数据
+    function ajaxfn() {
+        // if (adMainData == "") {
+
+        myGet("adManageJsonSelect", function(result) {
+
+            $(".myrow").remove();
+            $(".sumdiv").remove();
+            if (result.data.length == 0) {
+                layer.msg("没有数据， 请添加...")
+            } else {
+
+            }
+            adMainData = result;
+            parseDataFn();
+            $("#loading").hide();
+        }, function(err) {
+            layer.msg("数据请求失败....")
+            $("#loading").hide();
+        })
+    }
+    //ajaxform提交弹框表单
+    function ajaxSubmitForm() {
+
+        var isHaveEmpty = false
+
+
+        $(".modalInput").each(function(inputIndex, item) {
+            if ($(item).val() == "") {
+                layer.msg("请将信息填写完整。。。。")
+                isHaveEmpty = true
+                return false
+            }
+        })
+
+        if (isHaveEmpty == false) {
+            var option = {
+                url: HomeUrl + "adManageJsonAdd/",
+                type: 'POST',
+                dataType: 'json',
+                success: function(data) {
+                    layer.msg(data.message)
+                    if (data.status == 'ok') {
+                        setTimeout(function() {
+                            window.location.reload()
+                        }, 500);
+                    }
+
+                },
+                error: function(data) {
+                    // ajaxfn();
+                    $("#myModal").modal("hide");
+                    layer.msg(data.message)
+                }
+            };
+            $("#myform").ajaxSubmit(option);
+        }
+
+
+        return false;
+    }
+    ajaxfn();
+    $('#myModal').on('hide.bs.modal', function() {
+        $('#myform')[0].reset();
+        $("#myimages").attr("src", "###")
+    });
+    $(".myfile").change(function() {
+        var $img = $("#myimages");
+        var $file = $(this);
+        var fileObj = $file[0];
+        var windowURL = window.URL || window.webkitURL;
+        var dataURL;
+        if (fileObj && fileObj.files && fileObj.files[0]) {
+            var filesLen = fileObj.files.length;
+            dataURL = windowURL.createObjectURL(fileObj.files[0]);
+            $img.attr('src', dataURL);
+        }
+    });
+    $(".AllDelete").click(function() {
+        var isEmeptySelect = true;
+        var deleteIdArr = []
+        var deleteImgsArr = []
+        var deleteEle = []
+        $("[name = checkbox-one]:checkbox").each(function() {
+            if ($(this).is(":checked")) {
+                var tempId = $(this).parents("tr").attr("adid")
+                deleteIdArr.push(tempId)
+                var tempImg = $(this).parents("tr").find(".guanggaoImg").attr("src").split(".top/")[1]
+                deleteImgsArr.push(tempImg)
+
+                deleteEle.push($(this).parents("tr"))
+            }
+        });
+
+        if (deleteIdArr.length <= 0) {
+
+            layer.msg("选择要删除的内容");
+            return
+        }
+
+        myPost("adManageJsonDelete", {
+            adids: JSON.stringify(deleteIdArr),
+            imgs: JSON.stringify(deleteImgsArr)
+        }, function(data) {
+            layer.msg(data.message)
+
+            if (data.status == "ok") {
+                for (var i = 0; i < deleteEle.length; i++) {
+                    deleteEle[i].remove()
+                }
+            }
+
+
+            adMainData = ""
+        })
+    });
+    $('#checkbox-all').click(function() {
+        if ($('#checkbox-all').is(':checked')) {
+            $(".checkbox-one").prop("checked", true);
+        } else {
+            $(".checkbox-one").prop("checked", false);
+        }
+    })
+
+    var selectpage = 1
+    $('#searchForm').on('submit', function(e) {
+        e.preventDefault();
+
+        ajaxSubmitFormss()
+    });
+
+    function ajaxSubmitFormss() {
+        var option = {
+            url: HomeUrl + "adManageJsonSelect/",
+            type: 'POST',
+            dataType: 'json',
+            success: function(data) {
+                if (data.data != "") {
+                    layer.msg("查找成功")
+                    adMainData = data
+                    $("#visible-pages-example").empty();
+
+                    $(".myrow").remove();
+                    $(".sumdiv").remove();
+                    createList(1);
+                    var totalPages = adMainData.data.length / 8 + 1;
+                    var currentPageOption = {
+                        totalPages: totalPages,
+                        first: "首页",
+                        last: "尾页",
+                        prev: '上一页',
+                        next: '下一页',
+                        startPage: 1,
+                        visiblePages: totalPages > 5 ? 5 : totalPages,
+                        version: '1.1',
+                        onPageClick: function(event, page) {
+                            createList(page);
+                        }
+                    };
+                    $('#visible-pages-example').twbsPagination('destroy');
+                    $('#visible-pages-example').twbsPagination($.extend({}, defaultPageOptioins, currentPageOption));
+                    defaultPageOptioins = currentPageOption;
+
+                } else {
+                    layer.msg("没有查找到数据")
+                }
+
+            },
+            error: function(data) {
+                layer.msg("网络请求错误....")
+            }
+        };
+        var _form = document.getElementsByClassName("searchForm")[0]
+        $(".searchForm").ajaxSubmit(option);
+    }
+
+    function createList(page) {
+        $("#table_list").empty()
+        var mydata = []
+        for (var i = 0; i < adMainData.data.length; i++) {
+            if (i >= (page - 1) * 8 && i <= page * 8 - 1) {
+                mydata.push(adMainData.data[i])
+            }
+
+        }
+
+        for (var i = 0; i < mydata.length; i++) {
+            adEleFn(mydata[i])
+        }
+    }
+</script>
+{% endblock %}

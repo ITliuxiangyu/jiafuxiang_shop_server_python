@@ -1,0 +1,246 @@
+{% extends "base.html" %} {% load staticfiles %} {% block css %}
+<style type="text/css">
+    .row th {
+        text-align: center;
+    }
+    
+    .row td {
+        text-align: center;
+    }
+    
+    .purchase-btn:hover {
+        background-color: rgb(197, 26, 26);
+        /* Green */
+        color: white;
+    }
+    
+    .sumdiv {
+        background-color: #fff;
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.42857143;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    
+    #bigdiv {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-collapse: collapse;
+    }
+    
+    .black_overlay {
+        display: none;
+        position: absolute;
+        top: 0%;
+        left: 0%;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        z-index: 1001;
+        -moz-opacity: 0.8;
+        opacity: .50;
+        filter: alpha(opacity=80);
+    }
+    
+    .white_content {
+        display: none;
+        position: absolute;
+        top: 10%;
+        left: 10%;
+        width: 80%;
+        height: 80%;
+        border: 8px solid lightblue;
+        background-color: white;
+        z-index: 1002;
+        overflow: auto;
+    }
+</style>
+{% endblock %} {% block content %}
+<div class="row1" style="height: 60px;">
+    <div class="col-md-12" style="text-align: center;">
+    </div>
+</div>
+<div class="row">
+    <div class="row3" style="height: 50px;">
+        <div class="col-md-6" style="text-align:left;">
+            <input id="deleteBtn" type="button" class="btn btn-danger deleteBtn" value="批量删除">
+        </div>
+        <div class="col-md-6" style="text-align: right;">
+            <p>共有数据:<strong id="cartsNumber">0</strong>条</p>
+        </div>
+    </div>
+
+    <div class="" id="bigdiv">
+        <table id="table" class="table table-bordered">
+            <tbody>
+                <tr class="row">
+                    <th>
+                        <input type="checkbox" id="checkbox-all" value="$(cartsid)" class="all">
+                    </th>
+                    <th>自然序号</th>
+                    <th>商品名称</th>
+                    <th>商品图文信息</th>
+                    <th>所属商家</th>
+                    <th>商家类别</th>
+                    <th>单价</th>
+                    <th>数量</th>
+                    <th>金额</th>
+                    <th>操作</th>
+                </tr>
+            </tbody>
+            <tbody id="mytbody" class="myListTable">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+{% endblock %} {% block contentRight %}
+
+<ol class="breadcrumb">
+    <li>
+        <a href="#"><i class="fa fa-dashboard"></i> Home</a>
+    </li>
+    <li class="active">购物车列表</li>
+</ol>
+
+{% endblock %} {% block contentLeft %} 购物车列表
+<small>Version 5.0</small> {% endblock %} {% block script %}
+<script>
+    var thispage = 1
+
+    $('#checkbox-all').click(function() {
+        if ($('#checkbox-all').is(':checked')) {
+            $(".checkbox-one").prop("checked", true);
+        } else {
+            $(".checkbox-one").prop("checked", false);
+        }
+    });
+
+    //解析数据
+    function getDataFn(opt) {
+        $.ajax({
+            type: "post",
+            url: "/cartstableManageJsonGain/",
+            async: true,
+            success: function(res) {
+                for (var i = 0; i < res.length; i++) {
+                    var oneData = res[i];
+                    var cartsid = oneData.cartsid;
+                    var number = oneData.number;
+                    var goodsid = oneData.goodsid;
+                    var userid = oneData.userid;
+                    var ele = '<tr class="row"><th><input type="checkbox" class="checkbox-one"></th><th class="id">' + cartsid + '</th><th>huawei</th><th>' + goodsid + '</th><th>华为</th><th>手机</th><th>￥2999</th><th class="c"><div class="item-amount"><a href="#" class="J_Minus no-minus glyphicon glyphicon-minus decrease" name="-"></a><input type="text" value="' + number + '" class="text text-amount J_ItemAmount counts" data-max="281" data-now="1" autocomplete="off" id="count"><a href="#" class="J_Plus plus glyphicon glyphicon-plus increase"></a></div></th><th>金额</th><th><button class="btn btn-success">保 存</button><button class="btn btn-danger delbtn">删 除</button> </th></tr>';
+                    $(".table-bordered").append(ele);
+                }
+                $("#loading").hide();
+            },
+            error: function() {
+                $("#loading").hide();
+            }
+        });
+
+        var deleteArr = [];
+        var allSelect = 0;
+        $('.row').delegate('input', 'click', function(ev) {
+            b = $(this).val();
+            allSelect = 0;
+            var checkboxs = $('.checkbox-one');
+            for (var k = 0; k < checkboxs.length; k++) {
+                if ($(checkboxs[k]).is(':checked')) {
+                    allSelect++;
+                }
+            }
+            var checkboxs = $('.checkbox-one');
+            deleteArr = [];
+            var that = $(this).parent().parent(".row");
+            var cartsid = that.children(".id").html();
+            var cartsArr = [];
+            if (b == "批量删除") {
+                for (var i = 0; i < checkboxs.length; i++) {
+                    if ($(checkboxs[i]).is(':checked')) {
+                        var trs = $(checkboxs[i]).parents("tr");
+                        deleteArr.push(trs);
+                        var cartsidOne = $(checkboxs[i]).parents("tr").children(".id").html();
+
+                        cartsArr.push(cartsidOne);
+                        myPost("/cartstableManageJsonDelete/?id=" + cartsArr, {
+                                "cartsid": cartsidOne
+                            },
+                            function() {
+                                layer.msg("删除成功")
+                                for (var j = 0; j < deleteArr.length; j++) {
+                                    $(deleteArr[j]).remove();
+                                }
+                            })
+                    }
+                }
+                layer.msg("选择要删除的内容");
+            }
+        });
+
+        $('.row').delegate('button', 'click', function(ev) {
+            a = $(this).html();
+            var that = $(this).parents(".row");
+            var cartsid = that.children(".id").html();
+            var c = $(that).children(".c").children(".item-amount");
+            var number = $(c.children(".counts")).val();
+            var tr = $(c).parent(".c").parent(".row");
+            if (a == "删 除") {
+                $.ajax({
+                    url: "/cartstableManageJsonOneDelete/?id=" + cartsid,
+                    success: function(res) {
+                        $(tr).remove();
+                        layer.msg("删除成功");
+                    },
+                    error: function(msg) {
+                        layer.msg("删除失败");
+                    }
+                });
+            } else {
+                $.post("/cartstableManageJsonUpdate/?id=" + cartsid, {
+                        "num": number
+                    },
+                    function(data) {
+                        if (data.status == "ok") {
+                            $(that.children(".counts")).val(number);
+                            layer.msg("现在已有" + number + "件该商品");
+                        } else {
+                            alert("保存失败");
+                        }
+                    }
+                );
+            }
+        });
+
+        $('.row').delegate('a', 'click', function(ev) {
+            b = $(this).attr("name");
+            var that = $(this).parents(".item-amount");
+            var a = $(that).parents(".row");
+            var cartsid = a.children(".id").html();
+            var number = $(that.children(".counts")).val();
+            if (b == "-") {
+                if (number >= 1) {
+                    number--;
+                    $(that.children(".counts")).val(number);
+                }
+                layer.msg("减少1个");
+            } else {
+                if (number >= 0) {
+                    number++;
+                    $(that.children(".counts")).val(number);
+                }
+                layer.msg("增加1个");
+            }
+        });
+    }
+    getDataFn();
+</script>
+{% endblock %}

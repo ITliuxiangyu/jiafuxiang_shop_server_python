@@ -1,0 +1,459 @@
+{% extends "base.html" %} {% load staticfiles %} {% block css %}
+
+<style type="text/css">
+    .a-upload {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .a-upload input {
+        position: absolute;
+        font-size: 100px;
+        right: 0;
+        top: 0;
+        opacity: 0;
+        display: inline-block;
+        filter: alpha(opacity=0);
+        cursor: pointer;
+        border: 1px solid blue;
+    }
+    
+    .a-upload:hover {
+        color: #444;
+        background: #eee;
+        border-color: #ccc;
+        text-decoration: none
+    }
+    
+    .biaojuzhong th {
+        text-align: center;
+    }
+    
+    .biaojuzhong td {
+        text-align: center;
+    }
+    
+    .biaojuzhong td button {
+        padding: 2px 8px;
+        background-color: white;
+    }
+    
+    .sumdiv {
+        background-color: #fff;
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.42857143;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    
+    #bigdiv {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-collapse: collapse;
+    }
+    
+    .black_overlay {
+        display: none;
+        position: absolute;
+        top: 0%;
+        left: 0%;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        z-index: 1001;
+        -moz-opacity: 0.8;
+        opacity: .50;
+        filter: alpha(opacity=80);
+    }
+    
+    .white_content {
+        display: none;
+        position: absolute;
+        top: 10%;
+        left: 10%;
+        width: 80%;
+        height: 80%;
+        border: 8px solid lightblue;
+        background-color: white;
+        z-index: 1002;
+        overflow: auto;
+    }
+    
+    #imagesdiv img {
+        height: 60px;
+    }
+</style>
+{% endblock %} {% block content %}
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+
+        <form id="recommendForm" action="/addRecommendGoods/" method="post" enctype="multipart/form-data" accept="image/gif, image/jpeg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">请选择商品</h4>
+                </div>
+                <div class="modal-body mygoodsList">
+
+                    <table class="table table-bordered" style=" margin-bottom: 0px;">
+                        <caption>
+                            <div class="row">
+                                <div class="col-md-4 col-md-offset-3">
+                                    <div><input type="text" class="form-control myQueryInput" placeholder="按商品名快速查找"></div>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-success queryGoods"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>商品查询</button>
+                                </div>
+                            </div>
+                        </caption>
+                        <thead>
+                            <tr class="biaojuzhong">
+                                <th>
+                                    <input type="checkbox" id="checkbox-allRecommend">
+                                </th>
+                                <th>推荐商品名称</th>
+                                <th>推荐商品图片</th>
+                                <th>推荐商品介绍</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="myModalGoodsList">
+
+                        </tbody>
+
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary confirmBtn">确定</button>
+                </div>
+            </div>
+        </form>
+
+
+    </div>
+</div>
+
+
+
+<div class="row" style="padding-top:20px;">
+    <div class="row" style="height: 50px;">
+        <div class="col-md-6" style="text-align: left;">
+            <button id="deleteBtn" type="button" class="btn btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>批量删除</button>
+            <button class="addRecommendGood btn btn-info"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加推荐商品</button>
+        </div>
+        <div class="col-md-6" style="text-align: right;">
+            <p>共有数据:<strong id="goodsNumber">0</strong>条</p>
+        </div>
+    </div>
+
+    <div class="" id="bigdiv">
+        <table class="table table-bordered" style=" margin-bottom: 0px;">
+            <caption><strong style="color: #000000;">推荐商品列表</strong></caption>
+            <thead>
+                <tr class="biaojuzhong">
+                    <th>
+                        <input type="checkbox" id="checkbox-all">
+                    </th>
+                    <th>序号</th>
+                    <th>推荐商品图片</th>
+                    <th>推荐商品介绍</th>
+                    <th>推荐商品添加时间</th>
+                    <th>编辑</th>
+                </tr>
+            </thead>
+
+            <tbody class="myListTable">
+            </tbody>
+
+        </table>
+
+
+
+        <div class="row" id="div3" style=" padding: 1% 0;">
+            <div class="col-md-12" style="text-align: left;">
+                <div class="text-center">
+                    <ul id="visible-pages-example"></ul>
+
+
+                    <ul id="xxx"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {% endblock %} {% block contentRight %}
+
+    <ol class="breadcrumb">
+        <li>
+            <a href="#"><i class="fa fa-dashboard"></i> Home</a>
+        </li>
+        <li class="active">推荐列表</li>
+    </ol>
+
+
+    {% endblock %} {% block contentLeft %} 推荐列表
+    <small>Version 5.0</small> {% endblock %} {% block script %}
+    <script type="text/javascript">
+        $('body').append("<div style='display:none;width:100%; margin:0 auto;position:fixed;left:0;top:0;bottom: 0;z-index: 111;opacity: 0.5;' id='loading'><a style='left: 50%;position: absolute;top:50%'><img src='/static/myfile/loading.gif' /></a></div>")
+        $(document).ajaxStart(function() {　　
+            $("#loading").show();
+        })
+        $(document).ajaxComplete(function() {　　
+            $("#loading").hide();
+        })
+
+        var commonName = ""
+
+        // 查询按钮点击事件
+        $(".queryGoods").click(function() {
+            var queryInputVal = removeStringSpace($(".myQueryInput").val())
+            if (queryInputVal.length <= 0) {
+                $(".myQueryInput").val("")
+                layer.msg("请输入查询内容")
+                return
+            }
+            commonName = queryInputVal
+
+            selectAllGoods()
+        })
+
+
+        // 添加推荐商品按钮点击事件
+        $(".addRecommendGood").click(function() {
+            $("#myModal").modal("show")
+            allLoadImages = []
+            selectAllGoods()
+        })
+
+
+        // 创建模态的框上的列表
+        function createMyModalGoodsList(data) {
+            $(".myModalGoodsList").empty()
+            for (var i = 0; i < data.data.length; i++) {
+                var dataItem = data.data[i]
+                var oneRowEle = '<tr class="biaojuzhong" goodsId="' + dataItem.goodsid + '"><td style="vertical-align:middle;"><input class="checkbox-oneRecommend" type="checkbox"></td><th style="vertical-align:middle;" scope="row">' + dataItem.goodsname + '<input type="hidden" multiple="multiple" class="goodsidInput" value="' + dataItem.goodsid + '"></th><td><a style="display: inline-block;" href="javascript:;" class="a-upload"><input class="myInput imgsFileInput" type="file" multiple="multiple" onchange="imgPreview(this)" accept="image/gif, image/jpeg">点击这里上传图片</a><img style="width:70px;" id="preview" /></td><td style="vertical-align:middle;"><input class="recommendNameInput" multiple="multiple" type="text" placeholder="该商品的推荐介绍"></td></tr>'
+                $(".myModalGoodsList").append(oneRowEle)
+            }
+        }
+
+
+        // 查询所有商品
+        function selectAllGoods() {
+            myPost("notInRecommendGoods", {
+                commonName: commonName
+            }, function(data) {
+                createMyModalGoodsList(data)
+            })
+        }
+
+
+
+
+        // 预览图片功能
+        function imgPreview(fileDom) {
+
+            // 判断是否支持FileReader
+            if (window.FileReader) {
+                var reader = new FileReader();
+            } else {
+                alert("您的设备不支持图片预览功能，如需该功能请升级您的设备！");
+            }
+
+            //获取文件
+            var file = fileDom.files[0];
+
+            var imageType = /^image\//;
+            //是否是图片
+            if (!imageType.test(file.type)) {
+                alert("请选择图片！");
+                return;
+            }
+            //读取完成
+            reader.onload = function(e) {
+                //获取图片dom
+                // var img = document.getElementById("preview");
+                var img = $(fileDom).parents("td").children("img")
+                    //图片路径设置为读取的图片
+                $(img).attr("src", e.target.result)
+            };
+
+            reader.readAsDataURL(file);
+
+        }
+
+        // 模态框上 确定 按钮的 点击事件
+        $(".confirmBtn").click(function() {
+            var isSelected = false
+
+            $(".checkbox-oneRecommend").each(function() {
+                if ($(this).is(":checked")) {
+                    // var tempId = {deleteId:$(this).parents("tr").attr("recommendId")}
+                    // deleteIdArr.push(tempId)
+                    // var tempImg = {deleteImg:$(this).parents("tr").children("td").eq(1).children("#imagesdiv").children("img").attr("src")}
+                    // deleteImgsArr.push(tempImg)
+                    var isImgFilesEmpty = $($(this).parents("tr")[0].getElementsByClassName("imgsFileInput")[0]).val().length <= 0
+                    var isRecommendNameEmpty = $($(this).parents("tr")[0].getElementsByClassName("recommendNameInput")[0]).val().length <= 0
+
+                    if (isImgFilesEmpty || isRecommendNameEmpty) {
+                        layer.msg("请填写选中商品的信息")
+                        return false
+                    }
+
+                    // deleteEle.push($(this).parents("tr"))      // name="goodsid" name="imgsFile" name="recommendName"
+                    $($(this).parents("tr")[0].getElementsByClassName("goodsidInput")[0]).attr("name", "goodsid")
+                    $($(this).parents("tr")[0].getElementsByClassName("imgsFileInput")[0]).attr("name", "imgsFile")
+                    $($(this).parents("tr")[0].getElementsByClassName("recommendNameInput")[0]).attr("name", "recommendName")
+                    isSelected = true
+                }
+            });
+
+
+            if (isSelected) {
+                $('#recommendForm').ajaxSubmit({
+                    success: function(data) {
+                        if (data.status == "ok") {
+                            window.location.reload()
+                        }
+                        layer.msg(data.message)
+                    },
+                    error: function(err) {}
+                })
+            } else {
+                // layer.msg("请选择商品在进行提交")
+                return
+            }
+
+        })
+
+
+
+
+
+
+        function oneGoods(data, i) {
+            var recommendId = data["recommendId"];
+            var recommendImg = data["recommendImg"];
+            var recommendName = data["recommendName"];
+            var recommendTime = data["recommendTime"];
+
+            var ele = '<tr recommendId="' + recommendId + '" class="biaojuzhong"><td><input class="checkbox-one" type="checkbox"></td><th scope="row">' + i + '</th><td><div id="imagesdiv"><img src="' + recommendImg + '"/></div></td><td>' + recommendName + '</td><td>' + recommendTime + '</td><td></button><button class="btn btn-default demo8" type="button"><span class="glyphicon glyphicon-trash"  aria-hidden="true"></span></button></td></tr>'
+            $(".myListTable").append(ele)
+
+        }
+
+        //解析数据到页面
+        function goodsListToPage(data) {
+            $(".myListTable").empty()
+            for (var i = 0; i < data.length; i++) {
+                oneGoods(data[i], i + 1)
+            }
+
+            $(".demo8").click(function() {
+                var that = $(this).parents("tr")
+                var adId = that.attr("recommendId");
+                var imgs = that.children("td").eq(1).children("#imagesdiv").children("img").attr("src")
+
+                myPost("delRecommendGoods", {
+                    adIds: [{
+                        deleteId: adId
+                    }],
+                    imgs: [{
+                        deleteImg: imgs
+                    }]
+                }, function(result) {
+                    layer.msg(result.message)
+                    if (result.status == "ok") {
+                        $(that).remove()
+                    }
+                })
+            });
+        }
+
+
+
+        // 批量删除按钮
+        $('#deleteBtn').click(function() {
+            var isEmeptySelect = true;
+            var deleteIdArr = []
+            var deleteImgsArr = []
+            var deleteEle = []
+            $(".checkbox-one").each(function() {
+                if ($(this).is(":checked")) {
+                    var tempId = {
+                        deleteId: $(this).parents("tr").attr("recommendId")
+                    }
+                    deleteIdArr.push(tempId)
+                    var tempImg = {
+                        deleteImg: $(this).parents("tr").children("td").eq(1).children("#imagesdiv").children("img").attr("src")
+                    }
+                    deleteImgsArr.push(tempImg)
+
+                    deleteEle.push($(this).parents("tr"))
+                }
+            });
+
+            if (deleteIdArr.length <= 0) {
+                layer.msg("选择要删除的内容");
+                return
+            }
+
+            myPost("delRecommendGoods", {
+                "adIds": deleteIdArr,
+                "imgs": deleteImgsArr
+            }, function(result) {
+                for (var i = 0; i < deleteEle.length; i++) {
+                    deleteEle[i].remove()
+                }
+
+                layer.msg("批量删除成功....")
+            })
+        })
+
+
+
+        // 添加推荐商品模态框上的全选按钮
+        $('#checkbox-allRecommend').click(function() {
+            if ($('#checkbox-allRecommend').is(':checked')) {
+                $(".checkbox-oneRecommend").prop("checked", true);
+            } else {
+                $(".checkbox-oneRecommend").prop("checked", false);
+            }
+        });
+
+        // 界面上的全选按钮
+        $('#checkbox-all').click(function() {
+            if ($('#checkbox-all').is(':checked')) {
+                $(".checkbox-one").prop("checked", true);
+            } else {
+                $(".checkbox-one").prop("checked", false);
+            }
+        });
+
+        function loaddata() {
+            myGet("getRecommendGoods", function(data) {
+                if (data.status == "ok") {
+                    $("#goodsNumber").text(data.data.length);
+
+                    goodsListToPage(data.data)
+                }
+                layer.msg(data.message)
+            }, function(err) {
+                layer.msg("数据请求出错，请检查网络链接，或等会再来，或联系服务器管理人员")
+            })
+        }
+
+
+        loaddata()
+    </script>
+    {% endblock %}

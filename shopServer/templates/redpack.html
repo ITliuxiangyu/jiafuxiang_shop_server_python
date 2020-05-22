@@ -1,0 +1,214 @@
+{% extends "base.html" %} {% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-4 col-md-offset-3">
+            <div><input type="text" class="form-control" id="goodsSelectName" placeholder="用户名"></div>
+        </div>
+        <div>
+            <button type="submit" class="btn btn-success" id="goodsSelectBtn"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>红包查询</button>
+        </div>
+    </div>
+
+    <div>
+        <table class="table table-bordered">
+            <th colspan="7">
+                <button class="btn btn-default plus btn btn-primary" data-toggle="modal" data-target="#plusModal"><span class = "glyphicon glyphicon-plus">添加红包</span></button>
+            </th>
+            <tr>
+                <!-- <td class="info nature"><input type="checkbox" id = "checkbox-all"></td> -->
+                <td class="info nature">序号</td>
+                <td class="info nature">用户编号</td>
+                <td class="info nature">红包账号</td>
+                <td class="info nature">获取途径</td>
+                <td class="info nature">金额</td>
+                <td class="info nature">获取时间</td>
+                <td class="info nature">编辑</td>
+            </tr>
+            <tbody id="userTable">
+
+            </tbody>
+        </table>
+        <div id="myul" class="text-center"></div>
+    </div>
+
+
+</div>
+<div id="plusModal" class="modal fade" tabindex="-1" role="dialog" data-backdrop="false" data-show="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">添加红包</h4>
+            </div>
+            <div class="modal-body">
+                <form class="addform" action="/redpackAdd/" method="post">
+                    <div class="form-group">
+                        <label for="recipient-name" class="control-label">用户账号:</label>
+                        <input type="text" class="form-control" name="userid">
+                    </div>
+                    <div class="form-group">
+                        <label for="recipient-name" class="control-label">红包账号:</label>
+                        <input type="text" class="form-control" name="redpackid">
+                    </div>
+                    <div class="form-group">
+                        <label for="recipient-name" class="control-label">获取途径:</label>
+                        <input type="text" class="form-control" name="getpath">
+                    </div>
+                    <div class="form-group">
+                        <label for="recipient-name" class="control-label">红包金额:</label>
+                        <input type="text" class="form-control" id="ll" name="money">
+                        <p class="bb" style="color:white">*请输入数字！</p>
+                    </div>
+                    <input type="submit" class="btn btn-primary" value="添加">
+                </form>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+{% endblock %} {% block script%}
+<script>
+    //加载数据等待时菊花旋转代码
+    $('body').append("<div style='display:none;width:100%; margin:0 auto;position:fixed;left:0;top:0;bottom: 0;z-index: 111;opacity: 0.5;' id='loading'><a style='left: 50%;position: absolute;top:50%'><img src='/static/myfile/loading.gif' /></a></div>")
+    $(document).ajaxStart(function() {　　
+        $("#loading").show();
+    })
+    $(document).ajaxComplete(function() {　　
+        $("#loading").hide();
+    })
+
+    var thispage = 1
+    var commName = ""
+    var fenye = $('#myul')
+    var defaultOptions = ""
+
+    $("#goodsSelectBtn").click(function() {
+        thispage = 1
+        commName = $("#goodsSelectName").val()
+        loaddata()
+    });
+
+
+
+    function addFenyeHtml(yeNumber) {
+        if (defaultOptions != "") {
+
+            var currentPage = fenye.twbsPagination('getCurrentPage');
+            if (currentPage > yeNumber) {
+                currentPage = 1;
+            }
+            var cucrrentOptioins = {
+                totalPages: yeNumber,
+                first: "首页",
+                last: "尾页",
+                prev: '上一页',
+                next: '下一页',
+                startPage: currentPage,
+                visiblePages: yeNumber > 5 ? 5 : yeNumber,
+                version: '1.1',
+                initiateStartPageClick: false,
+                onPageClick: function(event, page) {
+                    thispage = page
+                    loaddata(page);
+                }
+            };
+            fenye.twbsPagination('destroy');
+            fenye.twbsPagination($.extend({}, defaultOptions, cucrrentOptioins));
+            defaultOptions = cucrrentOptioins;
+        } else {
+            var page = 1
+            defaultOptions = {
+                totalPages: yeNumber,
+                first: "首页",
+                last: "尾页",
+                prev: '上一页',
+                next: '下一页',
+                startPage: 1,
+                visiblePages: yeNumber > 5 ? 5 : yeNumber,
+                version: '1.1',
+                initiateStartPageClick: false,
+                onPageClick: function(event, page) {
+                    thispage = page
+                    loaddata();
+                }
+            };
+            fenye.twbsPagination(defaultOptions);
+        }
+    }
+
+    function loaddata() {
+        var url = "/redpackApi/?thispage=" + thispage + "&commName=" + commName;
+        $.ajax({
+            url: url,
+            success: function(data) {
+                yeNumber = Math.ceil(data.myresult / 10)
+                mydata = data.data;
+                dataParse(mydata);
+                addFenyeHtml(yeNumber)
+            },
+            error: function(msg) {}
+        });
+    }
+    loaddata(thispage);
+
+    function dataParse(mydata) {
+        $("#userTable").children("tr").remove()
+        for (i = 0; i < mydata.length; i++) {
+            var userid = mydata[i]["userid"];
+            var redpackid = mydata[i]["redpackid"];
+            var getpath = mydata[i]["getpath"];
+            var money = mydata[i]["money"];
+            var gettime = mydata[i]["gettime"];
+            var ele = '<tr class="mytr" redpackid="' + redpackid + '"><td scope="row">' + (i + 1) + '</td><td>' + userid + '</td><td>' + redpackid + '</td><td>' + getpath + '</td><td>' + money + '</td><td>' + gettime + '</td><td > <button class="btn btn-default delete">删除</button></td></tr>'
+            $("#userTable").append(ele);
+        }
+        $(".delete").click(function() {
+            var that = $(this).parents('tr');
+            var objData = that.attr('redpackid')
+            myPost("redpackDelete", {
+                orderid: objData
+            }, function() {
+                $(that).remove();
+            })
+        })
+    }
+    $(".delete").click(function() {
+        var that = $(this).parents('tr');
+        var objData = that.attr('redpackid')
+        myPost("redpackDelete", {
+            orderid: objData
+        }, function() {
+            $(that).remove();
+        })
+    })
+    $('.addform').on('submit', function(e) {
+        var ll = document.getElementById("ll").value
+        if (isNaN(ll)) {
+            $(".bb").css("color", "red")
+
+
+
+
+
+        } else {
+            e.preventDefault();
+            $(this).ajaxSubmit({
+                success: function(result) {
+                    window.location.reload();
+                    parent.$("#plusModal").hide();
+                }
+            })
+        }
+    });
+    $('#searchForm').on('submit', function(e) {
+        e.preventDefault();
+        $(this).ajaxSubmit({
+            success: function(result) {
+                window.location.reload();
+                parent.$("#plusModal").hide();
+            }
+        })
+    });
+</script>
+{% endblock %}

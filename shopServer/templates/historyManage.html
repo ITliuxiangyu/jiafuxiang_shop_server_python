@@ -1,0 +1,166 @@
+{% extends "base.html" %} {% block content %} {% block css %} {% endblock %}
+
+<div class="container-fluid ">
+    <div class="row">
+        <div class="col-md-4 col-md-offset-3">
+            <div><input type="text" class="form-control" name="userid" id="userid" placeholder="用户名"></div>
+        </div>
+        <div>
+            <button type="submit" id="find" class="btn btn-success"><span class="glyphicon glyphicon-search" aria-hidden="true">记录查询</span></button>
+        </div>
+    </div>
+    <button type="submit" class="addbtn">添加浏览记录</button>
+    <table class="table">
+        <caption><strong style="color: #000000;">历史记录</strong></caption>
+        <thead>
+            <tr>
+                <th>序号</th>
+                <th>用户名</th>
+                <th>记录编号</th>
+                <th>商品编号</th>
+                <th>浏览时间</th>
+                <th>删除</th>
+            </tr>
+        </thead>
+        <tbody id="mytbody">
+
+        </tbody>
+
+    </table>
+    <div class="row">
+        <div class="text-center">
+            <ul id="pagination"></ul>
+        </div>
+    </div>
+
+
+    {% endblock %} {% block contentRight %}
+
+    <ol class="breadcrumb">
+        <li>
+            <a href="#"><i class="fa fa-dashboard"></i> Home</a>
+        </li>
+        <li class="active">用户管理</li>
+        <li class="active">历史记录</li>
+    </ol>
+
+    {% endblock %} {% block contentLeft %} 用户管理
+    <small>Version 5.0</small> {% endblock %} {% block script %}
+    <script>
+        var fenye = $('#pagination');
+        var defaultOptions = ""
+        var thispage = 1
+
+        //请求数据时 等待数据 显示菊花的代码 吕建威
+        $('body').append("<div style='display:none;width:100%; margin:0 auto;position:fixed;left:0;top:0;bottom: 0;z-index: 111;opacity: 0.5;' id='loading'><a style='left: 50%;position: absolute;top:50%'><img src='/static/myfile/loading.gif' /></a></div>")
+        $(document).ajaxStart(function() {　　
+            $("#loading").show();
+        })
+        $(document).ajaxComplete(function() {　　
+            $("#loading").hide();
+        })
+
+        function addToHtml(data, i) {
+            userid = data["userid"]
+            lookid = data["lookid"]
+            goodsid = data["goodsid"]
+            looktime = data["looktime"]
+            var myHtml = '<tr class="ll"><th>' + (i + 1) + '</th><td>' + userid + '</td><td>' + lookid + '</td><td>' + goodsid + '</td><td>' + looktime + '</td><td ><span class="glyphicon glyphicon-trash deletespan" aria-hidden="true"></span></td></tr>'
+            $("#mytbody").append(myHtml)
+        }
+
+        function addFenyeHtml(yeNumber) {
+            if (defaultOptions != "") {
+
+                var currentPage = fenye.twbsPagination('getCurrentPage');
+                if (currentPage > yeNumber) {
+                    currentPage = 1;
+                }
+                var cucrrentOptioins = {
+                    totalPages: yeNumber,
+                    first: "首页",
+                    last: "尾页",
+                    prev: '上一页',
+                    next: '下一页',
+                    startPage: currentPage,
+                    visiblePages: yeNumber > 5 ? 5 : yeNumber,
+                    version: '1.1',
+                    initiateStartPageClick: false,
+                    onPageClick: function(event, page) {
+                        loaddata(page);
+                    }
+                };
+                fenye.twbsPagination('destroy');
+                fenye.twbsPagination($.extend({}, defaultOptions, cucrrentOptioins));
+                defaultOptions = cucrrentOptioins;
+            } else {
+                var page = 1
+                defaultOptions = {
+                    totalPages: yeNumber,
+                    first: "首页",
+                    last: "尾页",
+                    prev: '上一页',
+                    next: '下一页',
+                    startPage: 1,
+                    visiblePages: yeNumber > 5 ? 5 : yeNumber,
+                    version: '1.1',
+                    initiateStartPageClick: false,
+                    onPageClick: function(event, page) {
+                        loaddata(page);
+                    }
+                };
+                fenye.twbsPagination(defaultOptions);
+            }
+        }
+
+        //添加浏览记录
+        $(".addbtn").click(function() {
+            $.ajax({
+                url: "/lookhistorytableManageJsonAdd/",
+                context: document.body,
+                success: function(result) {
+                    location.reload();
+                }
+            });
+        });
+
+        $('#find').click(function() {
+            loaddata(thispage)
+        });
+
+        function loaddata(thispage) {
+            var userid = $('#userid').val();
+            $.ajax({
+                url: "/lookhistorytableManageJsonSelect/?userid=" + userid + "&thispage=" + thispage,
+                success: function(result) {
+                    //数据条数
+                    lookCount = result["lookcount"]
+                        //数据页数
+                    lookListPages = Math.ceil(parseInt(lookCount) / 10)
+                    $("#mytbody").children("tr").remove()
+                    for (var i = 0; i < result["data"].length; i++) {
+                        data = result["data"][i]
+                        addToHtml(data, i)
+                    }
+                    $(".deletespan").click(function() {
+                        var trEle = $(this).parents("tr")
+                        var mydelete = $(trEle.children("td")[3]).text()
+                        $.ajax({
+                            url: "/lookhistorytableManageJsonDelete/?lookid=" + mydelete,
+                            context: document.body,
+                            success: function(result) {
+                                // location.reload();
+                            },
+                            error: function(err) {}
+                        });
+                    });
+
+                    addFenyeHtml(lookListPages)
+                },
+                error: function(msg) {
+                    alert(msg); //错误信息
+                }
+            });
+        }
+    </script>
+    {% endblock %}

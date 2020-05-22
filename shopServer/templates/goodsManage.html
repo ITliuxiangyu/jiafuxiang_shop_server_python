@@ -1,0 +1,892 @@
+{% extends "base.html" %} {% load staticfiles %} {% block css %}
+
+<style type="text/css">
+    .a-upload {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .a-upload input {
+        position: absolute;
+        font-size: 100px;
+        right: 0;
+        top: 0;
+        opacity: 0;
+        display: inline-block;
+        filter: alpha(opacity=0);
+        cursor: pointer;
+        border: 1px solid blue;
+    }
+    
+    .a-upload:hover {
+        color: #444;
+        background: #eee;
+        border-color: #ccc;
+        text-decoration: none
+    }
+    
+    .biaojuzhong th {
+        text-align: center;
+    }
+    
+    .biaojuzhong td {
+        text-align: center;
+    }
+    
+    .biaojuzhong td button {
+        padding: 2px 8px;
+        background-color: white;
+    }
+    
+    .sumdiv {
+        background-color: #fff;
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.42857143;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    
+    #bigdiv {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-collapse: collapse;
+    }
+    
+    .black_overlay {
+        display: none;
+        position: absolute;
+        top: 0%;
+        left: 0%;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        z-index: 1001;
+        -moz-opacity: 0.8;
+        opacity: .50;
+        filter: alpha(opacity=80);
+    }
+    
+    .white_content {
+        display: none;
+        position: absolute;
+        top: 10%;
+        left: 10%;
+        width: 80%;
+        height: 80%;
+        border: 8px solid lightblue;
+        background-color: white;
+        z-index: 1002;
+        overflow: auto;
+    }
+    
+    #myListTableId td,
+    #myListTableId th {
+        vertical-align: middle;
+    }
+    
+    #myListTableId tr:nth-last-child(2n) {
+        background-color: #e0ebee
+    }
+    
+    #myListTableId tr:nth-last-child(2n + 1) {
+        background-color: rgb(210, 221, 233)
+    }
+    
+    .myListTable .xianzhiTD {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .biaojuzhong th {
+        min-width: 70px;
+        max-width: 100px;
+    }
+    
+    .zhuantai {
+        border: 1px solid gray;
+        border-radius: 4px;
+        color: gray;
+    }
+    
+    .zhuantaiActive {
+        border: 1px solid green;
+        border-radius: 4px;
+        color: green;
+    }
+</style>
+{% endblock %} {% block content %}
+
+
+<!-- 商品图片模态框 -->
+<div class="modal fade" id="goodsImageModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">添加图片</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-2 col-md-2">
+                        <div class="thumbnail" style="display:none;">
+                            <img class="goodsModalImg" src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=317095833,231452967&fm=27&gp=0.jpg" alt="...">
+                            <div class="caption">
+                                <h3>商品图片</h3>
+                                <p>product_image</p>
+                                <form imageType="product_image" action="/addGoodsSomeImage/" method="post">
+                                    <input type="hidden" name="goodsid" class="goodsImageModalId">
+                                    <input type="hidden" name="columnName" value="product_image">
+
+                                    <a style="display: inline-block;" href="javascript:;" class="a-upload btn btn-primary" role="button">
+                                        <input class="myInput" type="file" name="imgsFile" onchange="imgPreview(this)">选择
+                                    </a>
+                                    <button type="button" class="btn btn-primary goodsModalSubmitBtn">提交</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-8 col-md-8">
+                        <div class="thumbnail">
+                            <img class="goodsModalImg" src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=317095833,231452967&fm=27&gp=0.jpg" alt="...">
+                            <div class="caption">
+                                <h3>商品缩略图</h3>
+                                <p>宽:高 1:1</p>
+                                <form imageType="product_thumb_image" action="/addGoodsSomeImage/" method="post">
+                                    <input type="hidden" name="goodsid" class="goodsImageModalId">
+                                    <input type="hidden" name="columnName" value="product_thumb_image">
+
+                                    <a style="display: inline-block;" href="javascript:;" class="a-upload btn btn-primary" role="button">
+                                        <input class="myInput" type="file" name="imgsFile" onchange="imgPreview(this)">选择
+                                    </a>
+                                    <button type="button" class="btn btn-primary goodsModalSubmitBtn">提交</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 col-md-2">
+                        <div class="thumbnail" style="display:none;">
+                            <img class="goodsModalImg" src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=317095833,231452967&fm=27&gp=0.jpg" alt="...">
+                            <div class="caption">
+                                <h3>商品原始图</h3>
+                                <p>origin_image</p>
+                                <form imageType="origin_image" action="/addGoodsSomeImage/" method="post">
+                                    <input type="hidden" name="goodsid" class="goodsImageModalId">
+                                    <input type="hidden" name="columnName" value="origin_image">
+
+                                    <a style="display: inline-block;" href="javascript:;" class="a-upload btn btn-primary" role="button">
+                                        <input class="myInput" type="file" name="imgsFile" onchange="imgPreview(this)">选择
+                                    </a>
+                                    <button type="button" class="btn btn-primary goodsModalSubmitBtn">提交</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-4 col-md-offset-3">
+        <div><input type="text" class="form-control" id="goodsSelectName" placeholder="商品名"></div>
+    </div>
+    <div>
+        <button class="btn btn-success" id="goodsSelectBtn"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>商品查询</button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="row" style="height: 50px;">
+        <div class="col-md-10" style="text-align: left;">
+            <button id="deleteBtn" type="button" class="btn btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>批量删除</button>
+            <a href="/addGoods/" class="btn btn-info"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加商品</a>
+            <!--<button id="timeBtn" type="button" class="btn btn-warning"><span class="glyphicon glyphicon-download" aria-hidden="true">当前时间降序</span></button>
+			-->
+
+
+            <a href="/jifenGoods/" class="btn btn-info">积分商城</a>
+
+            <a href="/exportGoods/" class="btn btn-info">商品批量导出</a>
+
+            <a href="/recomendGoods/" class="btn btn-info">推荐商品</a>
+
+
+
+            <!--微信支付按钮-->
+            <!--<button id="weixinPayBtn" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-download" aria-hidden="true">微信支付</span></button>-->
+
+
+            <a href="/fenleiListPage/" type="button" class="btn btn-info"> 分类属性列表</a>
+
+            <a onclick="send_msg()" type="button" class="btn btn-info">发送消息</a>
+
+
+
+        </div>
+        <div class="col-md-2" style="text-align: right;">
+            <p>共有数据:<strong id="goodsNumber">0</strong>条</p>
+        </div>
+    </div>
+
+    <div class="" id="bigdiv">
+        <table class="table table-bordered" style=" margin-bottom: 0px;">
+            <caption><strong style="color: #000000;">商品列表</strong></caption>
+            <thead>
+                <tr class="biaojuzhong">
+                    <th>
+                        <input type="checkbox" id="checkbox-all" value="$(goodsid)">
+                    </th>
+                    <th>序号</th>
+                    <th>图片</th>
+                    <th>
+                        <span id="nameBtn" class="glyphicon glyphicon-download">名称</span>
+                    </th>
+                    <th>分类 关键字</th>
+                    <th>
+                        <span id="priceBtn" class="glyphicon glyphicon-download">价钱</span>
+                    </th>
+                    <th>
+                        <span id="sellcountBtn" class="glyphicon glyphicon-download">销量</span>
+                    </th>
+                    <th>
+                        <span id="statusBtn" class="glyphicon glyphicon-download">状态</span>
+                    </th>
+                    <th>编辑</th>
+                </tr>
+            </thead>
+
+            <tbody id="myListTableId" class="myListTable">
+            </tbody>
+
+        </table>
+
+        <!-- 确定删除福袋 模态框 -->
+        <div class="modal fade" id="exampleModal-confirm" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" style="text-align: center;">确认删除</h4>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-bordered" style=" margin-bottom: 0px;">
+                            <caption><strong style="color: #000000;" id="delete-counts"></strong></caption>
+                            <thead>
+                                <tr class="biaojuzhong">
+                                    <th>商品名称</th>
+                                    <th>商品号</th>
+                                    <th>福袋记录数</th>
+                                    <th>删除</th>
+                                </tr>
+                            </thead>
+                            <tbody id="myListTable-confirm">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-danger" id="deleteAll-confirm">全部删除</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="div3" style=" padding: 1% 0;">
+            <div class="col-md-12" style="text-align: left;">
+                <div class="text-center">
+                    <ul id="visible-pages-example"></ul>
+
+
+                    <ul id="xxx"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="fade" class="black_overlay">
+    </div>
+    {% endblock %} {% block contentRight %}
+
+    <ol class="breadcrumb">
+        <li>
+            <a href="#"><i class="fa fa-dashboard"></i> Home</a>
+        </li>
+        <li class="active">商品列表</li>
+    </ol>
+
+
+    {% endblock %} {% block contentLeft %} 商品列表
+    <small>Version 5.0</small> {% endblock %} {% block script %}
+    <script src="{% static 'js/md5.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+        $('body').append("<div style='display:none;width:100%; margin:0 auto;position:fixed;left:0;top:0;bottom: 0;z-index: 111;opacity: 0.5;' id='loading'><a style='left: 50%;position: absolute;top:50%'><img src='/static/myfile/loading.gif' /></a></div>")
+        var goodsListPages = 1
+        var goodsCount = 0
+        var thispage = 1
+        var addGoodsIdRed = ""
+        var commName = ""
+        var timeBtnUp = 0
+        var sellcountBtnUp = 0
+
+        var sortType = "addtime"
+        var sortDirection = "desc"
+
+        var fenye = $('#visible-pages-example');
+        var defaultOptions = ""
+
+        // 积分商城按钮的点击事件
+        $("#jifenBtn").click(function() {
+            myGetParams("jifenListJson", "page=0", function(data) {
+
+            }, function(err) {
+                layer.msg(JSON.stringify(err))
+            })
+        })
+
+
+        var mainData = "";
+
+        function oneGoods(data, i) {
+            var goodsid = data["goodsid"];
+            var standard = data["xiaoClassiData"];
+
+            standard = (standard["bigName"] == undefined ? "未分类" : standard["bigName"]) + "-" + (standard["midName"] == undefined ? "未分类" : standard.midName) + "-" + (standard["minName"] == undefined ? "未分类" : standard.minName)
+            var goodsImage = data.product_thumb_image
+            var status = data["status"];
+            var goodsName = data["goodsname"];
+            var sellcount = data["sellcount"];
+
+            var isinfudai = data["isinfudai"]
+            var isinmiaosha = data["isinmiaosha"]
+
+            var goodskeywords = data["keywords"]
+
+            var market_price = data["market_price"]
+            var shop_price = data["shop_price"]
+
+            shop_price = "￥" + shop_price
+            market_price = "￥" + market_price
+
+            var zhiying = data.is_zhiying == 1 ? '<span class="zhuangtaiBtn zhuantaiActive">直营</span>' : '<span class="zhuangtaiBtn zhuantai">直营</span>'
+            var temai = data.is_temai == 1 ? '<span class="zhuangtaiBtn zhuantaiActive">特卖</span>' : '<span class="zhuangtaiBtn zhuantai">特卖</span>'
+            var jingpin = data.is_jingpin == 1 ? '<span class="zhuangtaiBtn zhuantaiActive">精品</span>' : '<span class="zhuangtaiBtn zhuantai">精品</span>'
+            var rexiao = data.is_rexiao == 1 ? '<span class="zhuangtaiBtn zhuantaiActive">热销</span>' : '<span class="zhuangtaiBtn zhuantai">热销</span>'
+            var putong = data.is_commen_product == 1 ? '<span class="zhuangtaiBtn zhuantaiActive">普通</span>' : '<span class="zhuangtaiBtn zhuantai">普通</span>'
+            var shiti = data.is_entity_product == 1 ? '<span class="zhuangtaiBtn zhuantaiActive">实体</span>' : '<span class="zhuangtaiBtn zhuantai">实体</span>'
+
+            var goodsStatusStr = '<button class="btn btn-default changeStatus"><span style="color:green;">已上架</span></button>'
+
+            var goodsStatusColour = "black"
+            var upDisabled = ""
+            var downDisabled = ""
+            var upColour = "white"
+            var downColour = "white"
+            if (status != 1) {
+                goodsStatusStr = '<button class="btn btn-default changeStatus"><span style="color:red;">已下架</span></button>'
+            }
+
+            var fudaiStr = ""
+            var miaoshaStr = ""
+
+
+            if (isinfudai == "true") {
+                fudaiStr = '<div><img style="width:25px;" src="/static/myfile/sucai/fudai.jpg" /></div>'
+            }
+
+            if (isinmiaosha == "true") {
+                miaoshaStr = '<div><img style="width:25px;" src="/static/myfile/sucai/miaosha.jpg" /></div>'
+            }
+
+            if (removeStringSpace(goodsImage) == "" || removeStringSpace(goodsImage) == "1") {
+                goodsImage = HomeUrl + "static/myfile/2.jpg"
+            } else {
+                goodsImage = HomeUrl + goodsImage
+            }
+
+            var row = (thispage - 1) * 10 + i
+            var ele = '<tr myindex="' + i + '" class="biaojuzhong" goodsid="' + goodsid + '"><td><input class="checkbox-one" type="checkbox"></td><th scope="row">' + row + '</th><td><img class="goodsImageBtn" style="width:85px;" src="' + goodsImage + '" /></td><td class="xianzhiTD">' + goodsName + '</td><td class="xianzhiTD">' + standard + '<hr /><span>' + goodskeywords + '<span></td><td><span style="color:red;">' + shop_price + '</span><br><span style="text-decoration:line-through; color:#aaa;">' + market_price + '</span></td><td>' + sellcount + '</td><td class="goodsStatus" style="text-align:center;">' + goodsStatusStr + fudaiStr + miaoshaStr + '<br />' + temai + zhiying + '<br />' + jingpin + rexiao + '<br />' + putong + shiti + '</td><td><button class="btn btn-default demo7" type="button"><span class="glyphicon glyphicon-file"  aria-hidden="true"></span></button><button class="btn btn-default demo8" type="button"><span class="glyphicon glyphicon-trash"  aria-hidden="true"></span></button></td></tr>'
+            $(".myListTable").append(ele)
+        }
+
+        // 添加图片模态框上 文件选在检测事件
+        function imgPreview(fileDom) {
+            //判断是否支持FileReader
+            if (window.FileReader) {
+                var reader = new FileReader();
+            } else {
+                alert("您的设备不支持图片预览功能，如需该功能请升级您的设备！");
+            }
+            //获取文件
+            var file = fileDom.files[0];
+
+            var imageType = /^image\//;
+            //是否是图片
+            if (!imageType.test(file.type)) {
+                alert("请选择图片！");
+                return;
+            }
+            //读取完成
+            reader.onload = function(e) {
+                //获取图片dom
+                var img = $(fileDom).parents(".col-sm-8").children(".thumbnail").children("img")
+                    //图片路径设置为读取的图片
+                img.attr("src", e.target.result)
+            };
+
+            reader.readAsDataURL(file);
+
+        }
+
+        // 添加图片模态框上的提交按钮
+        $(".goodsModalSubmitBtn").click(function() {
+            var imageForm = $(this).parents("form")
+            var goodsImageType = imageForm.attr("imageType")
+
+            var goodsId = imageForm.children(".goodsImageModalId").val()
+
+            var thumbnail = imageForm.parents(".thumbnail")
+
+            var currentImagePath = thumbnail.children("img").attr("src")
+
+            $(imageForm).ajaxSubmit({
+                success: function(data) {
+                    $("#loading").hide()
+                    layer.msg(data.message)
+                    if (data.status == "ok" && goodsImageType == "product_thumb_image") {
+                        $("#myListTableId").children("tr").each(function(i, item) {
+                            if ($(item).attr("goodsid") == goodsId) {
+                                $(item).children("td").eq(1).children("img").attr("src", currentImagePath)
+
+                                return false
+                            }
+                        })
+                    }
+
+                },
+                error: function(err) {
+                    layer.msg("提交失败 , 请联系服务器管理员")
+                }
+            })
+        })
+
+        //解析数据到页面
+        function goodsListToPage(data) {
+            for (var i = 0; i < data.length; i++) {
+                oneGoods(data[i], i + 1)
+            }
+
+            // 商品图片点击事件
+            $(".goodsImageBtn").click(function() {
+                var currentGoodsid = $(this).parents("tr").attr("goodsid")
+                var currentIndex = $(this).parents("tr").attr("myindex")
+                var currentData = mainData[currentIndex - 1]
+
+                var product_image = isGetDefaultImagePath(currentData.product_image)
+                var product_thumb_image = $(this).attr("src")
+                var origin_image = isGetDefaultImagePath(currentData.origin_image)
+
+                $(".goodsModalImg").eq(0).attr("src", product_image)
+                $(".goodsModalImg").eq(1).attr("src", product_thumb_image)
+                $(".goodsModalImg").eq(2).attr("src", origin_image)
+
+                $(".goodsImageModalId").val(currentGoodsid)
+                $('#goodsImageModal').modal('show')
+
+            })
+
+            $(".changeStatus").click(function() {
+                var that = this
+                var currentText = $(this).children("span").text()
+                var goodsid = $(that).parents("tr").attr("goodsid")
+                if (currentText == "已上架") {
+                    myPost("goodsManageJsonUpdata", {
+                        "status": 0,
+                        "goodsid": goodsid
+                    }, function(data) {
+                        layer.msg(data.message);
+                        if (data.status == "ok") {
+                            $(that).children("span").text("已下架")
+                            $(that).children("span").css("color", "red")
+                        }
+                    });
+
+                } else if (currentText == "已下架") {
+                    myPost("goodsManageJsonUpdata", {
+                        "status": 1,
+                        "goodsid": goodsid
+                    }, function(data) {
+                        layer.msg(data.message);
+                        if (data.status == "ok") {
+                            $(that).children("span").text("已上架")
+                            $(that).children("span").css("color", "green")
+                        }
+                    });
+
+                }
+
+
+            })
+
+            $(".zhuangtaiBtn").click(function() {
+                var goodsid = $(this).parents("tr").attr("goodsid")
+                var data = {}
+                data.goodsid = goodsid
+
+                switch ($(this).text()) {
+                    case "精品":
+                        data.is_jingpin = $(this).hasClass("zhuantai") ? 1 : 0
+                        break;
+                    case "热销":
+                        data.is_rexiao = $(this).hasClass("zhuantai") ? 1 : 0
+                        break;
+                    case "普通":
+                        data.is_commen_product = $(this).hasClass("zhuantai") ? 1 : 0
+                        break;
+                    case "实体":
+                        data.is_entity_product = $(this).hasClass("zhuantai") ? 1 : 0
+                        break;
+                    case "特卖":
+                        data.is_temai = $(this).hasClass("zhuantai") ? 1 : 0
+                        break;
+                    case "直营":
+                        data.is_zhiying = $(this).hasClass("zhuantai") ? 1 : 0
+                        break;
+
+                    default:
+                        break;
+                }
+
+                var that = this
+
+
+                myPost("goodsManageJsonUpdata", data, function(result) {
+                    layer.msg(result.message)
+                    if (result.status == "ok") {
+                        if ($(that).hasClass("zhuantai")) {
+                            $(that).removeClass("zhuantai")
+                            $(that).addClass("zhuantaiActive")
+                        } else {
+                            $(that).addClass("zhuantai")
+                            $(that).removeClass("zhuantaiActive")
+                        }
+                    }
+                })
+
+
+            })
+
+
+
+            $(".demo4").click(function() {
+                var that = $(this).parents("tr")
+                window.location.href = "/changePic/?goodsid=" + that.attr("goodsid");
+            });
+            $(".demo7").click(function() {
+                var goodsid = $(this).parents("tr").attr("goodsid");
+                setTimeout(function() {
+                    window.location.href = "/addGoods/?goodsid=" + goodsid
+                }, 100)
+            });
+
+            $(".demo8").click(function() {
+                var that = $(this).parents("tr")
+
+
+                if (that.children("td").eq(6).html().indexOf("<img ") == -1) {} else {
+                    var r = confirm("该商品存在于 福袋 或 秒杀活动中，您确定要删除.....")
+                    if (r == true) {} else {
+                        return
+                    }
+                }
+
+
+                // 从商品轮播图中获取图片
+                var oneDeleteData = mainData[that.index()];
+                var imageArr = [];
+
+                // 从商品详情中获取图片
+                var details = decodeURIComponent(oneDeleteData.details);
+                var imgReg = /<img.*?(?:>|\/>)/gi;
+                var srcReg = /src=[\'\"]?([^\'\"]*)[\'\"]?/i;
+                var arr = details.match(imgReg);
+                if (arr == null || arr == undefined || arr.length <= 0) {} else {
+                    for (var i = 0; i < arr.length; i++) {
+                        var src = arr[i].match(srcReg);
+                        if (removeStringSpace(src[1]) != "") {
+                            var myimageName = src[1].split("/")
+                            myimageName = removeStringSpace(myimageName[myimageName.length - 1])
+                            if (myimageName != "") {
+                                imageArr.push(myimageName)
+                            }
+                        }
+                    }
+                }
+
+
+
+
+                var goodsArr = [that.attr("goodsid")]
+
+
+                myPostGoodsManage("goodsManageJsonDelete", {
+                    goodsids: goodsArr,
+                    images: imageArr
+                }, function(data) {
+                    if (data.status == "ok") {
+                        var deleteCount = data['deleteCount']
+
+                        layer.msg('删除' + deleteCount + "条记录成功");
+                        setTimeout(function() {
+                            window.location.reload()
+                        }, 500)
+                    } else {
+                        layer.msg('删除失败');
+                    }
+                })
+            });
+        }
+
+        // 回车键 和 查询按钮用到的 更新界面功能
+        function selectCommonFn() {
+            thispage = 1
+            $("#visible-pages-example").twbsPagination("destroy") //销毁分页栏
+            $("#visible-pages-example").empty()
+            commName = $("#goodsSelectName").val()
+            mainData = ""
+            goodsCount = 0
+            loaddata()
+        }
+
+        // 按下enter键查询
+        document.onkeydown = function(event) {
+            var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
+            if (keyCode == 13) {
+                thispage = 1
+                commName = $("#goodsSelectName").val()
+                if ($('#goodsSelectName').is(':focus')) {
+                    selectCommonFn()
+                }
+
+            }
+        }
+
+        $("#goodsSelectBtn").click(function() {
+            selectCommonFn()
+        });
+        var luckyGoods = {}
+
+        $('#deleteBtn').click(function() {
+
+            var goodsArr = []
+            var checkboxs = $('.checkbox-one')
+            for (var i = 0; i < checkboxs.length; i++) {
+                if ($(checkboxs[i]).is(':checked')) {
+                    var goodsidOne = $(checkboxs[i]).parents("tr").attr("goodsid")
+                    goodsArr.push(goodsidOne)
+                }
+            }
+            myPostGoodsManage("selectLuckyJsonByGoodsId", {
+                goodsids: goodsArr
+            }, function(data) {
+                if (data["status"] == "ok" && data["luckycount"] == 0) {
+                    myPostGoodsManage("goodsManageJsonDelete", {
+                        goodsids: goodsArr
+                    }, function(data) {
+                        if (data["status"] == "ok") {
+                            var deleteCount = data['deleteCount']
+                            layer.msg("删除" + deleteCount + "条记录成功");
+                            $("#visible-pages-example").twbsPagination("destroy") //销毁分页栏
+                                // loaddata()
+                            setTimeout(function() {
+                                window.location.reload()
+                            }, 500)
+                        } else {
+                            layer.msg("删除失败")
+                        }
+                    });
+                } else if (data["status"] == "ok" && data["luckycount"] > 0) {
+                    var deleteGoodsIdArr = []
+                    for (var j = 0; j < goodsArr.length; j++) {
+                        var tt = true
+                        for (var k = 0; k < data.data.length; k++) {
+                            if (goodsArr[j] == data.data[k].luckyData.goodsid) {
+                                tt = false
+                            }
+                        }
+                        if (tt == true) {
+                            deleteGoodsIdArr.push(goodsArr[j])
+                        }
+                    }
+                    myPostGoodsManage("goodsManageJsonDelete", {
+                        goodsids: deleteGoodsIdArr
+                    }, function(data) {
+                        if (data["status"] == "ok") {
+                            var deleteCount = data['deleteCount']
+                            loaddata()
+                            layer.msg("删除" + deleteCount + "条记录成功");
+                        }
+                    });
+                    $("#exampleModal-confirm").modal();
+                    $("#delete-counts").text("冲突数量:" + data["luckycount"])
+                    $("#myListTable-confirm").children("tr").remove()
+                    $("#myListTable-confirm").append(ele)
+                    for (var i = 0; i < data.data.length; i++) {
+                        var goodsname = data.data[i].luckyData.goodsname
+                        var goodsid = data.data[i].luckyData.goodsid
+                        var count = data.data[i].luckyCount
+                        var ele = '<tr class="biaojuzhong" goodsid="' + goodsid + '"><td>' + goodsname + '</td><td>' + goodsid + '</td><td>' + count + '</td><td><button class="btn btn-danger delete-confirm" type="button"><span class="glyphicon glyphicon-trash"  aria-hidden="true"></span></button></td></tr>'
+                        $("#myListTable-confirm").append(ele)
+                    }
+                    $(".delete-confirm").click(function() {
+                        var goodsArr = []
+                        var goodsidOne = $(this).parents("tr").attr("goodsid")
+                        goodsArr.push(goodsidOne)
+                        myPostGoodsManage("goodsManageJsonDelete", {
+                            goodsids: goodsArr
+                        }, function(data) {
+                            if (data["status"] == "ok") {
+                                var deleteCount = data['deleteCount']
+                                loaddata()
+                                layer.msg("删除" + deleteCount + "条记录成功");
+                            } else {
+                                layer.msg("删除失败")
+                            }
+                        });
+                        $("#exampleModal-confirm").modal("hide");
+                    })
+                } else {
+                    layer.msg('删除失败');
+                }
+            })
+            loaddata()
+        })
+
+        $("#deleteAll-confirm").click(function() {
+            var goodsArr = []
+            var goodsidOne = $("#myListTable-confirm").children("tr").attr("goodsid")
+            goodsArr.push(goodsidOne)
+            myPostGoodsManage("goodsManageJsonDelete", {
+                goodsids: goodsArr
+            }, function(data) {
+                if (data["status"] == "ok") {
+                    var deleteCount = data['deleteCount']
+                    loaddata()
+                    layer.msg("删除" + deleteCount + "条记录成功");
+                } else {
+                    layer.msg("删除失败")
+                }
+            });
+            $("#exampleModal-confirm").modal("hide");
+        })
+
+        $('#checkbox-all').click(function() {
+            if ($('#checkbox-all').is(':checked')) {
+                $(".checkbox-one").prop("checked", true);
+            } else {
+                $(".checkbox-one").prop("checked", false);
+            }
+        });
+
+        function loaddata(myflag) {
+            myPost("commodityQuery", {
+                "sortType": sortType,
+                "sortDirection": sortDirection,
+                "page": thispage,
+                "commName": commName,
+                "clientType": "server"
+            }, function(data) {
+                if (data.data.length <= 0) {
+                    layer.msg("没查到数据")
+                    return
+                }
+
+                if (goodsCount == 0) {
+                    goodsCount = data.count
+                    $("#goodsNumber").text(goodsCount)
+                    var yushu = goodsCount % 10 > 0 ? 1 : 0
+                    goodsListPages = (goodsCount / 10) + yushu
+                }
+                $(".myListTable").empty()
+                    //解析数据
+                mainData = data.data;
+                goodsListToPage(mainData)
+                $("#visible-pages-example").children(".sumdiv").remove()
+                createPageNav('#visible-pages-example', goodsListPages, function(event, page) {
+                    thispage = page;
+                    loaddata();
+                });
+                $("#loading").hide();
+            }, function() {
+                $("#loading").hide();
+            })
+        }
+        loaddata()
+
+        $("#timeBtn").click(function() {
+            if (timeBtnUp == 0) {
+                $(this).children("span").remove()
+                var ele = '<span class="glyphicon glyphicon-upload" aria-hidden="true">当前时间升序</span>'
+                $(this).append(ele)
+                timeBtnUp = 1
+                sellcountBtnUp = ''
+            } else {
+                $(this).children("span").remove()
+                var ele = '<span class="glyphicon glyphicon-download" aria-hidden="true">当前时间降序</span>'
+                $(this).append(ele)
+                timeBtnUp = 0
+                sellcountBtnUp = ''
+            }
+            thispage = fenye.twbsPagination('getCurrentPage');
+            loaddata()
+        })
+
+        // 升降序 改变 方法
+        function changeSorDirection(currentelement, sortParam) {
+            if ($(currentelement).hasClass("glyphicon-download")) {
+                $(currentelement).removeClass("glyphicon-download")
+                $(currentelement).addClass("glyphicon-upload")
+                sortType = sortParam
+                sortDirection = "desc"
+            } else {
+                $(currentelement).removeClass("glyphicon-upload")
+                $(currentelement).addClass("glyphicon-download")
+                sortType = sortParam
+                sortDirection = "asc"
+            }
+            thispage = fenye.twbsPagination('getCurrentPage');
+            loaddata()
+        }
+
+        // 销量 升降序 按钮
+        $("#sellcountBtn").click(function() {
+                changeSorDirection(this, "sellcount")
+            })
+            // 价钱 升降序 按钮
+        $("#priceBtn").click(function() {
+            changeSorDirection(this, "shop_price")
+        })
+
+
+        // 状态 升降序 按钮
+        $("#statusBtn").click(function() {
+            changeSorDirection(this, "status")
+        })
+
+        // 状态 升降序 按钮
+        $("#nameBtn").click(function() {
+            changeSorDirection(this, "goodsname")
+        })
+    </script>
+    {% endblock %}

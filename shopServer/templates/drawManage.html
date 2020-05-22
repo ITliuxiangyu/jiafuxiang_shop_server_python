@@ -1,0 +1,66 @@
+{% extends "base.html" %}{% load staticfiles %} {% block contentLeft %} 抽奖管理
+<small>Version 5.0</small> {% endblock %} {% block contentRight %}
+
+<ol class="breadcrumb">
+    <li>
+        <a href="#"><i class="fa fa-dashboard"></i> Home</a>
+    </li>
+    <li class="active">抽奖管理</li>
+</ol>
+{% endblock %} {% block content %}
+
+
+<form action="/drawJsonAdd/" method="post">
+    <input type="text" name="userid" placeholder="请输入用户id">
+    <br>
+    <input type="text" name="drawmoney" placeholder="请输入抽奖金额">
+    <br>
+    <input type="text" name="drawdetail" placeholder="请输入抽奖活动详情">
+    <br>
+    <input type="submit" value="提交">
+</form>
+<br>
+<form action="/drawJsonDel/" method="post">
+    <input type="text" name="userid" placeholder="请输入要删除的用户id">
+    <br>
+    <input type="text" name="drawid" placeholder="请输入要删除的抽奖id">
+    <br>
+    <input type="submit" value="提交">
+</form>
+<br>
+<form action="/drawJsonUpdate/" method="post">
+    <input type="text" name="userid" placeholder="请输入要修改的用户id">
+    <br>
+    <input type="text" name="drawmoney" placeholder="请输入余额">
+    <br>
+    <input type="submit" value="提交">
+</form>
+<br>
+<form action="/drawJsonQuery/" method="post">
+    <input type="text" name="userid" placeholder="请输入要查询的用户id">
+    <br>
+    <input type="submit" value="提交">
+</form>
+<br>
+
+
+<!-- 测试用查询快递单号按钮 -->
+<input type="text" name="company" id="company" placeholder="请输入快递公司编号">
+<input type="text" name="NO" id="NO" placeholder="请输入快递单号">
+<button class="queryExpress">提交</button> {% endblock %} {% block script %} {% endblock %} {% block script %}
+<script type="text/javascript">
+    $("#loading").hide();
+
+    $(".queryExpress").click(function(e) {
+
+        var company = $("#company").val();
+        var NO = $("#NO").val();
+        myPost("express", {
+            "company": company,
+            "NO": NO
+        }, function(data) {
+            $("#loading").hide();
+        })
+    })
+</script>
+{% endblock %}

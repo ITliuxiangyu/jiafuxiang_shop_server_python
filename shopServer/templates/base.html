@@ -1,0 +1,688 @@
+﻿{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>AdminLTE 2 | Dashboard</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/css/AdminLTE.min.css' %}">
+
+    <script type="text/javascript">
+        window.my_global_host_url = "gongzhong.huidianit.com"
+        window.huanxin_server_id = 'jiafuxiang_server'
+        if (localStorage.getItem("keySss") != "ok") {
+            window.location.href = "http://" + window.my_global_host_url
+            var data = JSON.parse(localStorage.getItem("logMsg"));
+        }
+    </script>
+
+
+    <link rel="stylesheet" href="{% static 'dist/css/skins/_all-skins.min.css' %}">
+
+    <style type="text/css">
+        .black_Overlay {
+            display: none;
+            position: absolute;
+            top: 0%;
+            left: 0%;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 1001;
+            -moz-opacity: 0.8;
+            opacity: .50;
+            filter: alpha(opacity=80);
+        }
+        
+        .white_Content {
+            display: none;
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            border: 8px solid lightblue;
+            background-color: white;
+            z-index: 1002;
+            overflow: auto;
+        }
+        
+        .message_text {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        
+        #userTable td {
+            vertical-align: middle;
+        }
+    </style>
+
+    {% block css %}{% endblock %}
+
+</head>
+
+<body class="hold-transition skin-blue sidebar-mini" onbeforeunload="RunOnBeforeUnload()">
+    <div style='display:none;width:100%; margin:0 auto;position:fixed;left:0;top:0;bottom: 0;z-index: 1111;opacity: 0.8;' id='loading'>
+        <a style='left: 50%;position: absolute;top:50%'><img src='/static/myfile/loading.gif' /></a>
+    </div>
+    <div class="wrapper">
+
+        <!-- 头部 -->
+        <header class="main-header">
+
+            <!-- logo -->
+            <a href="###" class="logo">
+                <span class="logo-mini"><b><label for="" id="namelabel">福</label></b></span>
+                <span class="logo-lg"><b><label for="" id="namelabel">嘉福祥商城</label></b></span>
+            </a>
+
+            <!-- 导航条 -->
+            <nav class="navbar navbar-static-top">
+
+                <!-- 展开 折叠按钮 -->
+                <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                </a>
+                <!-- 头部导航条右侧的东西 -->
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <!-- Messages: style can be found in dropdown.less-->
+                        <li class=" messages-menu">
+                            <a href="/leavingMessage/" id="messageNumber">
+                                <i class="fa fa-envelope-o"></i>
+                                <span class="label label-warning liuyan_tou msg_tou_number msg_number"></span>
+                            </a>
+
+                        </li>
+                        <!-- Notifications: style can be found in dropdown.less -->
+                        <li class="dropdown notifications-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-bell-o"></i>
+                                <span class="label label-warning order_tou order_tou_number">0</span>
+                            </a>
+                            <ul class="dropdown-menu dingdan_menu" style="font-size: 0.4em;">
+                                <!--<li class="header order_tou">0个新的订单通知</li>-->
+                                <li>
+                                    <!-- inner menu: contains the actual data -->
+                                    <ul class="menu">
+                                    </ul>
+                                </li>
+                                <li class="footer">
+                                    <a href="/orderManage/?option=all">查看所有订单</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <!-- User Account: style can be found in dropdown.less -->
+                        <li class="dropdown user user-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <img src="{% static 'dist/img/user2-160x160.jpg' %}" class="user-image" alt="User Image">
+                                <span class="hidden-xs"><label for="" id="namelabel"></label></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <!-- User image -->
+                                <li class="user-header">
+                                    <img src="{% static 'dist/img/user2-160x160.jpg' %}" class="img-circle" alt="User Image">
+
+                                    <p>
+                                        <a href="#" class="btn btn-default btn-flat exit">退出</a>
+                                    </p>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
+                        </li>
+                    </ul>
+                </div>
+
+            </nav>
+        </header>
+        <!-- 左侧菜单区域 -->
+        <aside class="main-sidebar">
+            <section class="sidebar">
+                <!-- 左侧用户信息部分 -->
+                <div class="user-panel">
+                    <div class="pull-left image">
+                        <img src="{% static 'dist/img/user2-160x160.jpg' %}" class="img-circle" alt="User Image">
+                    </div>
+                    <div class="pull-left info">
+                        <h4><label for="" id="yyy" name="namelabel" value=""></label></h4>
+                    </div>
+                </div>
+                <!-- 左侧搜索框部分 -->
+                <form action="/goodsManage/" method="post" class="sidebar-form">
+                    <div class="input-group">
+                        <input type="text" name="baseSelectName" class="form-control" placeholder="商品搜索...">
+                        <span class="input-group-btn">
+			                <button type="submit" name="search" id="search-btn" class="btn btn-flat">
+			                  <i class="fa fa-search"></i>
+			                </button>
+			              	</span>
+                    </div>
+                </form>
+                <!-- 左侧列表部分 -->
+                <ul class="sidebar-menu" data-widget="tree">
+                    <li class="header">MAIN NAVIGATION</li>
+
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-dashboard"></i> <span>账号管理</span>
+                            <span class="pull-right-container">
+			              		<i class="fa fa-angle-left pull-right"></i>
+			            		</span>
+                        </a>
+                        <ul class="treeview-menu">
+
+                            <li>
+                                <a href="/userManage/"><i class="fa fa-dashboard"></i> 会员管理</a>
+                            </li>
+                            <li>
+                                <a href="/activeManage/"><i class="fa fa-dashboard"></i> 活动管理</a>
+                            </li>
+                            <!--<li >
+									<a href="/drawManage/"><i class="fa fa-dashboard"></i> 抽奖管理</a>
+								</li>-->
+                        </ul>
+                    </li>
+
+                    <li class="treeview ">
+                        <a href="#">
+                            <i class="fa fa-clock-o"></i> <span>商品管理</span>
+                            <span class="pull-right-container">
+			                    <i class="fa fa-angle-left pull-right"></i>
+			                  	</span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li>
+                                <a href="/goodsManage/"><i class="fa fa-clock-o"></i> 商品列表</a>
+                            </li>
+                            <li>
+
+                                <a href="/recomendGoods/"><i class="fa fa-clock-o"></i>推荐商品</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!--<li class=" treeview ">
+							<a href="#">
+								<i class="fa fa-flag-o"></i> <span>地面店管理</span>
+								<span class="pull-right-container">
+		                        <i class="fa fa-angle-left pull-right"></i>
+		                    	</span>
+							</a>
+							<ul class="treeview-menu">
+								<li >
+									<a href="/cartsManage/"><i class="fa fa-flag"></i>购物车</a>
+								</li>
+								
+								<li >
+									<a href="#"><i class="fa fa-flag"></i> 店铺消费记录</a>
+								</li>
+							</ul>
+						</li>-->
+
+                    <li class=" treeview ">
+                        <a href="#">
+                            <i class="fa fa-bell-o"></i> <span>订单管理</span>
+                            <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                          </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li>
+                                <a href="/orderManage/?option=all"><i class="fa fa-bell"></i>订单查看</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class=" treeview ">
+                        <a href="#">
+                            <i class="fa fa-envelope-o"></i> <span>广告与推荐</span>
+                            <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                          </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li>
+                                <a href="/adPage/"><i class="fa fa-envelope"></i> 广告与推荐</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                </ul>
+            </section>
+        </aside>
+
+        <div class="content-wrapper">
+            <section class="content-header">
+                <h1>
+                    {% block contentLeft %}{% endblock %}
+                </h1>
+                {% block contentRight %}{% endblock %}
+
+            </section>
+
+            <!-- Main content -->
+            <style>
+                .content {
+                    padding: 0 5%;
+                }
+            </style>
+            <section class="content">
+                {% block content %}{% endblock %}
+            </section>
+        </div>
+
+        <footer class="main-footer">
+            <div class="pull-right hidden-xs">
+                <!-- <b>Version</b> 2.4.0 -->
+            </div>
+            <strong><a href="https://www.miitbeian.gov.cn">豫ICP备18020508号-1</a></strong>
+        </footer>
+
+        <aside class="control-sidebar control-sidebar-dark">
+            <ul class="nav nav-tabs nav-justified control-sidebar-tabs">
+                <li>
+                    <div class="tab-pane" id="control-sidebar-settings-tab" style="margin-left:25px">
+                        <form method="post">
+                            <h3 class="control-sidebar-heading"><a href="/redpack/" style="color:white">红包记录</a></h3>
+
+
+                            <div class="form-group">
+                            </div>
+
+
+                            <div class="form-group">
+
+                            </div>
+
+                            <h3 class="control-sidebar-heading"><a class="fanliSetting" style="color:white">返利设置</a></h3>
+
+                            <div class="form-group">
+
+                            </div>
+
+                            <div class="form-group">
+                            </div>
+                            <div class="form-group">
+
+                            </div>
+                            <h3 class="control-sidebar-heading" href="###"><a href="/luckyManage/" style="color:white">福袋设置</a></h3>
+                            <h3 class="control-sidebar-heading" href="###"><a href="/secondkillManage/" style="color:white">秒杀活动</a></h3>
+                        </form>
+                    </div>
+                </li>
+            </ul>
+            <div class="tab-content">
+            </div>
+        </aside>
+
+        <div class="control-sidebar-bg"></div>
+
+    </div>
+
+
+    <!--弹出层时背景层DIV-->
+    <div id="fadeMe" class="black_Overlay">
+    </div>
+    <div id="MyDivMe" class="white_Content">
+        <div style="text-align: right; cursor: default; height: 40px;" id="move">
+            <span style="font-size: 16px;" onclick="CloseDiv('MyDivMe','fadeMe')">关闭</span>
+        </div>
+        <div id="">
+            <div>
+                <h1>留言内容：</h1>
+            </div>
+            <div id="btns">
+                <div id="leavingMessageOne" style="height: 250px;border: 2px solid bisque;width: 100%;font-size: 20px;overflow: auto;">
+                </div>
+                <br />
+                <div style="height: 100px; border: 1px solid seagreen;width: 100%;" contentEditable="true" placeholder="输入回复内容">
+                </div>
+                <br />
+                <div style="text-align: center;">
+                    <button class="btn btn-default delete" style="position: absolute;bottom: 0px;">回复111</button>
+                </div>
+                <br />
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- 返利设置 modal -->
+    <div class="modal fade" id="fanliModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">商城返利设置</h4>
+                </div>
+                <div class="modal-body">
+                    <p class="currentServerFanliNumber" style="text-align:left;">商品返利百分比： <span class="fanliText fanliValue"></span><button class="btn btn-xs goodsFanliBtn"><span class="glyphicon glyphicon-pencil"></span></button></p>
+                    <div class="row">
+                        <div class="col-sm-4">我：
+                            <p><span class="fanliText wo">45%</span><button class="btn btn-xs goodsFanliBtn"><span class="glyphicon glyphicon-pencil"></span></button></p>
+                        </div>
+                        <div class="col-sm-4">上级：
+                            <p><span class="fanliText shangji">45%</span><button class="btn btn-xs goodsFanliBtn"><span class="glyphicon glyphicon-pencil"></span></button></p>
+                        </div>
+                        <div class="col-sm-4">上上级：
+                            <p><span class="fanliText shangshangji">45%</span><button class="btn btn-xs goodsFanliBtn"><span class="glyphicon glyphicon-pencil"></span></button></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default fanliCancel" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary fanliConfirm">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="{% static 'js/jquery.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+    <script src="{% static 'js/fastclick.js' %}"></script>
+
+    <script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+
+    <script src="{% static 'js/jquery.form.min.js' %}"></script>
+
+    <script src="{% static 'js/jquery.twbsPagination.min.js' %}"></script>
+
+    <script src="{% static 'js/tool.js' %}"></script>
+
+    <script src="{% static 'layer/layer.js' %}" type="text/javascript" charset="utf-8"></script>
+
+    <script src="{% static 'js/recorder.js' %}"></script>
+
+    <script src="{% static 'DatePicker/WdatePicker.js' %}"></script>
+
+    <script src="{% static 'js/jquery.dataTables.min.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script src="{% static 'js/dataTables.bootstrap.min.js' %}" type="text/javascript" charset="utf-8"></script>
+
+    <!-- 环信及时通信 -->
+    <script src="{% static 'js/webim.config.js' %}"></script>
+    <script src="{% static 'js/strophe-1.2.8.min.js' %}"></script>
+    <script src="{% static 'js/websdk-1.4.15.js' %}"></script>
+    <script src="{% static 'js/my_huanxin.js' %}"></script>
+
+
+    <!-- 获取session -->
+    <script type="text/javascript">
+        $(document).ajaxStart(function() {　
+            $("#loading").show();
+        })
+
+        function RunOnBeforeUnload() {
+            if (window.location.href.indexOf(HomeUrl + "leavingMessage/") != -1 && $('.chart_modal').css('display') == 'block') {
+                var cur_wxid = $('.chart_modal').attr('chat_id').toLowerCase()
+                read_all_msg(cur_wxid)
+            }
+        }
+
+        $.ajax({
+            url: HomeUrl + "getSession/",
+            success: function(data) {
+                session = data.data.toString()
+                if (session != "true") {
+                    localStorage.clear();
+                    window.location.href = HomeUrl
+                    var data = JSON.parse(localStorage.getItem("logMsg"));
+                }
+            },
+            error: function(msg) {
+                alert(JSON.stringify(msg)); //错误信息
+            }
+        });
+    </script>
+
+    <script type="text/javascript">
+        var dingdan_tongzhi_number = 0;
+        var base_order_list = []
+        var base_liuyan_list = []
+
+
+        $(".goodsFanliBtn").click(function() {
+            if ($(this).find("span").hasClass("glyphicon-pencil")) {
+                var fanliText = $(this).parents("p").find(".fanliText").text()
+                $(this).parents("p").find(".fanliText").empty()
+                var inputEle = '<input type="text" value="' + fanliText + '" />'
+                $(this).parents("p").find(".fanliText").append(inputEle)
+                $(this).find("span").removeClass("glyphicon-pencil")
+                $(this).find("span").addClass("glyphicon-ok")
+            } else {
+                var fanliText = $(this).parents("p").find(".fanliText").find("input").val()
+                $(this).parents("p").find(".fanliText").empty()
+                $(this).parents("p").find(".fanliText").text(fanliText)
+                $(this).find("span").removeClass("glyphicon-ok")
+                $(this).find("span").addClass("glyphicon-pencil")
+            }
+
+
+
+        })
+
+
+
+        // 返利设置 点击事件
+        $(".fanliSetting").click(function() {
+            $('#fanliModal').modal('show')
+
+            myPost("getServerSetting", {
+                id: 1
+            }, function(data) {
+                $(".fanliValue").text(data.data.fanli)
+                $(".wo").text(data.data.wo)
+                $(".shangji").text(data.data.shangji)
+                $(".shangshangji").text(data.data.shangshangji)
+            })
+
+            // 
+
+        })
+
+        // 返利确定按钮
+        $(".fanliConfirm").click(function() {
+            var fanliValue = $(".fanliValue").text()
+            var wo = $(".wo").text()
+            var shangji = $(".shangji").text()
+            var shangshangji = $(".shangshangji").text()
+
+            myPost("insertServerSetting", {
+                'fanliValue': fanliValue,
+                "wo": wo,
+                "shangji": shangji,
+                "shangshangji": shangshangji
+            }, function(data) {
+                $('#fanliModal').modal('hide')
+                layer.msg(data.message)
+            })
+        })
+
+        $(".exit").click(function() {
+            //清除缓存
+            localStorage.clear();
+
+            //清除session
+            $.ajax({
+                url: "/setSession/",
+                success: function(data) {
+
+                    window.location.href = "https://" + window.my_global_host_url;
+                },
+            });
+
+        })
+
+        $('.treeview-menu').find('a').each(function() {
+            if (this.href == document.location.href || document.location.href.search(this.href) >= 0) {
+                $(this).parent().addClass('active'); // this.className = 'active';
+                $(this).parents(".treeview").addClass('active');
+            }
+        });
+
+        // 请求留言记录 和 未处理订单记录
+        myPost("liuyan_and_dingdan", {}, function(data) {
+            base_order_list = data.data.dingdan_list
+            base_liuyan_list = data.data.liuyan_list
+            analy_order_list_to_menu(data.data.dingdan_list)
+            $(".order_tou_number").text(dingdan_tongzhi_number)
+            create_liuyan_page(base_liuyan_list)
+        })
+
+        // 进入留言界面的时候 创建留言界面
+        function create_liuyan_page(leavingMessageData) {
+            // if (window.location.href.indexOf(HomeUrl + "leavingMessage/") != -1) {
+            //     create_liuyan_page(base_liuyan_list)
+            // }
+            var allDataNumber = leavingMessageData.length;
+            $("#userTable").empty()
+            var msg_tou_number = 0
+            var temp_ele_str = ""
+            for (var i = 0; i < leavingMessageData.length; i++) {
+                // msg_tou_number = msg_tou_number + (leavingMessageData[i].msg_list.length - 0)
+
+                var chart_list_len = leavingMessageData[i].msg_list.length
+                var userName = leavingMessageData[i].user_info.nickName
+                var user_img = leavingMessageData[i].user_info.headimg
+                var userLeaveMessage = ''
+                var userLeavTime = ''
+                var user_unread = 0
+                for (var j = 0; j < leavingMessageData[i].msg_list.length; j++) {
+                    userLeaveMessage = leavingMessageData[i].msg_list[j].content
+                    userLeavTime = leavingMessageData[i].msg_list[j].time
+                    if ((leavingMessageData[i].msg_list[j].status - 0) == 0) {
+                        msg_tou_number = msg_tou_number + 1
+                        user_unread = user_unread + 1
+                    }
+                }
+                var userid = leavingMessageData[i].user_info.wxid
+                if (user_unread == 0) {
+                    user_unread = ''
+                }
+                temp_ele_str += '<tr class="mytr" wxid="' + userid + '"><td class="info ele"><input class="checkbox-one" name="checkbox-one" type="checkbox"/></td><td wxid="' + userid + '"><div style="position: relative;width:45px;height:45px;"><img style="width:45px;" src="' + user_img + '" alt=""><span style="position:absolute;top:-7px;right:-12px;background-color:red;" class="badge badge-danger">' + user_unread + '</span></div>' + userName + '</td><td class="message_td">' + userLeaveMessage + '</td><td>' + userLeavTime + '</td><td > <button class="btn btn-default delete guestbookidButton">查看/回复</button></td></tr>'
+            }
+            $("#userTable").append(temp_ele_str);
+            $(".msg_tou_number").text(msg_tou_number)
+            $(".guestbookidButton").click(function() {
+                var wxid = $(this).parents("tr").attr("wxid")
+                $(".direct-chat-messages").empty()
+                $(".msg_tou_number").text(($(".msg_tou_number").text() - 0) - ($(this).parents('tr').find('.badge-danger').text() - 0))
+                $(this).parents('tr').find('.badge-danger').text('')
+
+                var cur_liuyan_data = ""
+                var cur_user_info = ''
+                for (var i = 0; i < base_liuyan_list.length; i++) {
+                    if (base_liuyan_list[i].user_info.wxid == wxid) {
+                        cur_liuyan_data = base_liuyan_list[i].msg_list
+                        cur_user_info = base_liuyan_list[i].user_info
+                        break;
+                    }
+                }
+                if (cur_liuyan_data == "") {
+                    layer.msg("没有聊天记录")
+                } else {
+                    window.curr_chat_user = cur_user_info
+                    $(".direct-chat-messages").empty()
+                    $(".direct-chat-messages").attr("wxid", wxid)
+
+                    var temp_chart_ele = ""
+                    for (var l = 0; l < cur_liuyan_data.length; l++) {
+                        var tmep_msg_data = cur_liuyan_data[l]
+                        if (tmep_msg_data.receiveId == window.huanxin_server_id) {
+                            temp_chart_ele = temp_chart_ele + '<div class="direct-chat-msg"><div class="direct-chat-info clearfix"><span class="direct-chat-name pull-left">' + cur_user_info.nickName + '</span><span class="direct-chat-timestamp pull-right">' + tmep_msg_data.time + '</span></div><img class="direct-chat-img" src="' + cur_user_info.headimg + '" alt="用户头像"><div class="direct-chat-text">' + tmep_msg_data.content + '</div></div>'
+
+                        } else {
+                            temp_chart_ele = temp_chart_ele + '<div class="direct-chat-msg right"><div class="direct-chat-info clearfix"><span class="direct-chat-name pull-right">服务器</span><span class="direct-chat-timestamp pull-left">' + tmep_msg_data.time + '</span></div><img class="direct-chat-img" src="https://adminlte.io/themes/AdminLTE/dist/img/user3-128x128.jpg" alt="服务器头像"><div class="direct-chat-text">' + tmep_msg_data.content + '</div></div>'
+                        }
+                    }
+
+                    $(".direct-chat-messages").append($(temp_chart_ele))
+
+
+                }
+                $('.chart_modal').modal('show')
+                $('.chart_modal').attr('chat_id', wxid)
+                $('.chart_modal').on('shown.bs.modal', function(e) {
+                        var scrollHeight = $('.direct-chat-messages').prop("scrollHeight");      
+                        $('.direct-chat-messages').scrollTop(scrollHeight, 1000);
+
+                    })
+                    // 全部标记为已读
+                read_all_msg(wxid)
+            });
+        }
+
+        // 全部标记为已读
+        function read_all_msg(wxid) {
+            myPost("read_all_msg_by_wxid", {
+                wxid: wxid
+            }, function(data) {
+                console.log('标记已读')
+                console.log(data)
+            })
+        }
+
+
+
+        // 解析订单列表数据 到 菜单上
+        function analy_order_list_to_menu(data) {
+            $(".dingdan_menu .menu").empty()
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].status == "待发货" || data[i].status == "已支付") {
+                    var temp_li = '<li orderid="' + data[i].orderId + '"><a href="/orderManage/?option=all"><i class="fa fa-warning text-yellow"></i> ' + data[i].createTime + ' <span style="color:greenyellow;">' + data[i].status + '</span> <span style="float: right; color: lightgray;">' + data[i].addressId.address.split(",")[0] + '</span></a></li>'
+                    $(".dingdan_menu .menu").append($(temp_li))
+                    dingdan_tongzhi_number++
+                }
+            }
+        }
+        var data = JSON.parse(localStorage.getItem("logMsg"));
+        aaa = data.names;
+        document.getElementById('yyy').innerHTML = aaa;
+
+
+
+        // 弹出隐藏层
+        function ShowDiv(show_Div, bg_Div, userLeaveMessage) {
+            document.getElementById(show_Div).style.display = 'block';
+            document.getElementById(bg_Div).style.display = 'block';
+            var bgdiv = document.getElementById(bg_Div);
+            bgdiv.style.width = document.body.scrollWidth;
+            $("#" + bg_Div).height($(document).height());
+
+            userLeaveMessage = userLeaveMessage["leavemessage"]
+
+            var myHtml = '<div>' + userLeaveMessage + '</div>'
+            $("#leavingMessageOne").children('div').remove();
+            $("#leavingMessageOne").append(myHtml)
+        };
+        //关闭弹出层
+        function CloseDiv(show_Div, bg_Div) {
+            console.log('关闭事件....')
+            document.getElementById(show_Div).style.display = 'none';
+            document.getElementById(bg_Div).style.display = 'none';
+        };
+    </script>
+    <script type="text/javascript">
+        $(".breadcrumb").find('a').click(function() {
+            window.location.href = "https://" + window.my_global_host_url + "/goodsManage/";
+        })
+    </script>
+
+
+
+
+    {% block script %}{% endblock %}
+</body>
+
+</html>

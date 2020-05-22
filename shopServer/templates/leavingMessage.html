@@ -1,0 +1,339 @@
+{% extends "base.html" %} {% load staticfiles %} {% block css %}
+<style>
+    .black_overlay {
+        display: none;
+        position: absolute;
+        top: 0%;
+        left: 0%;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        z-index: 1001;
+        -moz-opacity: 0.8;
+        opacity: .50;
+        filter: alpha(opacity=80);
+    }
+    
+    .white_content {
+        display: none;
+        position: absolute;
+        top: 10%;
+        left: 10%;
+        width: 80%;
+        height: 80%;
+        border: 8px solid lightblue;
+        background-color: white;
+        z-index: 1002;
+        overflow: auto;
+    }
+    
+    .message_td {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        max-width: 14em;
+    }
+</style>
+{% endblock %} {% block content %}
+<div class="container-fluid ">
+    <div class="row ">
+
+        <div class="col-md-11" style="text-align: center;">
+            <form class="form-inline" method="post">
+                <div class="form-group">
+                    <label for="exampleInputName2">用户名:</label>
+                    <input type="text" class="form-control user_name" placeholder="用户名">
+                    <button class="btn btn-success search_btn"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+                    <!-- <label for="exampleInputName2">留言状态:</label>
+					<select name="status" class="form-control my_status">
+						<option value="all">全部</option>
+						<option value="read">已读</option>
+						<option value="unread">未读</option>
+					</select> -->
+                </div>
+
+            </form>
+        </div>
+
+
+
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th colspan="11" id="dataShuJu">
+
+                        <button class="btn btn-default trash AllDelete"><span class = "glyphicon glyphicon-trash">批量已读</span></button>
+
+
+                    </th>
+                </tr>
+            </thead>
+
+            <!--<caption><strong style="color: #000000;">商品列表</strong></caption>-->
+            <thead>
+                <tr>
+                    <th class="info nature">
+                        <input type="checkbox" id="checkbox-all">
+                    </th>
+                    <th>用户名</th>
+                    <th>留言内容</th>
+                    <th>留言时间</th>
+                    <th>编辑</th>
+                </tr>
+            </thead>
+            <tbody id="userTable" class="user_chart_table">
+
+            </tbody>
+            <!-- <tbody id="mytbody" class="myListTable">
+
+			</tbody> -->
+        </table>
+
+        <div class="text-center">
+            <ul id="visible-pages-example"></ul>
+        </div>
+        <div class="text-center">
+            <ul id="aaa"></ul>
+        </div>
+
+    </div>
+    <div id="exampleModal" class="modal fade" tabindex="-1" role="dialog" data-backdrop="false" data-show="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Modal title</h4>
+                </div>
+                <div class="modal-body">
+                    <p>One fine body&hellip;</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
+    <!--弹出层时背景层DIV-->
+    <div class="modal fade chart_modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                </div>
+                <div class="modal-body">
+                    <div class="box box-danger direct-chat direct-chat-danger">
+                        <div class="box-header">
+                            <button onclick="chat_table_close_fn(this)" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <div class="box-body">
+                            <div class="direct-chat-messages" style="overflow-x: hidden;">
+
+                            </div>
+                        </div>
+                        <div class="box-footer">
+                            <div class="input-group">
+                                <input type="text" name="message" placeholder="回复内容...." class="form-control huifu_input">
+                                <span class="input-group-btn">
+									<button type="button" class="btn btn-danger btn-flat huifu_btn">回复</button>
+								</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {% endblock %} {% block contentRight %}
+
+    <ol class="breadcrumb">
+        <li>
+            <a href="#"><i class="fa fa-dashboard"></i> Home</a>
+        </li>
+        <li class="active">留言管理</li>
+    </ol>
+
+    {% endblock %} {% block contentLeft %} 留言表
+    <small>Version 5.0</small> {% endblock %} {% block script %}
+    <script type="text/javascript">
+        function chat_table_close_fn(btn) {
+            read_all_msg($(btn).parents('.chart_modal').attr('chat_id'))
+        }
+        // 弹框上面的回复按钮
+        $(".huifu_btn").click(function() {
+            var huifu_text = $(".huifu_input").val()
+            if (huifu_text.length > 300) {
+                layer.msg("回复内容不能超过300长度")
+                return
+            }
+            var wxid = $(this).parents('.chart_modal').attr('chat_id')
+            var id = window.conn.getUniqueId() // 生成本地消息id
+            var MyMessage = window.WebIM.message
+            var msg = new MyMessage('txt', id) // 创建文本消息
+            msg.set({
+                msg: huifu_text, // 消息内容
+                to: wxid, // 接收消息对象（用户id）
+                roomType: false,
+                success: function(id, serverMsgId) {
+                    myPost('addLeaveMessage', {
+                        receiveId: wxid,
+                        senderId: my_IM_server,
+                        content: huifu_text
+                    })
+                    var cur_time = getServerDate()
+                    var temp_chart_ele = '<div class="direct-chat-msg right"><div class="direct-chat-info clearfix"><span class="direct-chat-name pull-right">服务器</span><span class="direct-chat-timestamp pull-left">' + cur_time + '</span></div><img class="direct-chat-img" src="https://adminlte.io/themes/AdminLTE/dist/img/user3-128x128.jpg" alt="服务器头像"><div class="direct-chat-text">' + huifu_text + '</div></div>'
+                    $(".direct-chat-messages").append($(temp_chart_ele))
+                    var scrollHeight = $('.direct-chat-messages').prop("scrollHeight");      
+                    $('.direct-chat-messages').scrollTop(scrollHeight, 1000);
+                    $(".huifu_input").val("")
+
+                    for (var i = 0; i < base_liuyan_list.length; i++) {
+                        console.log('进入for循环')
+                        if (base_liuyan_list[i].user_info.wxid == wxid) {
+                            var temp_dic = {
+                                content: huifu_text,
+                                receiveId: wxid,
+                                senderId: my_IM_server,
+                                status: 1,
+                                time: cur_time
+                            }
+                            console.log('找到wxid')
+                            console.log(base_liuyan_list)
+                            base_liuyan_list[i].msg_list.push(temp_dic)
+                            console.log(base_liuyan_list)
+                            break
+                        }
+                    }
+                },
+                fail: function(e) {
+                    alert('发送消息异常')
+                    alert(e)
+                }
+            })
+            msg.body.chatType = 'singleChat'
+            window.conn.send(msg.body)
+        })
+
+        // 搜索按钮点击事件
+        $(".search_btn").click(function(e) {
+            e.preventDefault()
+            if (removeStringSpace($(".user_name").val()) == "") {
+                layer.msg("请输入用户名")
+            } else {
+                var temp_arr = []
+                for (var i = 0; i < base_liuyan_list.length; i++) {
+                    if (base_liuyan_list[i].chart_list[0].userinfo.nickName == removeStringSpace($(".user_name").val())) {
+                        temp_arr.push(base_liuyan_list[i])
+                    }
+                }
+                if (temp_arr.length == 0) {
+                    layer.msg('没有改用户的留言')
+                }
+                create_liuyan_page(temp_arr)
+                var allDataNumber = temp_arr.length;
+                $('#dataShuJu').empty()
+                var ssss = '<label id="userNumber" class="count" style="float: right; padding-right: 4%;">共有' + allDataNumber + '条数据</label>'
+                $('#dataShuJu').append(ssss)
+            }
+        })
+
+
+        function createList(page) {
+            $("#userTable").empty()
+            for (sss = 0; sss < mainData.length; sss++) {
+                if (sss >= (page - 1) * 10 && sss <= page * 10 - 1) {
+                    var userName = mainData[sss]["username"]
+                    var userLeaveMessage = mainData[sss]["leavemessage"]
+                    var userid = mainData[sss]["userid"]
+                    var userLeavTime = mainData[sss]["leavtime"]
+                    var userStatus = mainData[sss]["status"]
+                    var guestbookid = mainData[sss]["guestbookid"]
+
+                    var myHtml = '<tr class="mytr" guestbookid="' + guestbookid + '"><td class="info ele"><input class="checkbox-one" name="checkbox-one" type="checkbox"/></td><td>' + guestbookid + '</td><td>' + userid + '</td><td>' + userName + '</td><td>' + userLeaveMessage + '</td><td>' + userLeavTime + '</td><td > <button class="btn btn-default delete guestbookidButton">编辑</button></td></tr>'
+
+                    $("#userTable").append(myHtml);
+                }
+            }
+        }
+
+
+        $('#checkbox-all').click(function() {
+            if ($('#checkbox-all').is(':checked')) {
+                $(".checkbox-one").prop("checked", true);
+            } else {
+                $(".checkbox-one").prop("checked", false);
+            }
+        })
+
+        //全选按钮
+        $(".AllDelete").click(function() {
+            var isEmeptySelect = true;
+            var deleLen = []
+            var that = ""
+            var thatAll = []
+            $("[name = checkbox-one]:checkbox").each(function() {
+                if ($(this).is(":checked")) {
+                    isEmeptySelect = false;
+                    that = $(this).parents('tr');
+                    var objData = that.attr('guestbookid')
+                    deleLen.push(objData)
+                    thatAll.push(that)
+                }
+            })
+            deleteOneDataById(deleLen, thatAll)
+            if (isEmeptySelect == true) {
+                layer.msg("选择要标记的内容");
+            }
+        })
+
+
+        function deleteOneDataById(objId, ele) {
+            myPost("leavingMessDelete", {
+                data: objId
+            }, function(data) {
+                // 警告,需要加判断,服务器删除成功之后才能移除标签 
+                // 另外删除成功之后 要增加弹框提示
+                if (data.status == "ok") {
+                    layer.msg("操作成功");
+                    for (var ssA = 0; ssA < ele.length; ssA++) {
+                        var tdLength = $(ele[ssA]).children("td").length;
+                        var bianjiTd = $(ele[ssA]).children("td")[tdLength - 2]
+                        $(bianjiTd).text("已读")
+                    }
+
+                } else {
+                    layer.msg("操作失败");
+                }
+            })
+        }
+
+
+        //分页页面进来
+        function dataParse(data) {
+            createList(1)
+
+
+            defaultPageOptioins = {
+                totalPages: Math.ceil(data.length / 10),
+                first: "首页",
+                last: "尾页",
+                prev: '上一页',
+                next: '下一页',
+                startPage: 1,
+                visiblePages: 5,
+                version: '1.1',
+                onPageClick: function(event, page) {
+                    createList(page);
+                }
+            }
+            $('#visible-pages-example').twbsPagination(defaultPageOptioins);
+        }
+    </script>
+    {% endblock %}

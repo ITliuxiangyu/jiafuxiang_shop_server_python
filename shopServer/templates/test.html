@@ -1,0 +1,386 @@
+{% extends "base.html" %} {% load staticfiles %} {% block content %}
+
+<style>
+    #mytbody td {
+        vertical-align: middle;
+        font-size: 12px;
+        border: 1px solid lightgray;
+        text-align: center;
+    }
+    
+    #my_list_table th {
+        text-align: center;
+    }
+    
+    .goodsTitle div {
+        font-size: 5px
+    }
+    
+    .goodsInfoList div {}
+    
+    .huanhang_td {
+        display: -webkit-box;
+        word-break: break-all;
+        text-overflow: ellipsis;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+    }
+    
+    table {
+        border: 1px solid white;
+    }
+    
+    .order_tr {
+        background-color: #efefef;
+    }
+    
+    .img_td {
+        text-align: center;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .img_td img {
+        max-width: 60px;
+    }
+    
+    .goods_td {
+        max-width: 100px;
+    }
+    
+    .goods_td p:nth-child(1) {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        font-size: 12px;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .goods_td p:nth-child(2) {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        font-size: 12px;
+        color: gray;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .zhuangtai_td {
+        color: red;
+    }
+    
+    .jiaqian_td {
+        min-width: 80px;
+    }
+    
+    .jiaqian_td p:nth-child(2) {
+        color: red;
+    }
+    
+    .yundan_td p:nth-child(1)>span {
+        color: red;
+    }
+    
+    .yundan_td p:nth-child(2)>span {
+        color: red;
+    }
+    
+    .kuaidi_td p:nth-child(1)>span {
+        color: blue;
+    }
+</style>
+
+<div class="container-fluid ">
+    <div class="row ">
+
+        <div class="col-md-11" style="text-align: center;">
+            <form class="form-inline" action="/ordertabalelistJaon/" id="searchForm" method="post">
+                <div class="form-group">
+                    <label for="exampleInputName2">订单号:</label>
+                    <input type="text" class="form-control searchOrderId" name="orderid" placeholder="订单号">
+                    <label for="exampleInputName2">订单状态:</label>
+                    <select name="status" class="form-control searchStatus" id="myStatus">
+						<option value="请选择">全部</option>
+						<option value="0">未支付</option>
+						<option value="1">已支付</option>
+						<option value="2">已取消</option>
+						<option value="3">已完成</option>
+					</select>
+                </div>
+                <input type="button" class="btn btn-success mysearchBtn" aria-hidden="true" value="订单查询">
+            </form>
+        </div>
+        <table id="my_list_table" class="table" style="background-color: white;">
+            <thead>
+                <tr>
+                    <th colspan="11">
+
+                        <!--<button class="btn btn-default trash AllDelete"><span class = "glyphicon glyphicon-trash">批量删除</span></button>-->
+                        <label id="userNumber" class="count" style="float: right; padding-right: 4%;">共有<strong id="orderCount"></strong>条数据</label>
+
+                    </th>
+                </tr>
+            </thead>
+            <thead>
+                <tr>
+                    <th>商品</th>
+                    <th>参数</th>
+                    <th>价钱</th>
+                    <th>状态</th>
+                    <th>运单</th>
+                    <th>快递公司</th>
+                    <th>地址</th>
+                    <th>发票</th>
+                    <th>支付方式</th>
+                </tr>
+            </thead>
+            <tbody id="mytbody" class="myListTable table-striped">
+
+            </tbody>
+        </table>
+
+        <div class="text-center">
+            <ul id="visible-pages-example"></ul>
+        </div>
+        <div class="text-center">
+            <ul id="aaa"></ul>
+        </div>
+
+    </div>
+
+    {% endblock %} {% block contentRight %}
+
+    <ol class="breadcrumb">
+        <li>
+            <a href="#"><i class="fa fa-dashboard"></i> Home</a>
+        </li>
+        <li class="active">订单管理</li>
+    </ol>
+
+    {% endblock %} {% block contentLeft %} 订单管理
+    <small>Version 5.0</small> {% endblock %} {% block script %}
+    <script src="{% static 'layer/layer.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script>
+        var thispage = 1
+        var searchData = ""
+        var sortType = "createTime"
+        var sortDirection = "desc"
+
+        var commonName = ""
+        var orderStatus = ""
+        var transportId = ""
+
+        var mainData = ""
+
+        //解析数据到页面
+        var m = 0;
+        var n = 0;
+        var thestatus = ""
+
+        function orderListToPage(data, page) {
+            for (var i = 0; i < data.length; i++) {
+                m += 1;
+                thestatus = ""
+                oneOrder(data[i])
+            }
+
+            // 查看微信订单号的眼镜按钮事件
+            $('.glyphicon-eye-open').click(function() {
+                alert('微信订单号: \n' + $(this).parents('p').attr('wxOrderId'))
+            })
+
+            // 运单号 保存按钮事件
+            $(".glyphicon-ok").click(function() {
+                var that = this
+                if ($(that).parents('tr').find(".zhuangtai_td").children("p").text() == '等待买家付款') {
+                    layer.msg('买家还没付款呢')
+                    return
+                }
+                var inputVal = removeStringSpace($(this).parents("td").find("input").val())
+                if (inputVal == "") {
+                    layer.msg("请输入商品运单号")
+                    return
+                } else {
+                    var orderTableId = $(this).parents("tr").attr("orderId")
+                    var goodsid = $(this).parents("tr").attr("goodsId")
+                    console.log({
+                        orderTableId: orderTableId,
+                        transportId: inputVal,
+                        goodsId: goodsid
+                    })
+                    myPost("addTransportId", {
+                        orderTableId: orderTableId,
+                        transportId: inputVal,
+                        goodsId: goodsid
+                    }, function(data) {
+                        layer.msg(data.message)
+                        console.log(data)
+                        if (data.status == "ok") {
+                            var current_td = $(that).parents("tr").find('.yundan_td')
+                            current_td.empty()
+
+                            var temp_ele = '<p>运单号: ' + inputVal + '</p><p> 发货时间: <span style="color:red;">' + data.data.fahuoTime + '</span></p>'
+                            current_td.append(temp_ele)
+                        }
+                    })
+
+
+                }
+
+
+            })
+        }
+
+        // 状态 转 文字
+        function status_text(cur_status) {
+
+            var status = ""
+            console.log('当前状态')
+            console.log(cur_status)
+            switch (cur_status) {
+                case 0:
+                    status = "等待买家付款"
+                    break;
+                case 1:
+                    status = "买家已付款,等待买家发货"
+                    break;
+                case 2:
+                    status = "卖家已发货,待收货"
+                    break;
+                case 3:
+                    status = "交易完成,待评价"
+                    break;
+                case 4:
+                    status = "交易完成,已评价"
+                    break;
+                case 5:
+                    status = "交易取消"
+                    break;
+
+                default:
+                    status = ''
+                    break;
+            }
+            return status
+
+        }
+
+        function oneOrder(data) {
+            console.log('我是一条订单数据')
+            console.log(data)
+            var myHtml = '<tr class="order_tr">\
+				<td style="text-align: left;" colspan="17">订单编号: <span style="color:blue;">' + data.orderId + '</span> 下单时间: <span style="color:blue;"> ' + data.createTime + '</span> 下单人: <span style="color:green;"> ' + data.userInfo.nickName + '</span></td>\
+			</tr>'
+
+
+            for (var i = 0; i < data.goodsInfo.length; i++) {
+                var status = status_text(data.goodsInfo[i].status)
+                var transportId = removeStringSpace(data.goodsInfo[i].transportId)
+                if (transportId == "") {
+                    transportId = '<input style="width:70%; margin-right:4px;" /><button class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-ok"  aria-hidden="true"></span></button>'
+                } else {
+                    transportId = '运单号: ' + transportId
+                }
+                var fahuotime = removeStringSpace(data.goodsInfo[i].fahuotime)
+                if (fahuotime != "") {
+                    fahuotime = '<p>发货时间: <span>' + fahuotime + '</span></p>'
+                }
+                var tempHtml = '<tr orderId="' + data.goodsInfo[i].orderTableId + '" goodsId="' + data.goodsInfo[i].goods.goodsid + '" class="goods_tr">\
+					<td class="img_td">\
+						<img src="' + HomeUrl + data.goodsInfo[i].goods.product_thumb_image + '" alt="">\
+					</td>\
+					<td class="goods_td">\
+						<p>' + data.goodsInfo[i].goods.goodsname + '</p>\
+						<p>' + data.goodsInfo[i].params + '</p>\
+					</td>\
+					<td class="jiaqian_td">\
+						<p>' + data.goodsInfo[i].goods.shop_price + ' x ' + data.goodsInfo[i].buyNumber + '</p>\
+						<p>总价: ￥' + parseFloat(data.goodsInfo[i].goods.shop_price) * parseFloat(data.goodsInfo[i].buyNumber) + '</p>\
+					</td>\
+					<td class="zhuangtai_td">\
+						<p>' + status + '</p>\
+					</td>\
+					<td class="yundan_td">\
+						<p>' + transportId + '</p> ' + fahuotime + '\
+					</td>\
+					<td class="kuaidi_td">\
+						<p><span>' + data.sendCompany + '</span>:' + data.deliveryTime + '</p>\
+						<p><span style="color:blue;">缺货处理:</span> ' + data.noGoodsMethod + '</p>\
+					</td>\
+					<td>\
+						<p>' + data.userAddress.address + '</p>\
+					</td>\
+					<td>\
+						<p>' + data.invoiceType + '</p>\
+						<p>' + data.invoiceContent + '</p>\
+					</td>\
+					<td>\
+						<p wxOrderId="' + data.wxOrderId + '">' + data.transportMethod + '<button class="btn btn-default btn-xs" type="button"><span class="glyphicon glyphicon-eye-open"  aria-hidden="true"></span></button></p>\
+					</td>\
+				</tr>'
+                myHtml += tempHtml
+                $(".myListTable").append(myHtml)
+            }
+
+
+
+
+
+
+        }
+
+
+        // 查询按钮点击事件
+        $(".mysearchBtn").click(function() {
+
+            thispage = 1
+            transportId = $(".searchOrderId").val()
+            commonName = ""
+            orderStatus = $(".searchStatus").val()
+            if (orderStatus == "请选择") {
+                orderStatus = ""
+            }
+            console.log(orderStatus)
+            $("#visible-pages-example").twbsPagination("destroy") //销毁分页栏
+            $("#visible-pages-example").empty()
+            loadData()
+        })
+
+        function loadData() {
+            $("#loading").show();
+            mainData = ""
+            myPost("ordertableListJson", {
+                from: "server",
+                page: thispage,
+                sortType: sortType,
+                sortDirection: sortDirection,
+                commonName: commonName,
+                orderStatus: orderStatus,
+                transportId: transportId
+            }, function(data) {
+                mainData = data
+                m = 0;
+                var ordercount = data.count
+                var orderListPages = Math.ceil(parseInt(ordercount) / 10)
+                $(".myListTable").children("tr").remove()
+                orderListToPage(data.data, 1)
+                $("#orderCount").text(ordercount)
+
+                $("#visible-pages-example").children(".sumdiv").remove()
+                createPageNav('#visible-pages-example', orderListPages, function(event, page) {
+                    thispage = page;
+                    loadData()
+                })
+                console.log("请求到数据")
+                $("#loading").hide();
+            })
+        }
+
+        loadData()
+    </script>
+    {% endblock %}

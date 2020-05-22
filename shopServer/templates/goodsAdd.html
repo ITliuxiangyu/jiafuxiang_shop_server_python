@@ -1,0 +1,2682 @@
+{% extends "base.html" %} {% load staticfiles %} {% block css %}
+
+<style type="text/css">
+    .mythead th {
+        text-align: center;
+    }
+    
+    .my_head ul {
+        list-style: none;
+    }
+    
+    .my_head ul li {
+        float: left;
+        padding: 10px;
+        padding-bottom: 4px;
+        color: #2965A8;
+    }
+    
+    .my_head ul li:hover {
+        color: blue;
+    }
+    
+    .head_active {
+        border-bottom: 3px solid lightblue;
+    }
+    
+    .my_content {
+        clear: both;
+    }
+    
+    .a-upload {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .a-upload input {
+        position: absolute;
+        font-size: 12px;
+        right: 0;
+        top: 0;
+        opacity: 0;
+        display: inline-block;
+        filter: alpha(opacity=0);
+        cursor: pointer;
+        border: 1px solid blue;
+    }
+    
+    .a-upload:hover {
+        color: #444;
+        background: #eee;
+        border-color: #ccc;
+        text-decoration: none
+    }
+    
+    .third_content .row {
+        background-color: #f6f6f6;
+        /*min-height: 200px;*/
+    }
+    
+    .canshuBtn {
+        padding-bottom: 30px;
+    }
+    
+    .canshuBtn {
+        background-color: #f6f6f6;
+    }
+    
+    #editorToolbar {
+        border: 1px solid #ccc;
+    }
+    
+    #editor {
+        border: 1px solid #ccc;
+        height: 400px;
+    }
+    
+    .mythead th {
+        text-align: left;
+    }
+    
+    .lunboTitle {
+        /* display: none; */
+    }
+    
+    .biaojuzhong input {
+        height: 30px;
+        border: 1px solid darkgray;
+    }
+    
+    .biaojuzhong textarea {
+        border: 1px solid darkgray;
+    }
+    
+    .view {
+        border: 6px solid lightgray;
+        border-radius: 10px;
+    }
+    
+    .swiper-container {
+        border: 4px solid aliceblue;
+        border-radius: 10px;
+    }
+    
+    .myShuxingBtnWrap .active {
+        border: 1px solid red;
+    }
+</style>
+<link rel="stylesheet" type="text/css" href="{% static 'css/globle.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.tag-editor.css' %}" />
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/webuploader.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/upload.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/swiper.min.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/pc_banner.css' %}"> {% endblock %} {% block contentRight %}
+
+<ol class="breadcrumb">
+    <li>
+        <a href="#"><i class="fa fa-dashboard"></i> Home</a>
+    </li>
+    <li class="head_active1111">添加商品</li>
+</ol>
+
+{% endblock %} {% block contentLeft %} 商品添加
+<small>Version 5.0</small> {% endblock %} {% block content %}
+
+
+<!-- 商品分类模态框 -->
+<div class="modal fade" id="goodsClassifyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close classifyHideBtn" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">商品分类</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding-left:15px; padding-bottom:15px;">
+
+                    <div class="col-sm-4" style="text-align:center;">大分类</div>
+                    <div class="col-sm-4 minClassifyTitle" style="text-align:center;">二级分类</div>
+                    <div class="col-sm-4 xiaofenleiTitle" style="text-align:center;">三级分类</div>
+
+                </div>
+
+                <div class="row" style="padding-left:15px;">
+                    <div class="list-group bigClassifyList col-sm-3">
+                    </div>
+                    <div class="list-group minClassifyList col-sm-3">
+                    </div>
+                    <div class="list-group xiaofenleiList col-sm-6">
+                    </div>
+                </div>
+
+                <div class="row" style="">
+
+                    <div class="col-sm-4" style="text-align:center;">
+                        <input type="text" class="form-control addBigClassifyText"><button style="margin-top:15px;" type="button" class="btn btn-primary addBigClassifyBtn">添加</button>
+                    </div>
+                    <div class="col-sm-4" style="text-align:center;">
+                        <input type="text" class="form-control addMinClassifyText"><button style="margin-top:15px;" type="button" class="btn btn-primary addMinClassifyBtn">添加</button>
+                    </div>
+                    <div class="col-sm-4" style="text-align:center;">
+                        <input type="text" class="form-control addXiaofenleiText"><button style="margin-top:15px;" type="button" class="btn btn-primary addXiaofenleiBtn">添加</button>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 商品批量上传模态框 -->
+<div class="modal fade" id="piliangModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close piliangHideBtn" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">商品批量上传</h4>
+            </div>
+            <div class="modal-body">
+                选择商品分类
+                <div class="row form-group">
+                    <!-- <input class="form-control only" onkeyup="myfun(this);" id="standard" name="standard" value="" check-type="required" required-message="商家类别不能为空！"> -->
+
+                    <select name="bigClassiData" class="col-sm-4 form-group bigCalssifySelect" onchange="selectBigData(this.value)">
+						
+					</select>
+                    <select name="minClassiData" class="col-sm-4 form-group minCalssifySelect" onchange="selectMinData(this)">
+						
+					</select>
+                    <select name="xiaoClassiData" class="col-sm-4 form-group xiaoCalssifySelect" onchange="selectXiaoData(this)">
+						
+					</select>
+                </div>
+
+                <div>
+                    <form id="uploadCSVForm" action="/uploadCSVFile/" method="post" enctype="multipart/form-data">
+                        <!-- <form class="form-horizontal" id="uploadCSVForm" action="/uploadCSVFile/" method="post"> -->
+                        <div class="form-group td">
+                            <label class="col-sm-4 control-label">批量上传csv文件:</label>
+                            <input type="file" name="myfiles" id="">
+
+                            <input type="hidden" name="minFenleiName" class="minFenleiName">
+
+                        </div>
+                        <div class="form-group td">
+                            <div class="col-sm-5 control-label"></div>
+                            <button type="button" class="col-sm-2 btn btn-info" id="uploadCSVBtn"> 提交</button>
+                            <!-- <input type="submit" value="tijao"> -->
+                            <div class="col-sm-5 control-label"></div>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--分类属性列表模态框-->
+<div class="modal fade" id="fenleiAttrModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel"></h4>
+                <button type="button" class="btn btn-default btn-lg btn-xs bianjiBtn">
+			<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> 编辑
+		</button>
+            </div>
+            <div class="modal-body">
+                <div class="list-group">
+
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary fenleiQuedinig">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="my_head">
+    <div>
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#piliangModal"> 商品批量上传</button>
+        <a href="/fenleiListPage/" type="button" class="btn btn-info"> 分类属性列表</a>
+    </div>
+    <ul>
+        <li class="head_active">基本信息</li>
+        <li>库存/规格</li>
+        <li>参数</li>
+        <li>详情</li>
+        <li class="lunboTitle">轮播图</li>
+    </ul>
+
+</div>
+
+<div class="my_content">
+    <form class="form-horizontal" id="addgoods" action="" method="post">
+        <div class="child_content first_content" style="display: block;">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr class="mythead">
+                            <th>名称</th>
+                            <th>商家</th>
+                            <th>品牌</th>
+                            <th>编号</th>
+                            <th>简介</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="biaojuzhong">
+                            <td><input type="text" placeholder="商品名称" name="goodsname"></td>
+                            <td><input type="text" placeholder="商家名称" name="shopname"></td>
+                            <td><input type="text" placeholder="品牌" name="product_brand"></td>
+                            <td><input type="text" placeholder="商品编号" name="product_number"></td>
+                            <td><textarea type="text" placeholder="商品简介" name="product_brief_info"></textarea></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr class="mythead">
+                            <th>类别</th>
+                            <th>关键字</th>
+                            <th>类型</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="biaojuzhong">
+                            <td>
+                                <div style="color:lightcoral;" class="fenleiPreview"></div>
+                                <select class="first" onchange="firsFenleiSelectFn(this.value)">
+									<option value ="firstFenlei">一级分类</option>
+								</select>
+                                <select class="second" onchange="secondFenleiSelectFn(this.value)">
+									<option value ="volvo">二级分类</option>
+								</select>
+                                <select class="third" onchange="thirdFenleiSelectFn(this.value)">
+									<option value ="volvo" >三级分类</option>
+								</select>
+                                <a class="editFenlei" href="#" style="margin-left:10px;">编辑分类</a>
+                            </td>
+                            <td style="min-width:260px;">
+                                <input id="keywords" name="keywords" value="">
+
+                            </td>
+                            <td>
+                                <input type="checkbox" name="is_jingpin">精品
+                                <input type="checkbox" name="is_rexiao">热销
+                                <input type="checkbox" name="is_commen_product" checked>普通商品
+                                <input type="checkbox" name="is_entity_product">实体商品
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+        <div class="child_content second_content" style="display: none;">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr class="mythead">
+                            <th>库存</th>
+                            <th>库存警告</th>
+                            <th>市场价格</th>
+                            <th>本店价格</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="biaojuzhong">
+                            <td><input type="number" placeholder="库存" name="counts" value="10"></td>
+                            <td><input type="number" placeholder="库存警告" name="warning_counts" value="0"></td>
+                            <td><input type="number" step="0.01" placeholder="市场价格" name="market_price" value="0"></td>
+                            <td><input type="number" step="0.01" placeholder="本店价格" name="shop_price" value="0"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr class="mythead">
+                            <th>积分价</th>
+                            <th>送积分</th>
+                            <th>返利</th>
+                            <th>运费</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="biaojuzhong">
+                            <td><input type="number" placeholder="积分商城中的价格" name="jifenprice" value="0"></td>
+                            <td><input type="number" placeholder="商品反积分" name="songjifen" value="0"></td>
+                            <td><input type="number" step="0.01" placeholder="商品返利的百分比" name="rebate" value="0"></td>
+                            <td><input type="number" step="0.01" placeholder="运费" name="transportmoney" value="0"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="child_content third_content" style="max-height:300px; overflow:scroll; padding-left:12px; display: none;">
+            <div class="row canshuHeader">
+                <div class="col-sm-2" style="padding:18px 10px; color:#878787;">参数名</div>
+                <div class="col-sm-10" style="padding:18px 10px; color:#878787;">参数值(参数1,参数2,参数3)</div>
+            </div>
+            <div class="canshuInputWrap">
+
+            </div>
+            <input id="colorInput" type="hidden" name="color" value="">
+            <input id="sizeInput" type="hidden" name="size" value="">
+            <input id="xiaoClassiData" type="hidden" name="xiaoClassiData" value="">
+            <input id="goodsDetail" type="hidden" name="details" value="">
+            <div class="row canshuBtn">
+                <div class="col-sm-6"><button type="button" class="btn btn-default btn-sm addParamsBtn"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加商品分类属性</button><button style="margin-left:10px;" type="button" class="btn btn-default btn-sm addParamsBtn2"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加自定义参数</button></div>
+            </div>
+        </div>
+        <div class="child_content fourth_content" style="display: none;">
+            <div id="editorToolbar">
+            </div>
+            <div style="padding: 5px 0; color: #ccc"> </div>
+            <div id="editor">
+            </div>
+        </div>
+        <div class="child_content five_content" style="display: none;">
+            <div class="pc-slide">
+                <div class="view">
+                    <div class="swiper-container">
+                        <a class="arrow-left" href="#"></a>
+                        <a class="arrow-right" href="#"></a>
+                        <div class="swiper-wrapper">
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="wrapper">
+                <div id="container">
+                    <!--头部，相册选择和格式选择-->
+
+                    <div id="uploader">
+                        <div class="queueList">
+                            <div id="dndArea" class="placeholder">
+                                <div id="filePicker"></div>
+                                <p>或将照片拖到这里，单次最多可选300张</p>
+                            </div>
+                        </div>
+                        <div class="statusBar" style="display:none;">
+                            <div class="progress">
+                                <span class="text">0%</span>
+                                <span class="percentage"></span>
+                            </div>
+                            <div class="info"></div>
+                            <div class="btns">
+                                <div id="filePicker2"></div>
+                                <div class="uploadBtn" style="opacity: 0;">开始上传</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-default saveBtn">保存</button>
+    </form>
+
+</div>
+
+{% endblock %} {% block script %}
+
+<script src="{% static 'js/wangEditor.min.js' %}" type="text/javascript" charset="utf-8"></script>
+<script src="{% static 'js/webuploader.min.js' %}" type="text/javascript" charset="utf-8"></script>
+
+<script src="{% static 'js/jquery-ui.min.js' %}" type="text/javascript" charset="utf-8"></script>
+<script src="{% static 'js/jquery.tag-editor.js' %}" type="text/javascript" charset="utf-8"></script>
+
+
+<script src="{% static 'js/swiper.min.js' %}" type="text/javascript" charset="utf-8"></script>
+
+<script type="text/javascript">
+    state = undefined;
+
+    function lunbu_uploader() {
+        var reg = new RegExp("(^|&)goodsid=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        var goodsid = ""
+        if (r == null) {
+
+        } else {
+            goodsid = unescape(r[2])
+        }
+
+        var $wrap = $('#uploader'),
+
+            // 图片容器
+            $queue = $('<ul class="filelist"></ul>')
+            .appendTo($wrap.find('.queueList')),
+
+            // 状态栏，包括进度和控制按钮
+            $statusBar = $wrap.find('.statusBar'),
+
+            // 文件总体选择信息。
+            $info = $statusBar.find('.info'),
+
+            // 上传按钮
+            $upload = $wrap.find('.uploadBtn'),
+
+            // 没选择文件之前的内容。
+            $placeHolder = $wrap.find('.placeholder'),
+
+            $progress = $statusBar.find('.progress').hide(),
+
+            // 添加的文件数量
+            fileCount = 0,
+
+            // 添加的文件总大小
+            fileSize = 0,
+
+            // 优化retina, 在retina下这个值是2
+            ratio = window.devicePixelRatio || 1,
+
+            // 缩略图大小
+            thumbnailWidth = 110 * ratio,
+            thumbnailHeight = 110 * ratio;
+
+        // 可能有pedding, ready, uploading, confirm, done.
+        state = 'pedding'
+
+        // 所有文件的进度信息，key为file id
+        var percentages = {},
+            // 判断浏览器是否支持图片的base64
+            isSupportBase64 = (function() {
+                var data = new Image();
+                var support = true;
+                data.onload = data.onerror = function() {
+                    if (this.width != 1 || this.height != 1) {
+                        support = false;
+                    }
+                }
+                data.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+                return support;
+            })(),
+
+            // 检测是否已经安装flash，检测flash的版本
+            flashVersion = (function() {
+                var version;
+
+                try {
+                    version = navigator.plugins['Shockwave Flash'];
+                    version = version.description;
+                } catch (ex) {
+                    try {
+                        version = new ActiveXObject('ShockwaveFlash.ShockwaveFlash')
+                            .GetVariable('$version');
+                    } catch (ex2) {
+                        version = '0.0';
+                    }
+                }
+                version = version.match(/\d+/g);
+                return parseFloat(version[0] + '.' + version[1], 10);
+            })(),
+
+            supportTransition = (function() {
+                var s = document.createElement('p').style,
+                    r = 'transition' in s ||
+                    'WebkitTransition' in s ||
+                    'MozTransition' in s ||
+                    'msTransition' in s ||
+                    'OTransition' in s;
+                s = null;
+                return r;
+            })(),
+
+            // WebUploader实例
+            uploader;
+
+        if (!WebUploader.Uploader.support('flash') && WebUploader.browser.ie) {
+
+            // flash 安装了但是版本过低。
+            if (flashVersion) {
+                (function(container) {
+                    window['expressinstallcallback'] = function(state) {
+                        switch (state) {
+                            case 'Download.Cancelled':
+                                alert('您取消了更新！')
+                                break;
+
+                            case 'Download.Failed':
+                                alert('安装失败')
+                                break;
+
+                            default:
+                                alert('安装已成功，请刷新！');
+                                break;
+                        }
+                        delete window['expressinstallcallback'];
+                    };
+
+                    var swf = './expressInstall.swf';
+                    // insert flash object
+                    var html = '<object type="application/' +
+                        'x-shockwave-flash" data="' + swf + '" ';
+
+                    if (WebUploader.browser.ie) {
+                        html += 'classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" ';
+                    }
+
+                    html += 'width="100%" height="100%" style="outline:0">' +
+                        '<param name="movie" value="' + swf + '" />' +
+                        '<param name="wmode" value="transparent" />' +
+                        '<param name="allowscriptaccess" value="always" />' +
+                        '</object>';
+
+                    container.html(html);
+
+                })($wrap);
+
+                // 压根就没有安转。
+            } else {
+                $wrap.html('<a href="http://www.adobe.com/go/getflashplayer" target="_blank" border="0"><img alt="get flash player" src="http://www.adobe.com/macromedia/style_guide/images/160x41_Get_Flash_Player.jpg" /></a>');
+            }
+
+            return;
+        } else if (!WebUploader.Uploader.support()) {
+            alert('Web Uploader 不支持您的浏览器！');
+            return;
+        }
+
+        // 实例化
+        uploader = WebUploader.create({
+            pick: {
+                id: '#filePicker',
+                label: '点击选择图片'
+            },
+            formData: {
+                uid: 123
+            },
+            dnd: '#dndArea',
+            paste: '#uploader',
+            swf: '../../dist/Uploader.swf',
+            chunked: false,
+            chunkSize: 512 * 1024,
+            server: HomeUrl + 'addLunboImages/?goodsid=' + goodsid,
+            // runtimeOrder: 'flash',
+
+            accept: {
+                title: 'Images',
+                extensions: 'gif,jpg,jpeg,bmp,png',
+                mimeTypes: 'image/*'
+            },
+
+            // 禁掉全局的拖拽功能。这样不会出现图片拖进页面的时候，把图片打开。
+            disableGlobalDnd: true,
+            fileNumLimit: 300,
+            fileSizeLimit: 200 * 1024 * 1024, // 200 M
+            fileSingleSizeLimit: 50 * 1024 * 1024 // 50 M
+        });
+
+        // 拖拽时不接受 js, txt 文件。
+        uploader.on('dndAccept', function(items) {
+            var denied = false,
+                len = items.length,
+                i = 0,
+                // 修改js类型
+                unAllowed = 'text/plain;application/javascript ';
+
+            for (; i < len; i++) {
+                // 如果在列表里面
+                if (~unAllowed.indexOf(items[i].type)) {
+                    denied = true;
+                    break;
+                }
+            }
+
+            return !denied;
+        });
+
+        uploader.on('dialogOpen', function() {});
+
+        uploader.on('uploadSuccess', function(file, response) {});
+
+
+
+        // 添加“添加文件”的按钮，
+        uploader.addButton({
+            id: '#filePicker2',
+            label: '继续添加'
+        });
+
+        uploader.on('ready', function() {
+            window.uploader = uploader;
+        });
+
+        // 当有文件添加进来时执行，负责view的创建
+        function addFile(file) {
+            var $li = $('<li id="' + file.id + '">' +
+                    '<p class="title">' + file.name + '</p>' +
+                    '<p class="imgWrap"></p>' +
+                    '<p class="progress"><span></span></p>' +
+                    '</li>'),
+
+                $btns = $('<div class="file-panel">' +
+                    '<span class="cancel">删除</span>' +
+                    '<span class="rotateRight">向右旋转</span>' +
+                    '<span class="rotateLeft">向左旋转</span></div>').appendTo($li),
+                $prgress = $li.find('p.progress span'),
+                $wrap = $li.find('p.imgWrap'),
+                $info = $('<p class="error"></p>'),
+
+                showError = function(code) {
+                    switch (code) {
+                        case 'exceed_size':
+                            text = '文件大小超出';
+                            break;
+
+                        case 'interrupt':
+                            text = '上传暂停';
+                            break;
+
+                        default:
+                            text = '上传失败，请重试';
+                            break;
+                    }
+
+                    $info.text(text).appendTo($li);
+                };
+
+            if (file.getStatus() === 'invalid') {
+                showError(file.statusText);
+            } else {
+                // @todo lazyload
+                $wrap.text('预览中');
+                uploader.makeThumb(file, function(error, src) {
+                    var img;
+
+                    if (error) {
+                        $wrap.text('不能预览');
+                        return;
+                    }
+
+                    if (isSupportBase64) {
+                        img = $('<img src="' + src + '">');
+                        $wrap.empty().append(img);
+                    } else {
+                        $.ajax('../../server/preview.php', {
+                            method: 'POST',
+                            data: src,
+                            dataType: 'json'
+                        }).done(function(response) {
+                            if (response.result) {
+                                img = $('<img src="' + response.result + '">');
+                                $wrap.empty().append(img);
+                            } else {
+                                $wrap.text("预览出错");
+                            }
+                            $("#loading").hide()
+                        });
+                    }
+                }, thumbnailWidth, thumbnailHeight);
+
+                percentages[file.id] = [file.size, 0];
+                file.rotation = 0;
+            }
+
+            file.on('statuschange', function(cur, prev) {
+                if (prev === 'progress') {
+                    $prgress.hide().width(0);
+                } else if (prev === 'queued') {
+                    $li.off('mouseenter mouseleave');
+                    $btns.remove();
+                }
+
+                // 成功
+                if (cur === 'error' || cur === 'invalid') {
+                    showError(file.statusText);
+                    percentages[file.id][1] = 1;
+                } else if (cur === 'interrupt') {
+                    showError('interrupt');
+                } else if (cur === 'queued') {
+                    $info.remove();
+                    $prgress.css('display', 'block');
+                    percentages[file.id][1] = 0;
+                } else if (cur === 'progress') {
+                    $info.remove();
+                    $prgress.css('display', 'block');
+                } else if (cur === 'complete') {
+                    $prgress.hide().width(0);
+                    $li.append('<span class="success"></span>');
+                }
+
+                $li.removeClass('state-' + prev).addClass('state-' + cur);
+            });
+
+            $li.on('mouseenter', function() {
+                $btns.stop().animate({
+                    height: 30
+                });
+            });
+
+            $li.on('mouseleave', function() {
+                $btns.stop().animate({
+                    height: 0
+                });
+            });
+
+            $btns.on('click', 'span', function() {
+                var index = $(this).index(),
+                    deg;
+
+                switch (index) {
+                    case 0:
+                        uploader.removeFile(file);
+                        return;
+
+                    case 1:
+                        file.rotation += 90;
+                        break;
+
+                    case 2:
+                        file.rotation -= 90;
+                        break;
+                }
+
+                if (supportTransition) {
+                    deg = 'rotate(' + file.rotation + 'deg)';
+                    $wrap.css({
+                        '-webkit-transform': deg,
+                        '-mos-transform': deg,
+                        '-o-transform': deg,
+                        'transform': deg
+                    });
+                } else {
+                    $wrap.css('filter', 'progid:DXImageTransform.Microsoft.BasicImage(rotation=' + (~~((file.rotation / 90) % 4 + 4) % 4) + ')');
+
+                }
+
+
+            });
+
+            $li.appendTo($queue);
+        }
+
+        // 负责view的销毁
+        function removeFile(file) {
+            var $li = $('#' + file.id);
+
+            delete percentages[file.id];
+            updateTotalProgress();
+            $li.off().find('.file-panel').off().end().remove();
+        }
+
+        function updateTotalProgress() {
+            var loaded = 0,
+                total = 0,
+                spans = $progress.children(),
+                percent;
+
+            $.each(percentages, function(k, v) {
+                total += v[0];
+                loaded += v[0] * v[1];
+            });
+
+            percent = total ? loaded / total : 0;
+
+
+            spans.eq(0).text(Math.round(percent * 100) + '%');
+            spans.eq(1).css('width', Math.round(percent * 100) + '%');
+            updateStatus();
+        }
+
+        function updateStatus() {
+            var text = '',
+                stats;
+
+            if (state === 'ready') {
+                text = '选中' + fileCount + '张图片，共' +
+                    WebUploader.formatSize(fileSize) + '。';
+            } else if (state === 'confirm') {
+                stats = uploader.getStats();
+                if (stats.uploadFailNum) {
+                    text = '已成功上传' + stats.successNum + '张照片至XX相册，' +
+                        stats.uploadFailNum + '张照片上传失败，<a class="retry" href="#">重新上传</a>失败图片或<a class="ignore" href="#">忽略</a>'
+                }
+
+            } else {
+                stats = uploader.getStats();
+                text = '共' + fileCount + '张（' +
+                    WebUploader.formatSize(fileSize) +
+                    '），已上传' + stats.successNum + '张';
+
+                if (stats.uploadFailNum) {
+                    text += '，失败' + stats.uploadFailNum + '张';
+                }
+            }
+
+            $info.html(text);
+        }
+
+        function setState(val) {
+            var file, stats;
+
+            if (val === state) {
+                return;
+            }
+
+            $upload.removeClass('state-' + state);
+            $upload.addClass('state-' + val);
+            state = val;
+
+            switch (state) {
+
+                case 'pedding':
+                    $placeHolder.removeClass('element-invisible');
+                    $queue.hide();
+                    $statusBar.addClass('element-invisible');
+                    uploader.refresh();
+                    break;
+
+                case 'ready':
+                    $placeHolder.addClass('element-invisible');
+                    $('#filePicker2').removeClass('element-invisible');
+                    $queue.show();
+                    $statusBar.removeClass('element-invisible');
+                    uploader.refresh();
+                    break;
+
+                case 'uploading':
+                    $('#filePicker2').addClass('element-invisible');
+                    $progress.show();
+                    $upload.text('暂停上传');
+                    break;
+
+                case 'paused':
+                    $progress.show();
+                    $upload.text('继续上传');
+                    break;
+
+                case 'confirm':
+                    $progress.hide();
+                    $('#filePicker2').removeClass('element-invisible');
+                    $upload.text('开始上传');
+
+                    stats = uploader.getStats();
+                    if (stats.successNum && !stats.uploadFailNum) {
+                        setState('finish');
+                        return;
+                    }
+                    break;
+                case 'finish':
+                    stats = uploader.getStats();
+                    if (stats.successNum) {
+                        layer.msg("上传成功啦。。。。。")
+                        setTimeout(function() {
+                            window.location.href = HomeUrl + "goodsManage/"
+                        }, 500)
+                    } else {
+                        // 没有成功的图片，重设
+                        state = 'done';
+                        location.reload();
+                    }
+                    break;
+            }
+
+            updateStatus();
+        }
+
+        uploader.onUploadProgress = function(file, percentage) {
+            var $li = $('#' + file.id),
+                $percent = $li.find('.progress span');
+
+            $percent.css('width', percentage * 100 + '%');
+            percentages[file.id][1] = percentage;
+            updateTotalProgress();
+        };
+
+        uploader.onFileQueued = function(file) {
+            fileCount++;
+            fileSize += file.size;
+            if (fileCount === 1) {
+                $placeHolder.addClass('element-invisible');
+                $statusBar.show();
+            }
+
+            addFile(file);
+            setState('ready');
+            updateTotalProgress();
+        };
+
+        uploader.onFileDequeued = function(file) {
+            fileCount--;
+            fileSize -= file.size;
+
+            if (!fileCount) {
+                setState('pedding');
+            }
+
+            removeFile(file);
+            updateTotalProgress();
+
+        };
+
+        uploader.on('all', function(type) {
+            var stats;
+            switch (type) {
+                case 'uploadFinished':
+                    setState('confirm');
+                    break;
+
+                case 'startUpload':
+                    setState('uploading');
+                    break;
+
+                case 'stopUpload':
+                    setState('paused');
+                    break;
+
+            }
+        });
+
+        uploader.onError = function(code) {
+            alert('Eroor: ' + code);
+        };
+
+
+        $info.on('click', '.retry', function() {
+            uploader.retry();
+        });
+
+        $info.on('click', '.ignore', function() {
+            alert('todo');
+        });
+
+        $upload.addClass('state-' + state);
+        updateTotalProgress();
+    }
+
+
+    var fenleiAttr_list = []
+
+    // 当前选中的大分类的名字
+    var currentSelectBigClassifyName = ""
+        // 当前选中的大分类cell的下标
+    var currentSelectBigClassifycellIndex = ""
+    var currentErjiId = ""
+
+    var isGengxin = false;
+
+    var paramsIndex = 0;
+    var getIndex = 0;
+    var getIndex2 = 0;
+
+
+    var bigName = ""
+    var midName = ""
+    var minName = ""
+
+    var bigFenlei = ""
+    var midFenlei = ""
+    var minFenlei = ""
+
+    var prepareIndex = 0
+    var resultIndex = 0
+    var imgArr = []
+    var ijArr = []
+
+    var deleteArr = []
+    var deleteImgArr = []
+
+    var httpIndex = 0
+    var http_base = []
+    var tempJson = ""
+
+    var tupianArr = [];
+    var viewSwiper = "";
+
+    var goodsLunbo = [];
+
+    var currentForm_height = $("body").height() - $(".main-header").height() - $(".main-footer").outerHeight() - $(".content-header").outerHeight() - $(".my_head").outerHeight() - $(".head_active").outerHeight()
+    $("#addgoods>div").css({
+        "height": currentForm_height + "px",
+        "overflow": "scroll"
+    })
+
+
+    // 轮播图删除按钮
+    function deletePicBtn(that) {
+        var lunboid = $(that).parents(".swiper-slide").attr("lunboid")
+        var imgPath = $(that).attr("imgPath")
+            // deleteOneLunboById  lunboid image
+        myPost("deleteOneLunboById", {
+            lunboid: lunboid,
+            image: imgPath
+        }, function(data) {
+            layer.msg(data.message)
+            if (data.status == "ok") {
+                $(that).parents(".swiper-slide").remove()
+                setTimeout(function() {
+                    window.location.reload()
+                }, 500)
+            }
+        })
+    }
+
+
+    // 属性模态框上编辑按钮点击事件
+    $(".bianjiBtn").click(function() {
+        window.location.href = HomeUrl + "editFenleiAttrPage/?fenleiId=" + $("#xiaoClassiData").val()
+    })
+
+    function layoutLunboSwiper(data) {
+        for (var i = 0; i < data.length; i++) {
+
+            var number = i
+
+            var newPic = data[i].image
+            var lunboid = data[i].id;
+
+
+            var ele = '<div class="swiper-slide" lunboid="' + lunboid + '" style="position:relative;"><img src="' + HomeUrlMin + newPic + '"><div style="padding:8px 0; position:absolute; bottom:0px;width:100%; background:black; opacity:0.5; text-align:center;"><button type="button" imgPath="' + newPic + '" class="btn btn-default btn-xs addParamsBtn" onclick="deletePicBtn(this)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button></div></div>'
+            $(".swiper-wrapper").append(ele)
+        }
+
+        $(".swiper-wrapper img").css("width", "100%")
+
+        setTimeout(function() {
+            viewSwiper = new Swiper('.view .swiper-container')
+            $('.arrow-left').on('click', function(e) {
+                e.preventDefault()
+
+                if (viewSwiper.activeIndex == 0) {
+                    viewSwiper.slideTo(viewSwiper.slides.length - 1, 1000);
+                    return
+                }
+                viewSwiper.slidePrev()
+            })
+            $('.arrow-right').on('click', function(e) {
+                e.preventDefault()
+                if (viewSwiper.activeIndex == viewSwiper.slides.length - 1) {
+                    viewSwiper.slideTo(0, 1000);
+                    return
+                }
+                viewSwiper.slideNext()
+            })
+        }, 1000);
+
+
+
+
+
+    }
+
+    window.onload = function(event) {
+        var shangchuanArray = localStorage.getItem("shangchuanArray")
+
+        if (shangchuanArray == null) {
+            localStorage.setItem("shangchuanArray", JSON.stringify([]))
+            shangchuanArray = []
+        } else {
+            shangchuanArray = JSON.parse(shangchuanArray)
+        }
+
+        if (shangchuanArray.length > 0) {
+            myPost("deleteManyLunboImage", {
+                goodsid: goodsid,
+                deleteArr: JSON.stringify(shangchuanArray)
+            }, function(data) {
+                localStorage.setItem("shangchuanArray", JSON.stringify([]))
+                layer.msg(data.message)
+                if (data.status == "ok") {
+                    deleteArr = []
+                }
+            })
+        }
+    };
+
+
+    // 富文本框
+    var E = window.wangEditor
+    var editor = new E('#editorToolbar', '#editor')
+
+    // editor.customConfig.debug = true;
+    editor.customConfig.uploadImgServer = '/uploadImage/'
+        // editor.customConfig.uploadImgShowBase64 = true   // 使用 base64 保存图片
+    editor.customConfig.menus = [
+        'head', // 标题
+        'bold', // 粗体
+        'fontSize', // 字号
+        'fontName', // 字体
+        'italic', // 斜体
+        'underline', // 下划线
+        'strikeThrough', // 删除线
+        'foreColor', // 文字颜色
+        'backColor', // 背景颜色
+        'link', // 插入链接
+        'list', // 列表
+        'justify', // 对齐方式
+        'quote', // 引用
+        'emoticon', // 表情
+        'image', // 插入图片
+        'table', // 表格
+        'code', // 插入代码
+        'undo', // 撤销
+        'redo' // 重复
+    ]
+    editor.customConfig.showLinkImg = false
+    editor.customConfig.onchangeTimeout = 10
+    editor.customConfig.uploadImgMaxSize = 50000 * 1024
+
+    editor.customConfig.uploadImgMaxLength = 5
+
+
+
+    editor.customConfig.uploadImgHooks = {
+        success: function(xhr, editor, result) {
+            var shangchuanArray = []
+            for (var i = 0; i < result.data.length; i++) {
+                shangchuanArray.push("static" + result.data[i].split("static")[1])
+            }
+            localStorage.setItem("shangchuanArray", JSON.stringify(shangchuanArray))
+        },
+    }
+
+    editor.customConfig.onchange = function(html) {
+
+
+        if (tempJson == "") {
+            tempJson = editor.txt.getJSON()
+        } else {
+            var currentJson = editor.txt.getJSON()
+            if (JSON.stringify(currentJson).length > JSON.stringify(tempJson).length) {} else {
+                var currentImgArr = []
+                var tempImgArr = []
+                for (var i = 0; i < tempJson.length; i++) {
+
+                    for (var j = 0; j < tempJson[i].children.length; j++) {
+                        if (tempJson[i].children[j].tag == "img") {
+                            tempImgArr.push(tempJson[i].children[j].attrs[0].value)
+                        }
+                    }
+
+
+                }
+
+                for (var i = 0; i < currentJson.length; i++) {
+
+                    for (var j = 0; j < currentJson[i].children.length; j++) {
+                        if (currentJson[i].children[j].tag == "img") {
+                            currentImgArr.push(currentJson[i].children[j].attrs[0].value)
+                        }
+                    }
+
+
+                }
+                if (currentImgArr.length != tempImgArr.length) {
+                    for (var k = 0; k < tempImgArr.length; k++) {
+                        var zhaodao = ""
+                        var tempStr = tempImgArr[k]
+                        if (currentImgArr.length == 0) {
+                            zhaodao = tempStr
+                        } else {
+                            var iszhaodao = false
+                            for (var l = 0; l < currentImgArr.length; l++) {
+                                if (tempStr == currentImgArr[l]) {
+                                    iszhaodao = true
+                                    break
+                                } else {
+
+                                }
+                            }
+                            if (iszhaodao = false) {
+                                zhaodao = tempStr
+                            }
+                        }
+
+
+                        if (zhaodao != "") {
+                            deleteArr.push(zhaodao.split("top/")[1])
+                            break
+
+                        }
+                    }
+                }
+            }
+            tempJson = currentJson
+        }
+    }
+
+    editor.create()
+
+
+
+
+
+    var hrefArr = window.location.href.split("?")
+    if (hrefArr.length >= 2) {
+        var queryString = hrefArr[1]
+        var idArr = queryString.split("=")
+        if (idArr.length >= 1) {
+            if (idArr[0] == "goodsid") {
+                var goodsid = idArr[1].replace("#", "")
+                if (goodsid != "") {
+                    getGoodsDetailByGoodsid(goodsid)
+                }
+            } else {
+                $('#keywords').tagEditor({
+                    initialTags: ["参数1", "参数2"],
+                    onChange: function(field, editor, tags) {},
+                });
+            }
+        }
+    } else {
+        $('#keywords').tagEditor({
+            initialTags: ["参数1", "参数2"],
+            onChange: function(field, editor, tags) {},
+        });
+    }
+
+
+
+    // csv 文件 提交按钮 事件
+    $("#uploadCSVBtn").click(function() {
+        $(".minFenleiName").val($(".xiaoCalssifySelect").val())
+
+        $("#uploadCSVForm").ajaxSubmit({
+            success: function(data) {
+                layer.msg(data.message)
+                if (data.status == "ok") {
+                    $('#piliangModal').modal('hide')
+
+                }
+                $("#loading").hide()
+            },
+            error: function(err) {
+                layer.msg("上传失败")
+                $("#loading").hide()
+            }
+        })
+    })
+
+    // 根据goodsid做界面
+    function getGoodsDetailByGoodsid(goodsid) {
+        myPost("goodsSelectByidNew", {
+            "goodsid": goodsid
+        }, function(data) {
+            if (data.status == "ok") {
+
+
+                isGengxin = true;
+                $(".saveBtn").text("更新")
+                var goodsidEle = '<input type="hidden" name="goodsid" value="' + goodsid + '">'
+                $("#addgoods").append(goodsidEle)
+                var goods = data.data.goods;
+                var goodsDetail = goods.details
+                $("#goodsDetail").val(goodsDetail)
+                goodsDetail = replaceAllStr(decodeURIComponent(goodsDetail) , "www.dangsh.top" , window.my_global_host_url)
+                   
+                editor.txt.html(goodsDetail)
+
+                if (goods.lunbo == undefined || goods.lunbo == "") {
+
+                } else {
+                    goodsLunbo = goods.lunbo
+                }
+
+                $("input[name='goodsname']").val(goods.goodsname)
+                $("input[name='shopname']").val(goods.shopname)
+                $("input[name='product_brand']").val(goods.product_brand)
+                $("input[name='product_number']").val(goods.product_number)
+                $("input[name='product_brief_info']").val(goods.product_brief_info)
+                if (goods.xiaoClassiData) {
+                    $(".fenleiPreview").text((goods.xiaoClassiData.bigName == undefined ? "?" : goods.xiaoClassiData.bigName) + "-" + (goods.xiaoClassiData.midName == undefined ? "?" : goods.xiaoClassiData.midName) + "-" + (goods.xiaoClassiData.minName == undefined ? "?" : goods.xiaoClassiData.minName))
+                    $("#xiaoClassiData").val(goods.xiaoClassiData.minFenleiId)
+                }
+
+                $("input[name='is_jingpin']")[0].checked = goods.is_jingpin == 1 ? true : false
+                $("input[name='is_rexiao']")[0].checked = goods.is_rexiao == 1 ? true : false
+                $("input[name='is_commen_product']")[0].checked = goods.is_commen_product == 1 ? true : false
+                $("input[name='is_entity_product']")[0].checked = goods.is_entity_product == 1 ? true : false
+
+                $("input[name='counts']").val(goods.counts)
+                $("input[name='warning_counts']").val(goods.warning_counts)
+                $("input[name='market_price']").val(goods.market_price)
+                $("input[name='shop_price']").val(goods.shop_price)
+
+                $("input[name='jifenprice']").val(goods.jifenprice)
+                $("input[name='songjifen']").val(goods.songjifen)
+                $("input[name='rebate']").val(goods.rebate)
+                $("input[name='transportmoney']").val(goods.transportmoney)
+                $("input[name='keywords']").val(goods.keywords)
+                $('#keywords').tagEditor({
+                    initialTags: goods.keywords == undefined ? [] : goods.keywords.split(","),
+                    onChange: function(field, editor, tags) {},
+                });
+
+                // getIndex
+                var params1Arr = goods.goodsparams1 == undefined ? [] : goods.goodsparams1.split("/")
+                for (var i = 0; i < params1Arr.length; i++) {
+                    if (params1Arr[i] != "") {
+                        var tempEle = '<div class="row canshuInput">'
+                        var minArr = params1Arr[i].split(":")
+                        if (minArr.length >= 2) {
+                            tempEle = tempEle + '<div class="col-sm-2" style="padding:9px 10px; color:#878787;"><input type="text" style="width:80%;" value="' + minArr[0] + '"> </div><div class="col-sm-9" style="padding:9px 10px; color:#878787;"><input type="text" id="showParm' + getIndex + '" style="width:80%;"> <input type="checkbox" checked>可选参数 </div><div class="col-sm-1" style="padding:9px 10px; color:#878787;"><span class="glyphicon glyphicon-remove" onclick="canshuDelBtn(this)" aria-hidden="true"></span></div>'
+                        }
+                        tempEle = tempEle + "</div>"
+                        $(".canshuInputWrap").append($(tempEle))
+                        if (minArr[1]) {
+                            var canshuArr = minArr[1].split(",")
+                            $('#showParm' + getIndex).tagEditor({
+                                initialTags: canshuArr,
+                                onChange: function(field, editor, tags) {},
+                            });
+                        }
+
+                        getIndex++;
+                    }
+
+                }
+
+                var params2Arr = goods.goodsparams2 == undefined ? [] : goods.goodsparams2.split("/")
+
+                for (var i = 0; i < params2Arr.length; i++) {
+                    if (params2Arr[i] != "") {
+                        var tempEle = '<div class="row canshuInput">'
+                        var minArr = params2Arr[i].split(":")
+                        if (minArr.length >= 2) {
+                            tempEle = tempEle + '<div class="col-sm-2" style="padding:9px 10px; color:#878787;"><input type="text" style="width:80%;" value="' + minArr[0] + '"> </div><div class="col-sm-9" style="padding:9px 10px; color:#878787;"><input type="text" id="showParm' + getIndex + '" style="width:80%;"> <input type="checkbox">可选参数 </div><div class="col-sm-1" style="padding:9px 10px; color:#878787;"><span class="glyphicon glyphicon-remove" onclick="canshuDelBtn(this)" aria-hidden="true"></span></div>'
+                        }
+                        tempEle = tempEle + "</div>"
+                        $(".canshuInputWrap").append($(tempEle))
+                        if (minArr[1]) {
+                            var canshuArr = minArr[1].split(",")
+                            $('#showParm' + getIndex).tagEditor({
+                                initialTags: canshuArr,
+                                onChange: function(field, editor, tags) {},
+                            });
+                        }
+                        getIndex++;
+                    }
+
+                }
+            }
+        })
+    }
+
+    function uploadDetail(htmlJson) {
+        var goodsDetail = htmlJson
+
+
+        $("#goodsDetail").val(goodsDetail)
+
+
+        var colorStr = ""
+        var sizeStr = ""
+        $(".canshuInput").each(function(i, item) {
+            var leixing = $(item).children(".col-sm-2").children("input").val()
+            var zhi = $(item).children(".col-sm-9").children("input").eq(0).val()
+            if (leixing == undefined || zhi == undefined) {
+
+            } else {
+                if ($(item).children(".col-sm-9").children("input").eq(1).is(':checked') == true) {
+                    colorStr = colorStr + leixing + ":" + zhi + "/"
+                } else {
+                    sizeStr = sizeStr + leixing + ":" + zhi + "/"
+                }
+            }
+
+        })
+
+        if ($("input[name='is_jingpin']").eq(0).is(":checked") == true) {
+            $("input[name='is_jingpin']").val(1)
+        } else {
+            $("input[name='is_jingpin']").val(0)
+        }
+
+        if ($("input[name='is_rexiao']").eq(0).is(":checked") == true) {
+            $("input[name='is_rexiao']").val(1)
+        } else {
+            $("input[name='is_rexiao']").val(0)
+        }
+
+        if ($("input[name='is_commen_product']").eq(0).is(":checked") == true) {
+            $("input[name='is_commen_product']").val(1)
+        } else {
+            $("input[name='is_commen_product']").val(0)
+        }
+
+        if ($("input[name='is_entity_product']").eq(0).is(":checked") == true) {
+            $("input[name='is_entity_product']").val(1)
+        } else {
+            $("input[name='is_entity_product']").val(0)
+        }
+
+
+        $("#colorInput").val(colorStr)
+        $("#sizeInput").val(sizeStr)
+
+        $("input[name='is_rexiao']")[0].checked = true
+        $("input[name='is_jingpin']")[0].checked = true
+        $("input[name='is_commen_product']")[0].checked = true
+        $("input[name='is_entity_product']")[0].checked = true
+
+
+        var currentUrl = "/goodsManageJsonAdd/"
+        if (isGengxin == true) {
+            currentUrl = "/goodsManageJsonUpdata/"
+        }
+
+        $("#addgoods").ajaxSubmit({
+            url: currentUrl,
+            success: function(data) {
+
+                layer.msg(data.message);
+                if (data.status == "ok") {
+                    if (currentUrl == "/goodsManageJsonAdd/") {
+
+                        uploader.options.server = HomeUrl + 'addLunboImages/?goodsid=' + data.goodsid
+
+                        if (state === 'ready') {
+                            uploader.upload();
+                        } else if (state === 'paused') {
+                            uploader.upload();
+                        } else if (state === 'uploading') {
+                            uploader.stop();
+                            setTimeout(function() {
+                                window.location.href = HomeUrl + "goodsManage/"
+                            }, 100)
+                        } else if (state == undefined) {
+                            setTimeout(function() {
+                                window.location.href = HomeUrl + "goodsManage/"
+                            }, 100)
+                        } else if (state == "pedding") {
+                            setTimeout(function() {
+                                window.location.href = HomeUrl + "goodsManage/"
+                            }, 100)
+                        }
+                    } else {
+
+                        if (state === 'ready') {
+                            uploader.upload();
+                        } else if (state === 'paused') {
+                            uploader.upload();
+                        } else if (state === 'uploading') {
+                            uploader.stop();
+                            setTimeout(function() {
+                                window.location.href = HomeUrl + "goodsManage/"
+                            }, 100)
+                        } else if (state == undefined) {
+                            setTimeout(function() {
+                                window.location.href = HomeUrl + "goodsManage/"
+                            }, 100)
+                        } else if (state == "pedding") {
+                            setTimeout(function() {
+                                window.location.href = HomeUrl + "goodsManage/"
+                            }, 100)
+                        }
+
+                    }
+
+                } else {
+                    $(".saveBtn").removeAttr("disabled")
+                }
+
+                $("#loading").hide()
+            },
+            error: function() {
+                $("#loading").hide()
+            }
+        });
+    }
+
+
+
+    // 保存按钮的点击事件
+    $(".saveBtn").click(function() {
+
+        var currentGoodsName = removeStringSpace($("input[name='goodsname']").val())
+        if (currentGoodsName == "") {
+            alert("请输入商品名")
+            return
+        }
+
+        var currentShopPrice = removeStringSpace($("input[name='shop_price']").val())
+        if (currentShopPrice == "" || currentShopPrice == "0" || currentShopPrice == 0) {
+            alert("请输入 库存/规格 -> 本店售价")
+            return
+        }
+
+        var currentFenlei = removeStringSpace($(".fenleiPreview").text())
+        if (currentFenlei == "" || currentFenlei.indexOf("未分类") != -1) {
+            alert("请选择分类")
+            return
+        }
+
+
+
+
+
+        $(this).attr("disabled", "disabled")
+
+        var shangchuanArray = localStorage.getItem("shangchuanArray")
+
+        if (shangchuanArray == null || shangchuanArray == "") {
+            shangchuanArray = []
+            localStorage.setItem("shangchuanArray", JSON.stringify([]))
+        } else {
+            shangchuanArray = JSON.parse(shangchuanArray)
+        }
+
+        var jiemianImgArr = []
+        var tempJson = editor.txt.getJSON();
+
+        for (var i = 0; i < tempJson.length; i++) {
+
+            for (var j = 0; j < tempJson[i].children.length; j++) {
+                if (tempJson[i].children[j].tag == "img") {
+                    jiemianImgArr.push("static" + tempJson[i].children[j].attrs[0].value.split("static")[1])
+                }
+            }
+        }
+
+        var itemArr = []
+
+        for (var i = 0; i < shangchuanArray.length; i++) {
+            var tempStr = shangchuanArray[i]
+            for (var j = 0; j < jiemianImgArr.length; j++) {
+                if (tempStr == jiemianImgArr[j]) {
+                    itemArr.push(tempStr)
+                }
+            }
+        }
+        for (var i = 0; i < itemArr.length; i++) {
+            var deleteIndex = "aaa"
+            for (var j = 0; j < shangchuanArray.length; j++) {
+                if (shangchuanArray[j] == itemArr[i]) {
+                    deleteIndex = j
+                }
+            }
+
+
+            if (deleteIndex != "aaa") {
+                shangchuanArray.splice(deleteIndex, 1)
+            }
+        }
+
+
+        if (shangchuanArray.length > 0) {
+            localStorage.setItem("shangchuanArray", JSON.stringify(shangchuanArray))
+        } else {
+            localStorage.setItem("shangchuanArray", JSON.stringify([]))
+        }
+
+        if (deleteArr.length > 0) {
+            myPost("deleteManyLunboImage", {
+                goodsid: goodsid,
+                deleteArr: JSON.stringify(deleteArr)
+            }, function(data) {
+                layer.msg(data.message)
+                if (data.status == "ok") {
+                    deleteArr = []
+                }
+            })
+        }
+        uploadDetail(encodeURIComponent(editor.txt.html()))
+    })
+
+    // 获取分类是属性列表
+    // fenleiAttr_list
+    function getFenleiAttr_listFn(fn) {
+        if ($("#xiaoClassiData").val() == "") {
+            return
+        } else {
+            myPost("getFenleiAttr", {
+                fenleiId: $("#xiaoClassiData").val()
+            }, function(data) {
+                fenleiAttr_list = data.data
+                fn()
+            })
+        }
+
+    }
+
+
+
+    // 属性列表model 上的 确定按钮 的 点击事件
+    $(".fenleiQuedinig").click(function() {
+        $("#fenleiAttrModal .modal-body .list-group .myShuxingBtnWrap").each(function(index, item) {
+            var attrName = $(item).find(".nameSpan").text()
+            var attrValue = ""
+            var allAttrValue = ""
+            $(item).find(".shuxingSpan").each(function(min_index, min_item) {
+
+                if ($(min_item).hasClass("active")) {
+                    attrValue = attrValue + $(min_item).text() + ","
+                }
+                allAttrValue = allAttrValue + $(min_item).text() + ","
+            })
+
+            attrValue = attrValue.substr(0, attrValue.length - 1)
+            attrValue = attrValue.split(",")
+
+            allAttrValue = allAttrValue.substr(0, allAttrValue.length - 1)
+            allAttrValue = allAttrValue.split(",")
+
+            var isHaveThisRow = false
+
+            $(".canshuInputWrap .canshuInput").each(function(index, item) {
+                if (attrName == $(item).find(".col-sm-2").find("input").val()) {
+                    isHaveThisRow = true
+
+                    var currentXiaoValue = []
+                    var result_arr = []
+
+                    $(item).find(".col-sm-9").find("li").find(".tag-editor-tag").each(function(xiao_index, xiao_item) {
+                        currentXiaoValue.push($(xiao_item).text())
+                    })
+
+                    for (var ii = 0; ii < currentXiaoValue.length; ii++) {
+                        var is_yao = true
+                        for (var jj = 0; jj < allAttrValue.length; jj++) {
+                            if (currentXiaoValue[ii] == allAttrValue[jj]) {
+                                is_yao = false
+                            }
+
+                        }
+
+                        if (is_yao == true) {
+                            result_arr.push(currentXiaoValue[ii])
+                        }
+                    }
+
+                    for (var kk = 0; kk < attrValue.length; kk++) {
+
+                        result_arr.push(attrValue[kk])
+                    }
+
+                    $(item).remove()
+                    var tempEle = '<div class="row canshuInput"><div class="col-sm-2" style="padding:9px 10px; color:#878787;"><input type="text" style="width:80%;" value="' + attrName + '" /> </div><div class="col-sm-9" style="padding:9px 10px; color:#878787;"><input type="text" id="parm' + paramsIndex + '" style="width:80%;"> <input type="checkbox" checked>可选参数 </div><div class="col-sm-1" style="padding:9px 10px; color:#878787;"><span class="glyphicon glyphicon-remove" onclick="canshuDelBtn(this)" aria-hidden="true"></span></div></div>'
+                    $(".canshuInputWrap").append($(tempEle))
+                    $('#parm' + paramsIndex).tagEditor({
+                        initialTags: result_arr,
+                        placeholder: '输入参数后请按回车键确认',
+                        onChange: function(field, editor, tags) {},
+                    });
+                    paramsIndex++
+
+                }
+
+            })
+
+            if (isHaveThisRow == false) {
+                if (attrValue.length > 0 && attrValue[0] != "") {
+                    var tempEle = '<div class="row canshuInput"><div class="col-sm-2" style="padding:9px 10px; color:#878787;"><input type="text" style="width:80%;" value="' + attrName + '" /> </div><div class="col-sm-9" style="padding:9px 10px; color:#878787;"><input type="text" id="parm' + paramsIndex + '" style="width:80%;"> <input type="checkbox" checked>可选参数 </div><div class="col-sm-1" style="padding:9px 10px; color:#878787;"><span class="glyphicon glyphicon-remove" onclick="canshuDelBtn(this)" aria-hidden="true"></span></div></div>'
+                    $(".canshuInputWrap").append($(tempEle))
+                    $('#parm' + paramsIndex).tagEditor({
+                        initialTags: attrValue,
+                        placeholder: '输入参数后请按回车键确认',
+                        onChange: function(field, editor, tags) {},
+                    });
+
+
+
+                    paramsIndex++
+                }
+            }
+
+        })
+
+        $('#fenleiAttrModal').modal('hide')
+
+
+    })
+
+    // 在model上布局分类属性列表
+    function layoutAttrList(canshu_data) {
+        $("#fenleiAttrModal .modal-body .list-group").empty()
+        for (var i = 0; i < fenleiAttr_list.length; i++) {
+
+
+            var btn_arr = fenleiAttr_list[i].attrValue.replace(/，/g, ",").split(",")
+            var btnStr = ""
+
+            for (var j = 0; j < btn_arr.length; j++) {
+                if (removeStringSpace(btn_arr[j]) == "") {
+
+                } else {
+                    var activeStyle = ""
+                    for (var k = 0; k < canshu_data.length; k++) {
+                        if (canshu_data[k].name == fenleiAttr_list[i].attrName) {
+                            for (var l = 0; l < canshu_data[k].value.length; l++) {
+                                if (canshu_data[k].value[l] == btn_arr[j]) {
+                                    activeStyle = "active"
+                                }
+                            }
+                        }
+                    }
+                    btnStr = btnStr + '<span onclick="shuxinBtnFn(this)" style="margin-left:6px;" class="btn-default btn-xs shuxingSpan ' + activeStyle + '">' + btn_arr[j] + '</span>'
+                }
+            }
+
+            var tempEle = '<label class="list-group-item myShuxingBtnWrap"><span class="nameSpan">' + fenleiAttr_list[i].attrName + '</span><span class="valueSpan" style="margin-left:10px;">' + btnStr + '</span></label>'
+            $("#fenleiAttrModal .modal-body .list-group").append(tempEle)
+
+        }
+
+
+    }
+
+    function shuxinBtnFn(that) {
+        $(that).toggleClass("active")
+    }
+
+    // 添加分类属性参数按钮点击事件
+    $(".addParamsBtn").click(function() {
+        var canshu_data = []
+        $(".canshuInputWrap .canshuInput").each(function(index, item) {
+            var tempDic = {}
+            tempDic["name"] = $(item).find(".col-sm-2").find("input").val()
+            tempDic["value"] = []
+
+            var xxx = $(item).find(".col-sm-9").find("li").find(".tag-editor-tag").each(function(min_index, min_item) {
+                tempDic.value.push($(min_item).text())
+            })
+            canshu_data.push(tempDic)
+
+        })
+
+
+
+        $('#fenleiAttrModal h4').text($(".fenleiPreview").text())
+        $('#fenleiAttrModal').modal('show')
+        if (fenleiAttr_list.length <= 0) {
+            getFenleiAttr_listFn(function() {
+                layoutAttrList(canshu_data)
+            })
+        } else {
+            layoutAttrList(canshu_data)
+        }
+    })
+
+    // 添加自定义参数按钮点击事件
+    $(".addParamsBtn2").click(function() {
+        var tempEle = '<div class="row canshuInput"><div class="col-sm-2" style="padding:9px 10px; color:#878787;"><input type="text" style="width:80%;"> </div><div class="col-sm-9" style="padding:9px 10px; color:#878787;"><input type="text" id="parm' + paramsIndex + '" style="width:80%;"> <input type="checkbox" checked>可选参数 </div><div class="col-sm-1" style="padding:9px 10px; color:#878787;"><span class="glyphicon glyphicon-remove" onclick="canshuDelBtn(this)" aria-hidden="true"></span></div></div>'
+        $(".canshuInputWrap").append($(tempEle))
+        $('#parm' + paramsIndex).tagEditor({
+            placeholder: '输入参数后请按回车键确认',
+            onChange: function(field, editor, tags) {},
+        });
+
+        paramsIndex++
+    })
+
+    // 参数行上的删除按钮事件
+    function canshuDelBtn(that) {
+        $(that).parents(".canshuInput").remove()
+    }
+
+    // // 选择界面部分
+    function selectPartContent(currentPage) {
+        $(".my_content .child_content").each(function(i, item) {
+            if (currentPage == i) {
+                $(item).css("display", "block")
+            } else {
+                $(item).css("display", "none")
+            }
+        })
+    }
+
+    // selectPartContent(0)
+
+    // 把二级分类数据放到界面上 已完成
+    function putErjidataToView(erjiData) {
+        $(".minClassifyList").empty()
+        $(".xiaofenleiList").empty()
+        for (var i = 0; i < erjiData.data.length; i++) {
+            var aEle = document.createElement("a")
+
+            $(aEle).addClass("list-group-item")
+            $(aEle).attr("id", erjiData.data[i].id)
+            aEle.innerHTML = erjiData.data[i].name + '<span style="float:right;" class="glyphicon glyphicon-trash erjifenleiDeleteBtn"  aria-hidden="true"></span>'
+            $(".minClassifyList").append($(aEle))
+            if (i == 0) {
+                $(aEle).addClass("selectClassifycell")
+                currentErjiId = erjiData.data[i].id
+                erjifenleiSelectFn(aEle)
+            }
+
+
+        }
+
+        $(".minClassifyList .list-group-item").click(function() {
+            erjifenleiSelectFn(this)
+        })
+
+        $(".minClassifyList .list-group-item").children(".erjifenleiDeleteBtn").click(function(event) {
+            event.preventDefault()
+            event.stopPropagation()
+            deleteOneErjifenlei(this, event)
+        })
+    }
+
+    // 模态框上 二级分类 cell 选中事件 已完成
+    function erjifenleiSelectFn(that) {
+        var selectId = $(that).attr("id")
+        $(".xiaofenleiTitle").text($(that).text())
+        currentErjiId = selectId
+        $(that).parents(".minClassifyList").children("a").each(function(i, item) {
+            $(item).removeClass("selectClassifycell")
+            if ($(item).attr("id") == selectId) {
+                $(item).addClass("selectClassifycell")
+                    // 开始获取三级分类数据
+                getSanjifenleiData(selectId)
+            }
+        })
+
+    }
+
+    // 小分类中选中图片之后的事件 已完成
+    function sanjifenleiImgFn(fileDom) {
+
+
+
+        //判断是否支持FileReader
+        if (window.FileReader) {
+            var reader = new FileReader();
+        } else {
+            alert("您的设备不支持图片预览功能，如需该功能请升级您的设备！");
+        }
+
+        //获取文件
+        var file = fileDom.files[0];
+
+        var imageType = /^image\//;
+        //是否是图片
+        if (!imageType.test(file.type)) {
+            alert("请选择图片！");
+            return;
+        }
+        //读取完成
+        reader.onload = function(e) {
+            //获取图片dom
+            var row = $(fileDom).parents(".list-group-item")
+            var uploadA = $(fileDom).parents(".a-upload")
+            var uploadFrom = $(fileDom).parents("form")
+
+            // uploadA.remove()
+
+            var img = row.children("img")
+            img.attr("src", e.target.result)
+
+            uploadSanjifenleiImage(uploadFrom)
+
+
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    // 上传三级分类图片到服务器 已完成
+    function uploadSanjifenleiImage(myUploadForm) {
+        myUploadForm.ajaxSubmit({
+            success: function(result) {
+                isHaveNewImg = true
+                $("#loading").hide()
+            },
+            error: function(err) {
+                layer.msg("网络请求失败")
+                $("#loading").hide()
+            }
+        })
+
+    }
+
+    // 商品分类 模态框 关闭按钮事件
+    $(".piliangHideBtn").click(function() {
+        $('#piliangModal').modal('hide')
+    })
+
+    // 监听回车按钮
+    document.onkeydown = function(event) {
+        if (event.key == 'Enter') {
+            // 先获取输入框元素
+            var bigClassifyText = $(".addBigClassifyText")[0];
+            var minClassifyText = $(".addMinClassifyText")[0];
+            var addXiaofenleiText = $(".addXiaofenleiText")[0];
+
+            if (document.hasFocus() && document.activeElement === bigClassifyText) {
+                bigClassifyBtnFn()
+                return
+            }
+
+            if (document.hasFocus() && document.activeElement === minClassifyText) {
+                minClassifyBtnFn()
+                return
+            }
+
+            if (document.hasFocus() && document.activeElement === addXiaofenleiText) {
+                sanjifenleiAddBtnFn()
+                return
+            }
+        }
+    }
+
+    // 模态框上 大分类添加按钮的点击事件 已完成
+    function bigClassifyBtnFn() {
+        var bigName = $(".addBigClassifyText").val().replace(/\s/g, "")
+        if (bigName.length <= 0) {
+            layer.msg("请输入商品分类的名字....")
+            return
+        }
+
+        getBigClassifyData(function(bigData) {
+            for (var i = 0; i < bigData.data.length; i++) {
+                if (bigData.data[i].name == bigName) {
+                    $(".addBigClassifyText").val("")
+                    layer.msg("已经有该分类了.....")
+                    return
+                }
+            }
+
+            addDataToBigClassify(bigName)
+        })
+    }
+    $(".addBigClassifyBtn").click(function() {
+        bigClassifyBtnFn()
+    })
+
+    // 向大商品分类中添加分类数据
+    function addDataToBigClassify(bigName) {
+        myPost("addBigFenlei", {
+            name: bigName
+        }, function(data) {
+            if (data.status == "ok") {
+                $(".addBigClassifyText").val("")
+                isUpdateBigClassifyData = true;
+                var aEle = document.createElement("a")
+                $(aEle).addClass("list-group-item")
+                aEle.innerHTML = data.data.name + '<span style="float:right;" class="glyphicon glyphicon-trash bigClassifyListDeleteBtn"  aria-hidden="true"></span>'
+                $(aEle).attr("id", data.data.id)
+                $(".bigClassifyList").append($(aEle))
+
+                currentSelectBigClassifyName = bigName
+                $(".minClassifyTitle").text(currentSelectBigClassifyName)
+                $(".bigClassifyList").children("a").eq(currentSelectBigClassifycellIndex).removeClass("selectClassifycell")
+                currentSelectBigClassifycellIndex = $(aEle).index()
+                $(aEle).addClass("selectClassifycell")
+
+                // 给该cell添加点击事件
+                $(aEle).click(function() {
+                    modalSelectBigData(this, this.innerText)
+                })
+
+                // 给该cell上的删除图片按钮添加点击事件
+                $(aEle).children("span").click(function(event) {
+                    deleteBigFenlei(this, event)
+                })
+
+                layer.msg("添加成功")
+
+            } else {
+                layer.msg(data.message)
+            }
+
+        })
+    }
+
+    // 删除一个三级分类数据
+    function deleteOneSanjifenlei(that, eve) {
+        var deleteId = $(that).parents(".list-group-item").attr("id")
+        var deleteIamge = $(that).parents(".list-group-item").children("img").attr("src")
+        myPost("deleteSanjiFenlie", {
+            "deleteId": deleteId,
+            "deleteImage": deleteIamge
+        }, function(data) {
+            layer.msg(data.message)
+            if (data.status == "ok") {
+
+                $(that).parents(".list-group-item").remove()
+            }
+        })
+    }
+
+    // 删除一个二级分类数据
+    function deleteOneErjifenlei(that, eve) {
+        var deleteId = $(that).parents(".list-group-item").attr("id")
+        myPost("deleteErjiFenlei", {
+            "deleteId": deleteId
+        }, function(data) {
+            layer.msg(data.message)
+            if (data.status == "ok") {
+                // 判断三级分类在界面上是否要清空
+                if ($(that).parents(".list-group-item").text() == $(".xiaofenleiTitle").text()) {
+                    $(".xiaofenleiList").empty()
+                }
+
+                $(that).parents(".list-group-item").remove()
+            }
+        })
+    }
+
+    // 删除一个一级分类数据
+    function deleteBigFenlei(myThis, myEvent) {
+        myEvent.preventDefault()
+        myEvent.stopPropagation()
+        var deleteName = $(myThis).parents(".list-group-item").text()
+        var deleteId = $(myThis).parents(".list-group-item").attr("id")
+
+        myPost("deleteBigFenlei", {
+            deleteId: deleteId
+        }, function(data) {
+            if (data.status == "ok") {
+                isUpdateBigClassifyData = true
+                $(myThis).parents(".list-group-item").remove()
+                if (deleteName == currentSelectBigClassifyName) {
+                    $(".minClassifyList").empty()
+                    $(".xiaofenleiList").empty()
+                }
+            }
+            layer.msg(data.message)
+        })
+    }
+
+
+    // 模态框上 二级分类 添加按钮 点击事件 已完成
+    function minClassifyBtnFn() {
+        var minName = $(".addMinClassifyText").val().replace(/\s/g, "")
+        if (minName.length <= 0) {
+            layer.msg("请输入商品分类的名字....")
+            return
+        }
+
+        if (currentSelectBigClassifyName == "") {
+            layer.msg("请选择左侧的一个分类......")
+            return
+        } else {
+
+            if (currentSelectBigClassifycellIndex == "" || currentSelectBigClassifycellIndex == undefined) {
+                currentSelectBigClassifycellIndex = 0
+            }
+
+
+            addDataToErjifenlei(minName, currentSelectBigClassifycellIndex)
+        }
+    }
+    $(".addMinClassifyBtn").click(function() {
+        minClassifyBtnFn()
+    })
+
+    function data_to_sanji_list(oneData) {
+        var aEle = document.createElement("a")
+
+        var imgStr = ""
+        var showText = ""
+        if (oneData.image == "111" || oneData.image == null || oneData.image == "" || oneData.image.length <= 0) {
+            showText = "上传"
+        } else {
+            showText = "修改"
+        }
+
+        imgStr = '<img src="' + HomeUrl + oneData.image + '" /><form action="' + HomeUrl + 'sanjiFenleiAddImage/" method="post" enctype="multipart/form-data"><input type="hidden" name="sanjifenleiid" value="' + oneData.id + '" /><a style="display: inline-block;" href="javascript:;" class="a-upload"><input onchange="sanjifenleiImgFn(this)" type="file" name="myfile">' + showText + '</a></form>'
+        $(aEle).addClass("list-group-item")
+        $(aEle).attr("id", oneData.id)
+        aEle.innerHTML = oneData.name + imgStr + '<span style="float:right;" class="glyphicon glyphicon-trash sanjifenleiDeleteBtn"  aria-hidden="true"></span>'
+        $(".xiaofenleiList").append($(aEle))
+
+
+
+
+
+        if (i == 0) {
+            $(aEle).addClass("selectClassifycell")
+            sanjifenleiSelectFn(aEle)
+        }
+    }
+
+
+    // 模态框上 三级分类 添加按钮 点击事件 已完成
+    function sanjifenleiAddBtnFn() {
+        if (currentErjiId == "") {
+            layer.msg("请先选中二级分类")
+            return
+        } else {
+            var daName = ""
+            var zhongName = ""
+            $(".minClassifyList").children("a").each(function(index, item) {
+                if ($(item).hasClass("selectClassifycell")) {
+                    zhongName = $(item).text()
+                    return false
+                }
+            })
+
+            $(".bigClassifyList").children("a").each(function(index, item) {
+                if ($(item).hasClass("selectClassifycell")) {
+                    daName = $(item).text()
+                    return false
+                }
+            })
+            myPost("addSanjiFenlei", {
+                "midName": zhongName,
+                "bigName": daName,
+                "name": $(".addXiaofenleiText").val(),
+                "fatherid": currentErjiId
+            }, function(data) {
+                if (data.status == "ok") {
+
+                    var aEle = document.createElement("a")
+
+                    var imgStr = ""
+                    var showText = ""
+                    if (data.data.image == undefined || data.data.image == "111" || data.data.image == null || data.data.image == "" || data.data.image.length <= 0) {
+                        showText = "上传"
+                    } else {
+                        showText = "修改"
+                    }
+
+                    imgStr = '<img src="' + HomeUrl + data.data.image + '" /><form action="' + HomeUrl + 'sanjiFenleiAddImage/" method="post" enctype="multipart/form-data"><input type="hidden" name="sanjifenleiid" value="' + data.data.id + '" /><a style="display: inline-block;" href="javascript:;" class="a-upload"><input onchange="sanjifenleiImgFn(this)" type="file" name="myfile">' + showText + '</a></form>'
+                    $(aEle).addClass("list-group-item")
+                    $(aEle).attr("id", data.data.id)
+                    aEle.innerHTML = data.data.name + imgStr + '<span style="float:right;" class="glyphicon glyphicon-trash sanjifenleiDeleteBtn"  aria-hidden="true"></span>'
+                    $(".xiaofenleiList").append($(aEle))
+
+
+
+
+                    // xxxxx
+                    // aEle.innerHTML = data.data.name + '<span style="float:right;" class="glyphicon glyphicon-trash sanjifenleiDeleteBtn"  aria-hidden="true"></span>'
+                    $(".xiaofenleiList").append($(aEle))
+                    $(".addXiaofenleiText").val("")
+
+                    $(".xiaofenleiList form").css({
+                        "display": "inline-block"
+                    })
+                    $(".xiaofenleiList img").css({
+                        "max-width": "81px",
+                        "height": "66px",
+                        "margin-left": "31px",
+                        "border": "1px solid lightslategrey",
+                        "border-radius": "50%"
+                    })
+                    $(".xiaofenleiList a").css({
+                        "top": "4px",
+                        "margin-left": "20px"
+                    })
+                    $(".xiaofenleiList span").css({
+                        "position": "absolute",
+                        "margin-top": "-10px",
+                        "top": "50%"
+                    })
+
+
+
+
+
+                    sanjifenleiSelectFn(aEle)
+
+                    $(aEle).click(function() {
+                        sanjifenleiSelectFn(this)
+                    })
+
+                    $(aEle).children(".sanjifenleiDeleteBtn").click(function(event) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                        deleteOneSanjifenlei(this, event)
+                    })
+
+                } else {
+                    layer.msg("添加三级分类数据失败....")
+                }
+            })
+        }
+    }
+    $(".addXiaofenleiBtn").click(function() {
+        sanjifenleiAddBtnFn()
+    })
+
+
+    // 向二级分类中添加分类数据 已完成
+    function addDataToErjifenlei(minName, bigSelectIndex) {
+        getBigClassifyData(function(bigData) {
+            var oneBigData = bigData.data[bigSelectIndex]
+            var bigFenleiId = oneBigData.id
+            myPost("addTwoFenlei", {
+                name: minName,
+                fatherId: bigFenleiId
+            }, function(data) {
+                // 二级分类添加成功
+                $(".addMinClassifyText").val("")
+                var aEle = document.createElement("a")
+                $(aEle).addClass("list-group-item")
+                $(aEle).attr("id", data.data.id)
+                aEle.innerHTML = data.data.name + '<span style="float:right;" class="glyphicon glyphicon-trash erjifenleiDeleteBtn"  aria-hidden="true"></span>'
+                $(".minClassifyList").append($(aEle))
+
+                erjifenleiSelectFn(aEle)
+
+                $(aEle).click(function() {
+                    erjifenleiSelectFn(this)
+                })
+
+                $(aEle).children(".erjifenleiDeleteBtn").click(function(event) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                    deleteOneErjifenlei(this, event)
+                })
+            })
+        })
+    }
+
+    // 获取三级分类数据 已完成
+    function getSanjifenleiData(erjiId) {
+        myPost("getSanjifenleiData", {
+            "fatherid": erjiId
+        }, function(sanjiData) {
+            putSanjidataToView(sanjiData)
+        })
+    }
+
+    // 模态框上大分类cell的点击事件  已完成
+    function modalSelectBigData(mythis, currentBigName) {
+        currentErjiId = ""
+        currentSelectBigClassifyName = currentBigName
+        $(".minClassifyTitle").text(currentSelectBigClassifyName)
+        $(".bigClassifyList").children("a").eq(currentSelectBigClassifycellIndex).removeClass("selectClassifycell")
+        currentSelectBigClassifycellIndex = $(mythis).index()
+        $(mythis).addClass("selectClassifycell")
+
+        getBigClassifyData(function(bigData) {
+            myPost("getMinFenleiByBigFenlei", {
+                'fatherid': bigData.data[currentSelectBigClassifycellIndex].id
+            }, function(erjiData) {
+                putErjidataToView(erjiData)
+            })
+        })
+
+
+
+    }
+
+
+    getBigClassifyData(function(bigData) {
+
+
+        if (bigData.length <= 0) {
+            return
+        }
+
+        bigFenlei = bigData
+
+        $(".bigCalssifySelect").empty()
+        $(".bigClassifyList").empty()
+        currentSelectBigClassifyName = bigData.data[0].name
+        $(".minClassifyTitle").text(currentSelectBigClassifyName)
+        for (var i = 0; i < bigFenlei.data.length; i++) {
+            var optionEle = document.createElement("option")
+            optionEle.innerText = bigFenlei.data[i].name
+            $(optionEle).attr("id", bigFenlei.data[i].id)
+            $(".bigCalssifySelect").append($(optionEle))
+
+            var aEle = document.createElement("a")
+            $(aEle).addClass("list-group-item")
+            if (i == 0) {
+                $(aEle).addClass("selectClassifycell")
+            }
+            aEle.innerHTML = bigData.data[i].name + '<span style="float:right;" class="glyphicon glyphicon-trash bigClassifyListDeleteBtn"  aria-hidden="true"></span>'
+            $(aEle).attr("id", bigData.data[i].id)
+            $(".bigClassifyList").append($(aEle))
+        }
+
+        // 每一行cell的点击事件
+        $(".bigClassifyList .list-group-item").click(function() {
+            modalSelectBigData(this, this.innerText)
+        })
+
+        // 每一行cell上删除图表的点击事件
+        $(".bigClassifyListDeleteBtn").click(function(event) {
+            deleteBigFenlei(this, event)
+        })
+
+
+        // 在下拉列表上获取二级分类数据
+        myPost("getMinFenleiByBigFenlei", {
+            'fatherid': bigFenlei.data[0].id
+        }, function(erjiData) {
+            midFenlei = erjiData
+            $(".minCalssifySelect").empty()
+            for (var i = 0; i < midFenlei.data.length; i++) {
+                var optionEle = document.createElement("option")
+                $(optionEle).attr("id", midFenlei.data[i].id)
+                optionEle.innerText = midFenlei.data[i].name
+                $(".minCalssifySelect").append($(optionEle))
+            }
+
+
+            // 在下拉列表上获取三级分类数据
+            if (midFenlei.data.length > 0) {
+                getSanjiFenleiToOption(midFenlei.data[0].id)
+            }
+
+            putErjidataToView(erjiData)
+
+        })
+
+    })
+
+    // 下拉列表上 获取商品三级分类 已完成
+    function getSanjiFenleiToOption(fatherid) {
+        myPost("getSanjifenleiData", {
+            'fatherid': fatherid
+        }, function(sanjiData) {
+            minFenlei = sanjiData
+            $(".xiaoCalssifySelect").empty()
+            for (var i = 0; i < minFenlei.data.length; i++) {
+                var optionEle = document.createElement("option")
+                $(optionEle).attr("id", minFenlei.data[i].id)
+                $(optionEle).attr("imagepath", minFenlei.data[i].image)
+                optionEle.innerText = minFenlei.data[i].name
+                $(".xiaoCalssifySelect").append($(optionEle))
+            }
+
+            selectXiaoData($(".xiaoCalssifySelect")[0])
+
+            changeFenleiSelect()
+        })
+    }
+
+    function changeFenleiSelect() {
+        if (bigName != "") {
+            for (var k = 0; k < bigFenlei.data.length; k++) {
+                if (bigFenlei.data[k].name == bigName) {
+                    $(".bigCalssifySelect").val(bigName)
+
+                    myPost("getMinFenleiByBigFenlei", {
+                        'fatherid': bigFenlei.data[k].id
+                    }, function(erjiData) {
+                        $(".minCalssifySelect").empty()
+                        var erjiId = ""
+                        for (var i = 0; i < erjiData.data.length; i++) {
+                            var optionEle = document.createElement("option")
+                            optionEle.innerText = erjiData.data[i].name
+                            $(optionEle).attr("id", erjiData.data[i].id)
+                            $(".minCalssifySelect").append($(optionEle))
+                            if (erjiData.data[i].name == midName) {
+                                erjiId = erjiData.data[i].id
+                            }
+                        }
+
+
+                        $(".minCalssifySelect").val(midName)
+                        midName = ""
+                            // myfun(".minCalssifySelect")
+
+                        if (erjiData.data.length > 0) {
+                            myPost("getSanjifenleiData", {
+                                'fatherid': erjiId
+                            }, function(sanjiData) {
+                                $(".xiaoCalssifySelect").empty()
+                                for (var i = 0; i < sanjiData.data.length; i++) {
+                                    var optionEle = document.createElement("option")
+                                    $(optionEle).attr("id", sanjiData.data[i].id)
+                                    $(optionEle).attr("imagepath", sanjiData.data[i].image)
+                                    optionEle.innerText = sanjiData.data[i].name
+                                    $(".xiaoCalssifySelect").append($(optionEle))
+                                }
+                                $(".xiaoCalssifySelect").val(minName)
+                                minName = ""
+
+                            })
+                        }
+                    })
+
+                    bigName = ""
+
+                }
+            }
+        }
+
+
+
+
+    }
+
+
+    // 商品大分类的选中事件 已完成
+    function selectBigData(selectName) {
+        $(".minCalssifySelect").empty()
+        $(".xiaoCalssifySelect").empty()
+            // 获取商品二级分类数据
+        getBigClassifyData(function(bigData) {
+            for (var i = 0; i < bigData.data.length; i++) {
+                if (bigData.data[i].name == selectName) {
+
+                    myPost("getMinFenleiByBigFenlei", {
+                        'fatherid': bigData.data[i].id
+                    }, function(erjiData) {
+                        $(".minCalssifySelect").empty()
+                        for (var i = 0; i < erjiData.data.length; i++) {
+                            var optionEle = document.createElement("option")
+                            optionEle.innerText = erjiData.data[i].name
+                            $(optionEle).attr("id", erjiData.data[i].id)
+                            $(".minCalssifySelect").append($(optionEle))
+                        }
+                        // myfun(".minCalssifySelect")
+
+                        if (erjiData.data.length > 0) {
+                            getSanjiFenleiToOption(erjiData.data[0].id)
+                        }
+                    })
+                }
+            }
+        })
+    }
+
+    // 商品二级分类的选中事件 已完成
+    function selectMinData(that) {
+        $(that).children("option").each(function(i, item) {
+
+            if (that.value == $(item).text()) {
+                var fatherId = $(item).attr("id")
+                    // 获取商品三级分类数据
+                getSanjiFenleiToOption(fatherId)
+
+                return false
+            }
+        })
+    }
+
+    // 商品三级分类的选中事件 已完成
+    function selectXiaoData(that) {
+        $(that).children("option").each(function(i, item) {
+            if ($(item).text() == that.value) {
+                var imagepath = $(item).attr("imagepath")
+                if (imagepath == "" || imagepath == "111") {
+                    imagepath = defaultImageString
+                } else {
+                    imagepath = HomeUrl + imagepath
+                }
+                $(".sanjifenLeiImage").attr("src", imagepath)
+
+                return false
+            }
+
+        })
+    }
+
+    // 把三级分类数据放到界面上 已完成
+    function putSanjidataToView(sanjiData) {
+        $(".xiaofenleiList").empty()
+        for (var i = 0; i < sanjiData.data.length; i++) {
+
+            data_to_sanji_list(sanjiData.data[i])
+
+        }
+
+
+        $(".xiaofenleiList form").css({
+            "display": "inline-block"
+        })
+        $(".xiaofenleiList img").css({
+            "max-width": "81px",
+            "height": "66px",
+            "margin-left": "31px",
+            "border": "1px solid lightslategrey",
+            "border-radius": "50%"
+        })
+        $(".xiaofenleiList a").css({
+            "top": "4px",
+            "margin-left": "20px"
+        })
+        $(".xiaofenleiList span").css({
+            "position": "absolute",
+            "margin-top": "-10px",
+            "top": "50%"
+        })
+
+        $(".xiaofenleiList .list-group-item").click(function() {
+            sanjifenleiSelectFn(this)
+        })
+
+        $(".xiaofenleiList .list-group-item").children(".sanjifenleiDeleteBtn").click(function(event) {
+            event.preventDefault()
+            event.stopPropagation()
+            deleteOneSanjifenlei(this, event)
+        })
+
+    }
+
+    // 模态框上 三级分类 cell 选中事件 已完成
+    function sanjifenleiSelectFn(that) {
+        var selectId = $(that).attr("id")
+        $(that).parents(".xiaofenleiList").children("a").each(function(i, item) {
+            $(item).removeClass("selectClassifycell")
+            if ($(item).attr("id") == selectId) {
+                $(item).addClass("selectClassifycell")
+            }
+        })
+
+    }
+
+    // 编辑分类按钮事件
+    $(".editFenlei").click(function() {
+        $('#goodsClassifyModal').modal('show')
+
+
+    })
+
+    // 分类模态框关闭按钮事件
+    $(".classifyHideBtn").click(function() {
+        $('#goodsClassifyModal').modal('hide')
+
+
+    })
+
+
+    // 头部导航点击事件
+    $(".my_head ul li").click(function() {
+        var that = this
+        var currentPage = 0
+        $(".my_head ul li").each(function(i, item) {
+            if (item == that) {
+                $(item).addClass("head_active")
+                currentPage = i;
+            } else {
+                $(item).removeClass("head_active")
+            }
+        })
+        if (currentPage == 4) {
+            lunbu_uploader()
+
+            if (goodsLunbo.length > 0) {
+                layoutLunboSwiper(goodsLunbo)
+            }
+
+        }
+        selectPartContent(currentPage)
+    })
+
+
+    // 获取大分类数据
+    function getFirstFenlei() {
+        myPost("allBigFenlei", {}, function(data) {
+            var firsFenlei = data.data
+            $(".first").empty()
+            $(".first").append('<option value ="firstFenlei" id="first">一级分类</option>')
+            for (var i = 0; i < firsFenlei.length; i++) {
+                var tempEle = '<option value ="' + 　firsFenlei[i].id + 　'">' + firsFenlei[i].name + '</option>'
+                $(".first").append(tempEle)
+            }
+
+        })
+    }
+    getFirstFenlei();
+
+    // 一级分类改变事件
+    function firsFenleiSelectFn(currentId) {
+        getSecondFenlei(currentId)
+
+    }
+
+    // 二级分类改变事件
+    function secondFenleiSelectFn(currentId) {
+        getThirdFenlei(currentId)
+    }
+
+    // 三级分类改变事件
+    function thirdFenleiSelectFn(currentId) {
+        var firstText = $('.first option:selected').text()
+        var secondText = $('.second option:selected').text()
+        var thirdText = $('.third option:selected').text()
+        $("#xiaoClassiData").val(currentId)
+        $(".fenleiPreview").text(firstText + "-" + secondText + "-" + thirdText)
+    }
+
+
+
+    // 获取二级分类数据
+    function getSecondFenlei(id) {
+        myPost("getMinFenleiByBigFenlei", {
+            fatherid: id
+        }, function(data) {
+            secondFenlei = data.data
+            $(".second").empty()
+            $(".second").append('<option value ="secondFenlei" id="second">二级分类</option>')
+            for (var i = 0; i < secondFenlei.length; i++) {
+                var tempEle = '<option value ="' + secondFenlei[i].id + 　'">' + secondFenlei[i].name + '</option>'
+                $(".second").append(tempEle)
+            }
+
+        })
+    }
+
+    // 获取三级分类数据
+    function getThirdFenlei(id) {
+        myPost("getSanjifenleiData", {
+            fatherid: id
+        }, function(data) {
+            thirdFenlei = data.data
+            $(".third").empty()
+            $(".third").append('<option value ="thirdFenlei" id="third">三级分类</option>')
+            for (var i = 0; i < thirdFenlei.length; i++) {
+                var tempEle = '<option value ="' + thirdFenlei[i].id + 　'">' + thirdFenlei[i].name + '</option>'
+                $(".third").append(tempEle)
+            }
+
+        })
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,380 @@
+{% extends "base.html" %} {% load staticfiles %} {% block css %}
+
+<style type="text/css">
+    .biaojuzhong th {
+        text-align: center;
+    }
+    
+    .biaojuzhong td {
+        text-align: center;
+    }
+    
+    .biaojuzhong td button {
+        padding: 2px 8px;
+        background-color: white;
+    }
+    
+    .sumdiv {
+        background-color: #fff;
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.42857143;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    
+    #bigdiv {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-collapse: collapse;
+    }
+    
+    .black_overlay {
+        display: none;
+        position: absolute;
+        top: 0%;
+        left: 0%;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        z-index: 1001;
+        -moz-opacity: 0.8;
+        opacity: .50;
+        filter: alpha(opacity=80);
+    }
+</style>
+{% endblock %} {% block content %}
+<div class="row">
+    <div class="col-md-4 col-md-offset-3">
+        <div><input type="text" class="form-control" id="goodsSelectName" placeholder="商品名"></div>
+    </div>
+    <div>
+        <button type="submit" class="btn btn-success" id="goodsSelectBtn"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>商品查询</button>
+    </div>
+</div>
+
+<!-- 胡亚州 from 表单 
+	<div class="row" style="height: 60px;">
+	
+	<div class="col-md-12" style="text-align: center;">
+		<form class="form-inline" action="#">
+			<div class="form-group">
+				<label for="exampleInputName2">商品名称:</label>
+				<input type="text" class="form-control" id="goodsSelectName" placeholder="商品名">
+			</div>
+			<button type="submit" class="btn btn-success" id="goodsSelectBtn"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>商品查询</button>
+		</form>
+	</div>
+</div> -->
+<div class="row">
+    <div class="row" style="height: 50px;">
+        <div class="col-md-6" style="text-align: left;">
+            <button id="timeBtn" type="button" class="btn btn-warning"><span class="glyphicon glyphicon-download" aria-hidden="true">当前时间降序</span></button>
+        </div>
+        <div class="col-md-6" style="text-align: right;">
+            <p>共有数据:<strong id="goodsNumber">0</strong>条</p>
+        </div>
+    </div>
+
+    <div class="" id="bigdiv">
+        <table class="table table-bordered" style=" margin-bottom: 0px;">
+            <caption><strong style="color: #000000;">商品列表</strong></caption>
+            <thead>
+                <tr class="biaojuzhong">
+                    <td id="item" style="display:none"></td>
+                    <th>序号</th>
+                    <th>商品号</th>
+                    <th>商品名称</th>
+                    <th>商家类别</th>
+                    <th>添加时间</th>
+                    <th>库存</th>
+                    <th>添加</th>
+
+                </tr>
+            </thead>
+
+            <tbody class="myListTable">
+            </tbody>
+
+        </table>
+
+
+        <div class="row" id="div3" style=" padding: 1% 0;">
+            <div class="col-md-12" style="text-align: left;">
+                <div class="text-center">
+                    <ul id="visible-pages-example"></ul>
+
+
+                    <ul id="xxx"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="fade" class="black_overlay">
+    </div>
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        添加活动
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div style="" class="row">
+                        <div style="" class="col-sm-6">
+                            <form id="myform" action="" enctype="multipart/form-data" method="post">
+                                <div style="padding-top:20px">
+                                    <label for="">商品id：</label><input type="text" readonly="true " name="goodsid" id="goodsid">
+                                </div>
+                                <div style="padding-top:20px">
+                                    <label for="">商品：</label><input type="text" readonly="true " name="goodsname" id="goodsname">
+                                </div>
+                                <div style="padding-top:20px">
+                                    <label for="">秒杀数量：</label><input type="text" value="100" name="miaoShaCount" id="miaoShaCount">
+                                </div>
+                                <div style="padding-top:20px">
+                                    <label for="">开始时间：</label><input type="text" name="starttime" id="starttime" onClick="WdatePicker({el:'starttime',dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'%y-%M-%d',maxDate: '#F{$dp.$D(\'stoptime\')}' })">
+                                    <!-- <img onClick="WdatePicker({el:'starttime',dateFmt:'yyyy-MM-dd HH:mm:ss',maxDate: '#F{$dp.$D(\'stoptime\')}' })" src="{% static 'DatePicker/skin/datePicker.gif' %}" style =" width:30px; height:30px" align="absmiddle" > -->
+                                </div>
+                                <div style="padding-top:20px">
+                                    <label for="">结束时间：</label><input type="text" name="stoptime" id="stoptime" onClick="WdatePicker({el:'stoptime',dateFmt:'yyyy-MM-dd HH:mm:ss',minDate: '#F{$dp.$D(\'starttime\')}' })">
+                                    <!-- <img onClick="WdatePicker({el:'stoptime',dateFmt:'yyyy-MM-dd HH:mm:ss',minDate: '#F{$dp.$D(\'starttime\')}' })" src="{% static 'DatePicker/skin/datePicker.gif' %}" style =" width:30px; height:30px" align="absmiddle"> -->
+                                </div>
+                            </form>
+                        </div>
+
+
+                        <div style="text-align:center;" class="col-sm-6">
+                            <img class="modelGoodsImage" style="width:50%; border-radius:10px;" src="" alt="">
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="modal-footer" style=''>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                        </button>
+                    <button type="button" class="btn btn-primary" id="submitBtn" onclick="ajaxSubmitForm()">
+                            提交
+                        </button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal -->
+    </div>
+    {% endblock %} {% block contentRight %}
+
+    <ol class="breadcrumb">
+        <li>
+            <a href="#"><i class="fa fa-dashboard"></i> Home</a>
+        </li>
+        <li class="active">商品列表</li>
+    </ol>
+
+
+    {% endblock %} {% block contentLeft %} 商品列表
+    <small>Version 5.0</small> {% endblock %} {% block script %}
+    <script type="text/javascript">
+        $('body').append("<div style='display:none;width:100%; margin:0 auto;position:fixed;left:0;top:0;bottom: 0;z-index: 111;opacity: 0.5;' id='loading'><a style='left: 50%;position: absolute;top:50%'><img src='/static/myfile/loading.gif' /></a></div>")
+        $(document).ajaxStart(function() {　　
+            $("#loading").show();
+        })
+        $(document).ajaxComplete(function() {　　
+            $("#loading").hide();
+        })
+        var goodsListPages = 3
+        var goodsCount = 1
+        var thispage = 1
+        var addGoodsIdRed = ""
+        var commName = ""
+        var timeBtnUp = 0
+        var sellcountBtnUp = 0
+        var fenye = $('#visible-pages-example');
+
+
+        var mainData = "";
+
+
+        function ajaxSubmitForm() {
+
+            var startTime = $("#starttime").val()
+            var stoptime = $("#stoptime").val()
+            if (startTime == "" || stoptime == "") {
+                layer.msg("请将信息填写完整......")
+                return
+            }
+
+
+            var option = {
+                url: "/secondkillManageJsonAdd/",
+                type: 'POST',
+                dataType: 'json',
+                success: function(data) {
+                    layer.msg("修改成功");
+                    setTimeout(function() {
+
+                        history.go(-1)
+                    }, 300)
+
+                },
+                error: function(data) {
+                    layer.msg("发生了未知错误，详情请看控制台")
+                }
+            };
+            $("#myform").ajaxSubmit(option);
+            return false;
+        }
+
+
+
+        // var ue = UE.getEditor('editor'); //勿删
+        //  <img src="https://gss0.baidu.com/8_BXsjip0QIZ8tyhnq/timg?wh_rate=0&wapiknow&quality=100&size=w250&sec=0&di=e3c3ae2ef7382d567d05f2b09bef85d1&src=http%3A%2F%2Fg.hiphotos.baidu.com%2Fzhidao%2Fwh%253D800%252C450%2Fsign%3Dd6fc97b0b1a1cd1105e37a288922e4c8%2F3801213fb80e7bec7ac77061242eb9389b506b14.jpg>
+
+
+        function oneGoods(data, i) {
+            var goodsid = data["goodsid"];
+            var rebate = data["rebate"];
+            var lookhistoryid = data["lookhistoryid"];
+            var standard = data["standard"];
+
+            var images = data.images;
+            var goodsimage = ""
+            if (removeStringSpace(images).length > 0) {
+                var lunboArr = images.split("---")
+                if (lunboArr.length > 0) {
+                    goodsimage = lunboArr[0]
+                }
+            }
+
+            var details = data["details"];
+            var shopname = data["shopname"];
+            var status = data["status"];
+            var uptime = data["uptime"];
+            var downtime = data["downtime"];
+            var price = data["price"];
+            var goodsName = data["goodsname"];
+            var stock = data.counts
+            var addtime = data["addtime"];
+
+            var goodsStatusStr = "未知"
+            var goodsStatusColour = "black"
+            var upDisabled = ""
+            var downDisabled = ""
+            var upColour = "white"
+            var downColour = "white"
+            if (status == 1) {
+                goodsStatusStr = "已上架"
+                goodsStatusColour = "green"
+                upDisabled = "disabled"
+                upColour = ""
+            } else if (status == 0) {
+                goodsStatusStr = "未上架"
+                goodsStatusColour = "red"
+                downDisabled = "disabled"
+            }
+            var row = (thispage - 1) * 10 + i
+            var ele = '<tr goodsimage="' + goodsimage + '" class="biaojuzhong" goodsid="' + goodsid + '"><th scope="row">' + row + '</th><td>' + goodsid + '</td><td>' + goodsName + '</td><td>' + standard + '</td><td>' + addtime + '</td><td>' + stock + '</td><td><button class="btn btn-default demo5" type="button"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button></td></tr>'
+            $(".myListTable").append(ele)
+
+        }
+
+        //解析数据到页面
+        function goodsListToPage(data) {
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].isinmiaosha == "true") {
+                    continue
+                }
+                oneGoods(data[i], i + 1)
+            }
+
+
+
+            $(".demo5").click(function() {
+
+
+                $("#myModal").modal("show");
+
+                var goodsid = $(this).parents("tr").attr("goodsid")
+                document.getElementById("goodsid").value = goodsid;
+                var goodsname = $(this).parents("tr").children("td").eq(1).text()
+                document.getElementById("goodsname").value = goodsname;
+
+
+                var goodsimage = $(this).parents("tr").attr("goodsimage")
+                $(".modelGoodsImage").attr("src", "/static/myfile/" + goodsimage)
+
+
+            });
+
+
+
+
+        }
+
+
+        $("#goodsSelectBtn").click(function() {
+            thispage = 1
+            commName = $("#goodsSelectName").val()
+            loaddata()
+        });
+        var luckyGoods = {}
+        myflag = 0
+
+        function loaddata() {
+            myPost("notInMiaoshaGoods", {
+                page: thispage,
+            }, function(data) {
+                goodsCount = data.count
+                goodsListPages = Math.ceil(parseInt(goodsCount) / 10)
+                $(".myListTable").children("tr").remove()
+                mainData = data.data;
+
+                goodsListToPage(mainData)
+
+                if (data.data != "" && myflag == 1) {
+                    layer.msg("查找成功")
+                }
+                if (data.data == "" && myflag == 1) {
+                    layer.msg("没有查找到数据")
+                }
+                //记录个数
+                $("#goodsNumber").text(goodsCount);
+                $("#visible-pages-example").children(".sumdiv").remove()
+                var spanele = '<span class="sumdiv">共' + goodsListPages + '页,当前第' + thispage + '页,共' + goodsCount + '条数据</span>'
+                $("#visible-pages-example").append($(spanele))
+                createPageNav('#visible-pages-example', goodsListPages, function(event, page) {
+                    thispage = page;
+                    loaddata();
+                });
+            })
+        }
+
+        loaddata()
+
+        $("#timeBtn").click(function() {
+            if (timeBtnUp == 0) {
+                $(this).children("span").remove()
+                var ele = '<span class="glyphicon glyphicon-upload" aria-hidden="true">当前时间升序</span>'
+                $(this).append(ele)
+                timeBtnUp = 1
+            } else {
+                $(this).children("span").remove()
+                var ele = '<span class="glyphicon glyphicon-download" aria-hidden="true">当前时间降序</span>'
+                $(this).append(ele)
+                timeBtnUp = 0
+            }
+            thispage = 1
+            loaddata()
+        })
+    </script>
+    {% endblock %}

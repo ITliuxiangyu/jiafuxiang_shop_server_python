@@ -1,0 +1,91 @@
+body {
+	padding: 0;
+	margin: 0;
+}
+
+.pc-slide {
+	width: 300px;
+	margin: 0 auto;
+}
+
+.view .swiper-container {
+	width: 300px;
+	height: 300px;
+}
+
+.view .arrow-left {
+	background: url(images/index_tab_l.png) no-repeat left top;
+	position: absolute;
+	left: 10px;
+	top: 50%;
+	margin-top: -25px;
+	width: 28px;
+	height: 51px;
+	z-index: 10;
+}
+
+.view .arrow-right {
+	background: url(images/index_tab_r.png) no-repeat left bottom;
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	margin-top: -25px;
+	width: 28px;
+	height: 51px;
+	z-index: 10;
+}
+
+.preview {
+	width: 100%;
+	margin-top: 10px;
+	position: relative;
+}
+
+.preview .swiper-container {
+	width: 430px;
+	height: 82px;
+	margin-left: 35px;
+}
+
+.preview .swiper-slide {
+	width: 87px;
+	height: 82px;
+	cursor:pointer;
+}
+
+.preview .slide6 {
+	width: 82px;
+}
+
+.preview .arrow-left {
+	background: url(images/feel3.png) no-repeat left top;
+	position: absolute;
+	left: 10px;
+	top: 50%;
+	margin-top: -9px;
+	width: 9px;
+	height: 18px;
+	z-index: 10;
+}
+
+.preview .arrow-right {
+	background: url(images/feel4.png) no-repeat left bottom;
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	margin-top: -9px;
+	width: 9px;
+	height: 18px;
+	z-index: 10;
+}
+
+.preview img {
+	padding: 1px;
+	width: 100%;
+}
+
+.preview .active-nav img {
+	padding: 0;
+	border: 1px solid #F00;
+	width: 100%;
+}

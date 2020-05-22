@@ -1,0 +1,335 @@
+{% extends "base.html" %}{% load staticfiles %} {% block css %}
+<style type="text/css">
+    .form-inline {
+        font-family: "黑体";
+        height: 20px;
+        text-align: center;
+    }
+    
+    .trash,
+    .delete {
+        background-color: #D33A3C;
+    }
+    
+    .plus {
+        background-color: #00c0ef;
+        border-color: #00acd6;
+    }
+    
+    .submit,
+    .edit {
+        background-color: #4FAF4C;
+    }
+    
+    th {
+        background-color: #F2F9FE;
+    }
+    
+    #natureEle .nature {
+        text-align: center;
+        background-color: #F2F9FE;
+    }
+    
+    #userTable .ele {
+        text-align: center;
+        vertical-align: middle;
+        background-color: white;
+    }
+    
+    .table {
+        width: 100%;
+    }
+    
+    .count {
+        font: "黑体"
+    }
+    
+    .btn {
+        color: black;
+    }
+    
+    .btn-default {
+        color: white;
+    }
+    
+    #preview {
+        width: 40;
+        height: 40px;
+    }
+    
+    #under .bottom {
+        background-color: white;
+        border: 1px solid lightgrey;
+    }
+</style>
+{% endblock %} {% block content %}
+<div class="container-fluid">
+    <form class="form-inline searchForm" role="form" method="post">
+        <div class="form-group">
+            <label class="">用户名:</label>
+            <input type="text" class="form-control" name="username" id="exampleUsername" placeholder="请输入用户名">
+        </div>
+        <!--<div class="form-group">
+			<label class="">手机号:</label>
+			<input type="text" class="form-control" name="phone" id="exampleInputPhoneNumber" placeholder="请输入手机号">
+		</div>-->
+        <button type="button" class="btn btn-default submit search"><span class = "glyphicon glyphicon-search">查询会员</span></button>
+    </form>
+    <hr/>
+
+    <!-- <form action="/shortMsg/" method="post">
+		<input type="text" name="username" placeholder="请输入用户名">
+		<input type="submit" value="提交">
+	
+	</form> -->
+
+    <table class="table table-bordered">
+        <th colspan="15">
+
+            <!-- <button class="btn btn-default trash AllDelete"><span class = "glyphicon glyphicon-trash">批量删除</span></button>
+			<button class="btn btn-default plus btn btn-primary" data-toggle="modal" data-target="#plusModal"><span class = "glyphicon glyphicon-plus">添加会员</span></button> -->
+            <label id="userNumber" class="count" style="float: right; padding-right: 4%;">共有数据</label>
+
+        </th>
+        <tr id="natureEle">
+
+
+            <td class="info nature"><input type="checkbox" id="checkbox-all"></td>
+            <td class="info nature">序号</td>
+            <td class="info nature">头像</td>
+            <td class="info nature">昵称</td>
+            <td class="info nature">城市</td>
+            <td class="info nature">消费</td>
+            <td class="info nature">等级</td>
+            <td class="info nature">积分</td>
+            <td class="info nature">签到</td>
+            <td class="info nature">返利</td>
+            <td class="info nature">注册</td>
+            <td class="info nature">账户余额</td>
+            <td class="info nature">抽奖余额</td>
+            <td class="info nature">激活码</td>
+            <td class="info nature">编辑</td>
+
+
+
+        </tr>
+
+        <tbody id="userTable">
+
+        </tbody>
+
+    </table>
+    <div class="row" id="div3" style=" padding: 1% 0;">
+        <div class="col-md-12" style="text-align: left;">
+
+            <div class="text-center">
+                <ul id="visible-pages-example"></ul>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="myModal">
+
+    </div>
+
+    {% endblock %} {% block script %}
+    <script type="text/javascript">
+        var mainData = ""
+
+        var defaultPageOptioins = "";
+
+
+        myPost("userManageJsonSelect", {}, function(result) {
+            mainData = result;
+            dataParse(mainData);
+            $("#loading").hide();
+        })
+
+        function createList(page) {
+            $("#userTable").empty()
+            for (i = 0; i < mainData.data.length; i++) {
+                if (i >= (page - 1) * 10 && i <= page * 10 - 1) {
+                    mydata = mainData.data[i]
+                    var NO = i + 1;
+
+                    var city = mydata.province + "-" + mydata.city
+
+                    // <td class="info nature">编辑</td>
+                    var ele = '<tr class="mytr">' +
+                        '<td class="info ele"><input class="checkbox-one" name="checkbox-one" type="checkbox"/></td>' +
+                        '<td class="info ele">' + NO + '</td>' +
+                        '<td class="info ele"><img height="40px" width="40px" src="' + mydata.headimg + '" alt=""></td>' +
+                        '<td class="info ele"><span data-toggle="tooltip" data-placement="right" title="' + mydata.wxid + '">' + mydata.nickName + '</span></td>' +
+                        '<td class="info ele">' + city + '</td>' +
+                        '<td class="info ele">￥' + mydata.buyMoney + '</td>' +
+                        '<td class="info ele">会员</td>' +
+                        '<td class="info ele">' + mydata.jifen + '</td>' +
+                        '<td class="info ele"><span data-toggle="tooltip" data-placement="right" title="上次签到:' + mydata.qianDaoTime + '">' + mydata.qiandaoDays + '</span></td>' +
+                        '<td class="info ele">￥' + mydata.rebate + '</td>' +
+                        '<td class="info ele">' + mydata.registertime + '</td>' +
+                        '<td class="info ele">￥' + mydata.acountmoney + '</td>' +
+                        '<td class="info ele">￥' + mydata.rewardmoney + '</td>' +
+                        '<td class="info ele">' + mydata.activecode + '</td>' +
+                        '<td class="info ele">预留</td>' +
+                        '</tr>'
+                    $(".myModal").empty();
+
+                    $("#userTable").append(ele);
+                }
+
+            }
+        }
+
+        function dataParse(data) {
+            createList(1)
+
+
+            defaultPageOptioins = {
+                totalPages: Math.ceil(data.data.length / 10),
+                first: "首页",
+                last: "尾页",
+                prev: '上一页',
+                next: '下一页',
+                startPage: 1,
+                visiblePages: 5,
+                version: '1.1',
+                onPageClick: function(event, page) {
+                    createList(page);
+                }
+            }
+            $('#visible-pages-example').twbsPagination(defaultPageOptioins);
+        }
+        $(".AllDelete").click(function() {
+            var isEmeptySelect = true;
+            $("[name = checkbox-one]:checkbox").each(function() {
+                if ($(this).is(":checked")) {
+                    isEmeptySelect = false;
+                    var that = $(this).parents('tr');
+                    var objData = that.attr('userid')
+                    var url = HomeUrl + "userManageJsonDelete/";
+                    ajaxFn(url, objData, function() {
+                        $(that).remove();
+                        layer.msg('删除成功');
+                    })
+                }
+            });
+            if (isEmeptySelect == true) {
+                layer.msg("选择要删除的内容");
+            }
+
+        });
+
+        function imgPreview(fileDom) {
+            //判断是否支持FileReader
+            if (window.FileReader) {
+                var reader = new FileReader();
+            } else {
+                alert("您的设备不支持图片预览功能，如需该功能请升级您的设备！");
+            }
+
+            //获取文件
+            var file = fileDom.files[0];
+
+            var imageType = /^image\//;
+            //是否是图片
+            if (!imageType.test(file.type)) {
+                alert("请选择图片！");
+                return;
+            }
+            //读取完成
+            reader.onload = function(e) {
+                //获取图片dom
+                var img = document.getElementById("preview");
+                //图片路径设置为读取的图片
+                img.src = e.target.result;
+            };
+
+            reader.readAsDataURL(file);
+
+        }
+
+        function getUrlParam(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) return unescape(r[2]);
+            return null;
+        }
+
+        var goodsid = getUrlParam("goodsid")
+
+        $(".myGoodsid").val(goodsid);
+
+        $('#checkbox-all').click(function() {
+            if ($('#checkbox-all').is(':checked')) {
+                $(".checkbox-one").prop("checked", true);
+            } else {
+                $(".checkbox-one").prop("checked", false);
+            }
+        })
+
+        function ajaxSubmitForm() {
+            var option = {
+                url: HomeUrl + "userManageJsonSelect/",
+                type: 'POST',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.data != "") {
+
+                        mainData = data
+
+                        $('.mytr').remove();
+                        document.getElementById("exampleUsername").value = "";
+                        // document.getElementById("exampleInputPhoneNumber").value = "";
+                        createList(1);
+                        var totalPages = mainData.data.length / 10 + 1;
+                        var currentPageOption = {
+                            totalPages: totalPages,
+                            first: "首页",
+                            last: "尾页",
+                            prev: '上一页',
+                            next: '下一页',
+                            startPage: 1,
+                            visiblePages: totalPages > 5 ? 5 : totalPages,
+                            version: '1.1',
+                            onPageClick: function(event, page) {
+                                createList(page);
+                            }
+                        };
+                        $('#visible-pages-example').twbsPagination('destroy');
+                        $('#visible-pages-example').twbsPagination($.extend({}, defaultPageOptioins, currentPageOption));
+                        defaultPageOptioins = currentPageOption;
+                        $("#loading").hide()
+                    } else {
+                        layer.msg("没有查找到数据")
+                        $("#loading").hide()
+                    }
+                },
+                error: function(data) {
+                    $("#loading").hide()
+                }
+            };
+            $(".searchForm").ajaxSubmit(option);
+        }
+        $(".search").click(function() {
+            username = $("#exampleUsername").val();
+            phone = $("#exampleInputPhoneNumber").val();
+            ajaxSubmitForm();
+        });
+
+
+        function ajaxFn(urlString, postdata, fn) {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function() {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    result = xmlhttp.responseText;
+                    fn(result);
+                }
+            }
+            xmlhttp.open("POST", urlString, true);
+            xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
+            xmlhttp.send("data = " + postdata);
+        }
+    </script>
+
+    {% endblock %}

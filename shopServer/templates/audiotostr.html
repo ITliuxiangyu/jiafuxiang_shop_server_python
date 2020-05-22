@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Live input record and playback</title>
+    <style type='text/css'>
+        ul {
+            list-style: none;
+        }
+        
+        #recordingslist audio {
+            display: block;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <button onclick="startRecording(this);">开始录音</button>
+    <button onclick="stopRecording(this);" disabled>停止</button>
+    <ul id="wenzi">
+        <li>
+            <a></a>
+        </li>
+    </ul>
+</body>
+
+<script src="/static/js/recorder.js"></script>
+<script src="/static/js/jquery.js"></script>
+<script>
+    var audio_context;
+    var recorder;
+    var base64data = undefined;
+
+    function startUserMedia(stream) {
+        var input = audio_context.createMediaStreamSource(stream);
+        recorder = new Recorder(input);
+    }
+
+    function startRecording(button) {
+        recorder && recorder.record();
+        button.disabled = true;
+        button.nextElementSibling.disabled = false;
+    }
+
+    function stopRecording(button) {
+        recorder && recorder.stop();
+        button.disabled = true;
+        button.previousElementSibling.disabled = false;
+        createDownloadLink();
+        recorder.clear();
+    }
+
+    function createDownloadLink() {
+        recorder && recorder.exportWAV(function(a) {
+            var reader = new window.FileReader();
+            reader.readAsDataURL(a);
+            reader.onloadend = function() {
+                base64data = reader.result;
+                a = {
+                    "audio": base64data
+                }
+                url = "audioToStrApi"
+                $.ajax({
+                    url: "/" + url + "/",
+                    type: 'POST',
+                    data: a,
+                    success: function(myresult) {
+                        if (myresult.status == "ok") {
+                            dataStr = myresult.result;
+                            dataStr = dataStr.replace("，", "")
+                            var Ele = "<li><a>" + dataStr + "</a></li>";
+                            $("#wenzi").append(Ele);
+                        } else {
+                            alert(myresult.status);
+                        }
+                    },
+                    error: function(b) {
+                        console.log(b);
+                    }
+                });
+            }
+        });
+    }
+    window.onload = function init() {
+        try {
+            window.AudioContext = window.AudioContext || window.webkitAudioContext;
+            navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
+            window.URL = window.URL || window.webkitURL;
+
+            audio_context = new AudioContext;
+        } catch (e) {
+            alert('No web audio support in this browser!');
+        }
+        navigator.getUserMedia({
+            audio: true
+        }, startUserMedia, function(e) {
+            console.log(e);
+        });
+    };
+</script>
+
+</html>

@@ -1,0 +1,65 @@
+{% extends "base.html" %} {% load staticfiles %} {% block css %}
+
+<style lang="">
+
+</style>
+<link rel="stylesheet" type="text/css" href="{% static 'css/dataTables.bootstrap.min.css' %}" /> {% endblock %} {% block contentRight %}
+
+<ol class="breadcrumb">
+    <li>
+        <a href="#"><i class="fa fa-dashboard"></i> Home</a>
+    </li>
+    <li class="head_active1111">添加商品</li>
+</ol>
+
+{% endblock %} {% block contentLeft %} 商品属性
+<small>Version 5.0</small> {% endblock %} {% block content %}
+
+
+<div class="content">
+    <div class="box">
+        <div class="box-header">
+            <h3 class="box-title">Data Table With Full Features</h3>
+        </div>
+        <div class="box-body">
+            <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>类型名</th>
+                        <th>属性数</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody class="myList">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %} {% block script %}
+
+
+<script>
+    function attrDelete(that) {}
+
+    function attrListFn(that) {
+        window.location.href = HomeUrl + "editFenleiAttrPage/?fenleiId=" + $(that).parents("tr").attr("fenleiid")
+    }
+
+
+
+    myPost("getAllXiaoFenlei", {
+
+    }, function(data) {
+        $(".myList").empty()
+        for (var i = 0; i < data.length; i++) {
+            var tempEle = '<tr fenleiId="' + data[i].id + '"><td>' + data[i].name + '</td><td>' + data[i].attrCounts + '</td><td><button type="button" onclick="attrListFn(this)" class="btn btn-default btn-xs">属性列表</button><button style="margin-left:10px;" type="button" onclick="attrDelete(this)" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> </button></td></tr>'
+            $(".myList").append(tempEle)
+        }
+
+        $('#example1').DataTable()
+    })
+</script>
+{% endblock %}

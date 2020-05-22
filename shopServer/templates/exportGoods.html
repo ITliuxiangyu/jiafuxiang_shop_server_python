@@ -1,0 +1,372 @@
+{% extends "base.html" %} {% load staticfiles %} {% block css %}
+
+<style type="text/css">
+    .contentLeft,
+    .contentRight {
+        border: 1px solid gray;
+    }
+    
+    .myBtn {
+        margin-bottom: 21px;
+    }
+</style>
+{% endblock %} {% block content %}
+
+
+
+<div class="wrap">
+    <div class="row">
+        导出条件：
+        <select name="first" class="first" onchange="firsFenleiSelectFn(this.value)">
+                <option value ="firstFenlei">一级分类</option>
+            </select>
+
+        <select name="second" class="second" onchange="secondFenleiSelectFn(this.value)">
+                <option value ="volvo">二级分类</option>
+            </select>
+        <select name="third" class="third" onchange="thirdFenleiSelectFn(this.value)">
+                <option value ="volvo">三级分类</option>
+            </select>
+
+        <!--<select name="brand" class="brand">
+                <option value ="volvo">所有品牌</option>
+            </select>-->
+        关键字：
+        <input class="searchText" type="text" name="search" placeholder="商品名,商家名,关键字...">
+        <button class="btn btn-primary btn-sm searchBtn">搜索</button>
+    </div>
+
+    <div class="row contentWrap" style="margin-top:30px; ">
+        <div class="col-sm-9 contentLeft" style="height:200px; overflow:scroll;">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr class="biaojuzhong">
+                            <th><input type="checkbox" id="checkbox-all"></th>
+                            <th>名称</th>
+                            <th>商家</th>
+                            <th>价格</th>
+                            <th>关键字</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myListTable">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-sm-1 contentCenter" style="height:200px; display:table;">
+            <div style="display:table-cell; vertical-align:middle;">
+                <button type="button" class="btn btn-default myBtn rightDouble" aria-label="Left Align">
+                        <span class="glyphicon glyphicon-forward" aria-hidden="true"></span>
+                    </button>
+                <br />
+                <button type="button" class="btn btn-default myBtn rightSingle" aria-label="Left Align">
+                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                    </button>
+            </div>
+
+
+        </div>
+        <div class="col-sm-2 contentRight" style="height:200px; overflow:scroll;">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr class="biaojuzhong">
+                            <th><button type="button" class="btn btn-default btn-xs allRightDeleteBtn" aria-label="Left Align"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></th>
+                            <th>名称</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myRightListTable">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="margin-top:30px;">
+        <div class="col-sm-5"></div>
+        <div class="col-sm-5"></div>
+        <div class="col-sm-2">
+            <button class="btn btn-primary btn-sm exportBtn">导出到文件</button>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+{% endblock %} {% block contentRight %}
+
+<ol class="breadcrumb">
+    <li>
+        <a href="#"><i class="fa fa-dashboard"></i> Home</a>
+    </li>
+    <li class="active">商品导出</li>
+</ol>
+
+
+{% endblock %} {% block contentLeft %} 商品导出
+<small>Version 5.0</small> {% endblock %} {% block script %}
+<script src="{% static 'js/export.js' %}" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+    var firsFenlei = ""
+    var secondFenlei = ""
+    var thirdFenlei = ""
+    var allGoods = ""
+
+    // 一级分类改变事件
+    function firsFenleiSelectFn(currentId) {
+        getSecondFenlei(currentId)
+
+    }
+
+    // 二级分类改变事件
+    function secondFenleiSelectFn(currentId) {
+        getThirdFenlei(currentId)
+    }
+
+    // 三级分类改变事件
+    function thirdFenleiSelectFn(currentId) {
+        getGoodsByThirdId(currentId);
+    }
+
+    // 获取三级分类数据
+    function getThirdFenlei(id) {
+        myPost("getSanjifenleiData", {
+            fatherid: id
+        }, function(data) {
+            thirdFenlei = data.data
+            $(".third").empty()
+            $(".third").append('<option value ="thirdFenlei" id="third">三级分类</option>')
+            for (var i = 0; i < thirdFenlei.length; i++) {
+                var tempEle = '<option value ="' + thirdFenlei[i].id + 　'">' + thirdFenlei[i].name + '</option>'
+                $(".third").append(tempEle)
+            }
+
+        })
+    }
+
+    // 获取二级分类数据
+    function getSecondFenlei(id) {
+        myPost("getMinFenleiByBigFenlei", {
+            fatherid: id
+        }, function(data) {
+            secondFenlei = data.data
+            $(".second").empty()
+            $(".second").append('<option value ="secondFenlei" id="second">二级分类</option>')
+            for (var i = 0; i < secondFenlei.length; i++) {
+                var tempEle = '<option value ="' + secondFenlei[i].id + 　'">' + secondFenlei[i].name + '</option>'
+                $(".second").append(tempEle)
+            }
+
+        })
+    }
+
+    // 获取大分类数据
+    function getFirstFenlei() {
+        myPost("allBigFenlei", {}, function(data) {
+            firsFenlei = data.data
+            $(".first").empty()
+            $(".first").append('<option value ="firstFenlei" id="first">一级分类</option>')
+            for (var i = 0; i < firsFenlei.length; i++) {
+                var tempEle = '<option value ="' + 　firsFenlei[i].id + 　'">' + firsFenlei[i].name + '</option>'
+                $(".first").append(tempEle)
+            }
+
+        })
+    }
+    getFirstFenlei();
+
+
+    // 根据三级分类id 获取商品数据
+    function getGoodsByThirdId(id) {
+        myPost("getGoodsByMinfenleiId", {
+            minFenleiId: id,
+            type: "server"
+        }, function(data) {
+            allGoods = data.data
+            $("#myListTable").empty()
+            for (var i = 0; i < allGoods.length; i++) {
+                var oneGoods = allGoods[i]
+                var tempEle = '<tr goodsid="' + oneGoods.goodsid + '"><td><input class="singleSelect" type="checkbox"></td><td class="active">' + 　oneGoods.goodsname + 　'</td><td class="success">' + 　oneGoods.shopname + 　'</td><td class="warning">￥' + oneGoods.shop_price + '</td><td class="danger">暗色他</td></tr>'
+
+                $("#myListTable").append(tempEle)
+            }
+
+        })
+    }
+
+    // 左侧全选按钮事件
+    $("#checkbox-all").click(function() {
+        if ($('#checkbox-all').is(':checked')) {
+            $(".singleSelect").prop("checked", true);
+        } else {
+            $(".singleSelect").prop("checked", false);
+        }
+    })
+
+
+    // 导出文件按钮事件
+    $(".exportBtn").click(function() {
+        var arr = []
+        for (var i = 0; i < $("#myRightListTable").children("tr").length; i++) {
+            var tempDic = $("#myRightListTable").children("tr").eq(i)
+            var goodsid = tempDic.attr("goodsid")
+            arr.push(goodsid)
+        }
+        if (arr.length <= 0) {
+            layer.msg("请选择您要导出的商品....")
+            return;
+        }
+        getGoodsByGoodsArr(arr)
+    })
+
+    // 根据商品id获取商品信息
+    function getGoodsByGoodsArr(arr) {
+        myPostGoodsManage("getGoodsByManyGoodsid", {
+            goodsidArr: arr
+        }, function(data) {
+
+            var resultData = []
+            for (var i = 0; i < data.data.length; i++) {
+                var tempData = data.data[i]
+                var tempDic = {}
+                tempDic.goodsname = tempData.goodsname
+                tempDic.product_number = tempData.product_number
+                tempDic.product_brand = tempData.product_brand
+                tempDic.market_price = tempData.market_price
+                tempDic.shop_price = tempData.shop_price
+                tempDic.jifenprice = tempData.jifenprice
+                tempDic.origin_image = tempData.origin_image
+                tempDic.product_image = tempData.product_image
+                tempDic.product_thumb_image = tempData.product_thumb_image
+                    // tempDic.keywords = tempData.keywords
+                tempDic.product_brief_info = tempData.product_brief_info
+                    // tempDic.details = tempData.details
+                tempDic.product_weight = tempData.product_weight
+                tempDic.counts = tempData.counts
+                tempDic.warning_counts = tempData.warning_counts
+                tempDic.is_jingpin = tempData.is_jingpin
+                tempDic.is_rexiao = tempData.is_rexiao
+                tempDic.status = tempData.status
+                tempDic.is_commen_product = tempData.is_commen_product
+                tempDic.is_entity_product = tempData.is_entity_product
+                tempDic.shopname = tempData.shopname
+                resultData.push(tempDic)
+            }
+            JSONToCSVConvertor({
+                data: resultData,
+                title: '这里导出的标题',
+                showLabel: true
+            });
+
+        });
+    }
+
+
+
+    // 搜索按钮点击事件
+    $(".searchBtn").click(function() {
+        var sortType = ""
+        var sortDirection = ""
+        myPost("commodityQuery", {
+            "sortType": "addtime",
+            "sortDirection": "desc",
+            "page": 1,
+            "commName": $(".searchText").val(),
+            "clientType": "server"
+        }, function(data) {
+
+            if (data.data.length <= 0) {
+                layer.msg("没查到数据")
+                return
+            }
+
+            allGoods = data.data
+            $("#myListTable").empty()
+            for (var i = 0; i < allGoods.length; i++) {
+                var oneGoods = allGoods[i]
+                var tempEle = '<tr goodsid="' + oneGoods.goodsid + '"><td><input class="singleSelect" type="checkbox"></td><td class="active">' + 　oneGoods.goodsname + 　'</td><td class="success">' + 　oneGoods.shopname + 　'</td><td class="warning">￥' + oneGoods.shop_price + '</td><td class="danger">暗色他</td></tr>'
+
+                $("#myListTable").append(tempEle)
+            }
+
+        })
+    })
+
+    // 向右双箭头事件
+    $(".rightDouble").click(function() {
+        var goodsArr = []
+        var checkboxs = $('.singleSelect')
+        for (var i = 0; i < checkboxs.length; i++) {
+            var tempDic = {}
+            tempDic.goodsid = $(checkboxs[i]).parents("tr").attr("goodsid")
+            tempDic.goodsname = $(checkboxs[i]).parents("tr").children("td").eq(1).text()
+            goodsArr.push(tempDic)
+        }
+
+        layoutRightContent(goodsArr)
+    })
+
+    // 向右单箭头事件
+    $(".rightSingle").click(function() {
+        var goodsArr = []
+        var checkboxs = $('.singleSelect')
+        for (var i = 0; i < checkboxs.length; i++) {
+            if ($(checkboxs[i]).is(':checked')) {
+                var tempDic = {}
+                tempDic.goodsid = $(checkboxs[i]).parents("tr").attr("goodsid")
+                tempDic.goodsname = $(checkboxs[i]).parents("tr").children("td").eq(1).text()
+                goodsArr.push(tempDic)
+                    // goodsArr.push($(checkboxs[i]).parents("tr").children("td").eq(1).text())
+                    // $(checkboxs[i]).parents("tr").remove()
+            }
+        }
+
+        layoutRightContent(goodsArr)
+    })
+
+    // 右侧界面布局
+    function layoutRightContent(arr) {
+        $("#myRightListTable").empty()
+        for (var i = 0; i < arr.length; i++) {
+            var tempEle = '<tr goodsid="' + arr[i].goodsid + '"><td><button type="button" class="btn btn-default btn-xs rightDeleteBtn" aria-label="Left Align"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td><td class="danger">' + arr[i].goodsname + '</td></tr>'
+            $("#myRightListTable").append(tempEle)
+        }
+
+        // 右侧界面每一行删除按钮事件
+        $(".rightDeleteBtn").click(function() {
+            $(this).parents("tr").remove()
+        })
+    }
+
+
+    // 右侧界面全部删除按钮事件
+    $(".allRightDeleteBtn").click(function() {
+        $("#myRightListTable").empty()
+    })
+
+
+
+
+
+
+    // 根据商品名字查找商品
+    function getGoodsByGoodsName(goodsname) {
+        for (var i = 0; i < allGoods.length; i++) {
+            if (allGoods[i].goodsname == goodsname) {
+                return allGoods[i]
+            } else {
+                continue
+            }
+        }
+        return ""
+    }
+
+    // 向左双箭头事件
+    $(".leftDouble").click(function() {})
+</script>
+{% endblock %}

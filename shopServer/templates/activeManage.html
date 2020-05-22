@@ -1,0 +1,548 @@
+﻿{% extends "base.html" %} {% load staticfiles %} {% block css %}
+<style type="text/css">
+    #imagesdiv img {
+        height: 60px;
+    }
+    
+    #table {
+        padding-right: 0;
+        margin-bottom: 0;
+        text-align: center;
+        vertical-align: middle;
+    }
+    
+    #table td {
+        vertical-align: middle;
+    }
+    
+    th {
+        text-align: center;
+    }
+    
+    #imagesdiv {
+        height: 60px;
+    }
+    
+    #img {
+        src: static/myfile/1.jpg;
+        height: 60px;
+    }
+    
+    .sumdiv {
+        background-color: #fff;
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.42857143;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+</style>
+
+{% endblock %} {% block content %}
+<button id="deleteBtn" type="button" class="btn btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>批量删除</button>
+<button type="button" class="btn btn-primary addBtn" data-toggle="modal" data-target="#myModal" style="margin:5px;"><span class="glyphicon glyphicon-plus"></span>添加</button>
+<div id="xxx" class=" col-sm-12" style="padding:0;">
+    <a class="col-sm-12" style="margin:5px; padding-left:0; color: black;margin-right:0;"><strong>活动列表</strong></a>
+    <table id="table" class="table table-bordered">
+        <thead <tr name="row">
+            <td id="item" style="display:none"></td>
+            <th>
+                <input type="checkbox" id="checkbox-all" value="$(goodsid)">
+            </th>
+            <th>标题</th>
+            <th>开始/截止时间</th>
+            <th>连接地址</th>
+            <th>图片</th>
+            <th>编辑</th>
+            </tr>
+        </thead>
+        <tbody id="myListTable">
+        </tbody>
+    </table>
+</div>
+<div class="row" id="div3" style=" padding: 1% 0;">
+    <div class="col-md-12" style="text-align: left;">
+        <div class="text-center">
+            <ul id="visible-pages-example"></ul>
+            <ul id="xxx"></ul>
+        </div>
+    </div>
+</div>
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    添加活动
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form id="myform" action="" enctype="multipart/form-data" method="post">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">标题:</label>
+                        <input type="text" class="form-control" id="add_acive_name" name="active_name">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">活动开始日期:</label>
+                        <input class="form-control only" type="datetime" name="starttime" id="prostart" onClick="WdatePicker({el:'prostart',dateFmt:'yyyy-MM-dd HH:mm:ss',maxDate: '#F{$dp.$D(\'proend\')}' })">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">活动结束日期:</label>
+                        <input class="form-control only" type="datetime" id="proend" name="stoptime" onClick="WdatePicker({el:'proend',dateFmt:'yyyy-MM-dd HH:mm:ss',minDate: '#F{$dp.$D(\'prostart\')}' })">
+                    </div>
+                    <div class="form-group">
+                        <label for="">链接地址:</label>
+                        <input type="text" class="form-control" name="active_address" id="location">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">活动详情:</label>
+                        <textarea class="form-control" rows="6" style="resize: none;" name="activedetail"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="">添加图片:</label>
+                        <input type="file" class="myfile" name="imgs">
+                    </div>
+                    <div id="add_img" class="form-group">
+                        <!-- <img src="#" alt="" id="myimages"> -->
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                </button>
+                <button type="button" class="btn btn-primary" id="submitBtn" data-dismiss="modal" onclick="ajaxSubmitForm()">
+                    提交
+                </button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal -->
+</div>
+<!-- 编辑模态框（Modal） -->
+<div class="modal fade" id="Modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    编辑活动
+                </h4>
+            </div>
+            <div class="modal-body">
+
+                <form id="myform111" enctype="multipart/form-data" method="POST">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">id:</label>
+                        <input type="text" class="form-control" id="ss" name="activeid" readonly="readonly">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">标题:</label>
+                        <input type="text" class="form-control" id="updata_active_name" name="active_name">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">活动开始日期:</label>
+                        <input class="form-control only" type="datetime" id="updata_prostart" name="starttime" onClick="WdatePicker({el:'updata_prostart',dateFmt:'yyyy-MM-dd HH:mm:ss',maxDate: '#F{$dp.$D(\'updata_proend\')}' })">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">活动结束日期:</label>
+                        <input class="form-control only" type="datetime" id="updata_proend" name="stoptime" onClick="WdatePicker({el:'updata_proend',dateFmt:'yyyy-MM-dd HH:mm:ss',minDate: '#F{$dp.$D(\'updata_prostart\')}' })">
+                    </div>
+                    <div class="form-group">
+                        <label for="">链接地址:</label>
+                        <input type="text" class="form-control" name="active_address" id="updata_address">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">活动详情:</label>
+                        <textarea class="form-control" rows="6" style="resize: none;" id="updata_activedetail" name="activedetail"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="">添加图片:</label>
+                        <input type="file" class="myPhone" id="up_imgs" name='imgs' accept="image/gif,image/jpeg">
+                    </div>
+                    <div id="up_img" class="form-group">
+                        <!-- <img src="#" alt="" id="MyPhone"> -->
+                    </div>
+                    <div class="modal-footer">
+                        <!-- <input type="submit" class="btn btn-primary"  value="提交" /> -->
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                            </button>
+                        <input type="submit" class="btn btn-primary" value="提交" data-dismiss="modal" onclick="ajaxSubmitFormUpdata()" />
+                    </div>
+
+
+                </form>
+
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal -->
+</div>
+
+<!-- 查看模态框（Modal） -->
+<div class="modal fade" id="seeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    活动详情
+                </h4>
+            </div>
+            <div class="modal-body">
+
+                <form id="see_myform" enctype="multipart/form-data" method="POST">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">id:</label>
+                        <input type="text" class="form-control" id="see_active_id" readonly="readonly">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">标题:</label>
+                        <input type="text" class="form-control" id="see_active_name" readonly="readonly">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">活动开始日期:</label>
+                        <input class="form-control only" type="datetime" id="see_prostart" readonly="readonly">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">活动结束日期:</label>
+                        <input class="form-control only" type="datetime" id="see_proend" readonly="readonly">
+                    </div>
+                    <div class="form-group">
+                        <label for="">位置:</label>
+                        <input type="text" class="form-control" id="see_location" readonly="readonly">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">活动详情:</label>
+                        <textarea class="form-control" rows="6" style="resize: none;" id="see_activedetail" readonly="readonly"></textarea>
+                    </div>
+                    <div id="see_img" class="form-group">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+
+
+                </form>
+
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal -->
+</div>
+
+
+{% endblock %} {% block script %}
+<script type="text/javascript">
+    var activeArr = []
+
+    $('#myform111').on('submit', function(e) {
+        e.preventDefault();
+        $(this).ajaxSubmit({
+            success: function(data) {
+                layer.msg("编辑成功....");
+                history.go(0)
+
+            },
+        })
+    });
+
+
+    var currpage = 1;
+    var countPages = 0;
+
+    //添加item函数
+    function adEleFn(data, i) {
+        imgs = data.imgs;
+        activeid = data.activeid;
+        starttime = data.starttime;
+        stoptime = data.stoptime;
+        activedetail = data.activedetail;
+        activetitle = data.activetitle;
+        activeAddress = data.activeAddress;
+        activeName = data.activeName;
+        var Tr = '<tr name="row" class="myrow" i="' + i + '" activeid = "' + activeid + '"><td><input class="checkbox-one" type="checkbox"></td><td><a class="seeActive" style="cursor: pointer;">' + activeName + '</a></td><td>' + starttime + '<br />' + stoptime + '</td><td>' + activeAddress + '</td><td><div id="imagesdiv"><img src="/static/myfile/' + imgs + '"/></div></td><td><button class="btn btn-default demo7" type="button"><span class="glyphicon glyphicon-file"  aria-hidden="true"></span></button><button class="btn btn-default demo8" type="button"><span class="glyphicon glyphicon-trash"  aria-hidden="true"></span></button></td></tr>';
+        $("#myListTable").append(Tr);
+    }
+    //当modal关闭的时候数据清除
+    $('#myModal').on('hide.bs.modal', function() {
+        $('#myform')[0].reset();
+        //这个方法来清除缓存
+        $(this).find("img").remove();
+    });
+    $('#Modal').on('hide.bs.modal', function() {
+        $('#myform111')[0].reset();
+        //这个方法来清除缓存
+        $(this).find("img").remove();
+    });
+
+    $('#seeModal').on('hide.bs.modal', function() {
+        $('#see_myform')[0].reset();
+        //这个方法来清除缓存
+        $(this).find("img").remove();
+    });
+    //解析数据函数
+    function parseDataFn(currpage) {
+        var data = activeArr;
+        var start = (currpage - 1) * 10
+        var end = data.length > (currpage * 10) ? (currpage * 10) : data.length;
+        if (data.length > 0) {
+            for (var i = start; i < end; i++) {
+                perdata = data[i];
+                adEleFn(perdata, i);
+            }
+
+            $(".demo7").click(function() {
+                $("#Modal").modal("show");
+                var that = $(this).parents("tr")
+                var activeid = that.attr("activeid")
+                document.getElementById("ss").value = activeid;
+
+                var i = parseInt(that.attr("i"))
+                var activeName = activeArr[i].activeName;
+                var starttime = activeArr[i].starttime
+                var stoptime = activeArr[i].stoptime
+                var address = activeArr[i].activeAddress
+                var updata_activedetail = activeArr[i].activedetail
+                var activeImgs = activeArr[i].imgs
+
+                $("#updata_active_name").val(activeName)
+                $("#updata_prostart").val(starttime)
+                $("#updata_proend").val(stoptime)
+                $("#updata_address").val(address)
+                $("#updata_activedetail").val(updata_activedetail)
+                var ele = '<img src="#" alt="" id="MyPhone">'
+                $("#up_img").append(ele)
+                $("#MyPhone").attr("src", "/static/myfile/" + activeImgs)
+            })
+
+            $(".demo8").click(function() {
+                var that = $(this).parents("tr")
+                var dataId = that.attr("activeid")
+
+                $.ajax({
+
+                    url: "/activetableManageJsonDelete/?dataId=" + dataId,
+
+                    success: function(result) {
+                        if (result.status == "ok") {
+                            for (var i = 0; i < activeArr.length; i++) {
+                                if (activeArr[i].activeid == dataId) {
+                                    activeArr.splice(i, 1);
+                                }
+                            }
+                            refreshFn();
+                            layer.msg("删除成功")
+                        }
+                    },
+                    error: function(err) {
+                        layer.msg("删除失败");
+                    }
+                });
+            })
+        }
+    }
+
+    function refreshFn() {
+        adcounts = activeArr.length;
+        var adcountsPage = Math.ceil(parseInt(adcounts) / 10)
+        if (countPages != adcountsPage) {
+            $("#visible-pages-example").twbsPagination("destroy") //销毁分页栏
+            if (currpage >= adcountsPage) {
+                currpage = adcountsPage
+            }
+        }
+        if (adcounts != null && parseInt(adcounts) > 0) {
+            countPages = adcountsPage;
+        } else {
+            countPages = 1
+            currpage = 1
+        }
+        $("#myListTable").children("tr").remove()
+            //解析数据	
+        parseDataFn(currpage);
+        $(".seeActive").click(function() {
+            $("#seeModal").modal("show");
+            var that = $(this).parents("tr")
+            var activeid = that.attr("activeid")
+
+            var i = parseInt(that.attr("i"))
+            var activeName = activeArr[i].activeName;
+            var starttime = activeArr[i].starttime
+            var stoptime = activeArr[i].stoptime
+            var position = activeArr[i].activePosition
+            var updata_activedetail = activeArr[i].activedetail
+            var activeImgs = activeArr[i].imgs
+
+            $("#see_active_id").val(activeid)
+            $("#see_active_name").val(activeName)
+            $("#see_prostart").val(starttime)
+            $("#see_proend").val(stoptime)
+            $("#see_location").val(position)
+            $("#see_activedetail").val(updata_activedetail)
+            var ele = '<img src="#" alt="" id="seePhone">'
+            $("#see_img").append(ele)
+            $("#seePhone").attr("src", "/static/myfile/" + activeImgs)
+        });
+        //记录个数
+        createPageNav('#visible-pages-example', countPages, function(event, page) {
+            if (currpage != page) {
+                currpage = page;
+                refreshFn();
+            }
+        });
+        $("#visible-pages-example").children(".sumdiv").remove()
+        var spanele = '<span class="sumdiv">共' + countPages + '页,当前第' + currpage + '页,共' + adcounts + '条数据</span>'
+        $("#visible-pages-example").append(spanele)
+
+    }
+
+    function ajaxfn() {
+        var d = new Date();
+        var prostartStr = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + (d.getDate()) + " " + (d.getHours()) + ":" + (d.getMinutes()) + ":" + (d.getSeconds());
+        var proendStr = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + (d.getDate() + 1) + " " + (d.getHours()) + ":" + (d.getMinutes()) + ":" + (d.getSeconds());
+        $("#prostart").attr("value", prostartStr)
+        $("#proend").attr("value", proendStr)
+        myPost('activeManageJsonSelect/?', {}, function(result) {
+            activeArr = result.data;
+            refreshFn();
+            $("#loading").hide();
+        });
+    }
+
+    ajaxfn()
+
+
+    //编辑按钮提交表单
+    function ajaxSubmitFormUpdata() {
+        var option = {
+            url: "/activetableManageJsonchange/",
+            type: 'POST',
+            success: function(data) {
+                for (var i = 0; i < activeArr.length; i++) {
+                    if (data.addactive.activeid == activeArr[i].activeid) {
+                        activeArr[i] = data.addactive
+                    }
+                }
+                refreshFn()
+                layer.msg('修改成功');
+            },
+            error: function(data) {
+                alert("修改失败");
+            }
+        };
+        $("#myform111").ajaxSubmit(option);
+    }
+
+
+    //ajaxform提交表单
+    function ajaxSubmitForm() {
+        var option = {
+            url: "/activetableManageJsonAdd/",
+            type: 'POST',
+            success: function(data) {
+                activeArr.unshift(data.addactive)
+                refreshFn()
+                layer.msg('添加成功');
+            },
+            error: function(data) {
+                alert("添加失败");
+            }
+        };
+        $("#myform").ajaxSubmit(option);
+    }
+    //图片预览
+    $(".myfile").change(function() {
+        var ele = '<img src="#" alt="" id="myimages">'
+        $("#add_img").append(ele)
+        var $file = $(this);
+        //获得文件内容和信息
+        var fileObj = $file[0];
+        var windowURL = window.URL || window.webkitURL;
+        var dataURL;
+        var $img = $("#myimages");
+        if (fileObj && fileObj.files && fileObj.files[0]) {
+            dataURL = windowURL.createObjectURL(fileObj.files[0]);
+            $img.attr('src', dataURL);
+        }
+    });
+    //图片预览
+    $(".myPhone").change(function() {
+        var $file = $(this);
+        //获得文件内容和信息
+        var fileObj = $file[0];
+        var windowURL = window.URL || window.webkitURL;
+        var dataURL;
+        var $img = $("#MyPhone");
+        if (fileObj && fileObj.files && fileObj.files[0]) {
+            dataURL = windowURL.createObjectURL(fileObj.files[0]);
+            $img.attr('src', dataURL);
+        }
+    });
+
+
+
+
+
+    $('#checkbox-all').click(function() {
+        if ($('#checkbox-all').is(':checked')) {
+            $(".checkbox-one").prop("checked", true);
+        } else {
+            $(".checkbox-one").prop("checked", false);
+        }
+    });
+
+
+    $('#deleteBtn').click(function() {
+        var activeidArr = []
+        var checkboxs = $('.checkbox-one')
+        for (var i = 0; i < checkboxs.length; i++) {
+            if ($(checkboxs[i]).is(':checked')) {
+                var activeidOne = $(checkboxs[i]).parents("tr").attr("activeid")
+                activeidArr.push(activeidOne)
+            }
+        }
+        myPostGoodsManage("activesManageJsonDelete", {
+            activeids: activeidArr
+        }, function(data) {
+            if (data["status"] == "ok") {
+                var deleteCount = data['deleteCount']
+                for (var i = 0; i < activeArr.length; i++) {
+                    for (var j = 0; j < activeidArr.length; j++) {
+                        if (activeArr[i].activeid == activeidArr[j]) {
+                            activeArr.splice(i, 1);
+                        }
+                    }
+                }
+                refreshFn();
+                layer.msg("删除" + deleteCount + "条记录成功");
+            } else {
+                layer.msg("删除失败")
+            }
+        });
+    });
+</script>
+{% endblock %} {% block contentLeft %} 活动管理
+<small>Version 5.0</small> {% endblock %} {% block contentRight %}
+<ol class="breadcrumb">
+    <li>
+        <a href="#"><i class="fa fa-dashboard"></i> Home</a>
+    </li>
+    <li class="active">活动管理</li>
+</ol>
+{% endblock %}

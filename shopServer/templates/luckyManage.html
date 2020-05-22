@@ -1,0 +1,487 @@
+{% extends "base.html" %} {% load staticfiles %} {% block css %}
+<style type="text/css">
+    .biaojuzhong th {
+        text-align: center;
+    }
+    
+    .biaojuzhong td {
+        text-align: center;
+    }
+    
+    .biaojuzhong td button {
+        padding: 2px 10px;
+        background-color: white;
+    }
+    
+    .sumdiv {
+        background-color: #fff;
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.42857143;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    
+    #bigdiv {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-collapse: collapse;
+    }
+</style>
+{% endblock %} {% block content %}
+<div class="row" style="height: 60px;">
+    <div class="col-md-12" style="text-align: center;">
+        <form class="form-inline" action="#">
+            <!-- <div class="form-group">
+				<label for="exampleInputName2">商品名称:</label>
+				<input type="text" class="form-control" id="luckySelectName" placeholder="商品名">
+			</div>
+			<button type="submit" class="btn btn-success" id="luckySelectBtn"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询</button> -->
+        </form>
+    </div>
+</div>
+<div class="row">
+    <div class="row" style="height: 50px;">
+        <div class="col-md-6" style="text-align: left;">
+            <button id="deleteBtn" type="button" class="btn btn-danger">
+				<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>批量删除
+			</button>
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModal">
+				<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加福袋
+			</button>
+            <!-- <button id="timeBtn" type="button" class="btn btn-warning">
+				<span class="glyphicon glyphicon-download" aria-hidden="true">当前时间降序</span>
+			</button>			 -->
+
+            <!-- 添加福袋 模态框 -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">添加福袋</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="recipient-name" class="control-label">商品名:</label>
+                                    <input type="text" class="form-control" id="addLucky-goodsId" list="itemlist">
+                                </div>
+                                <div class="form-group">
+                                    <label for="message-text" class="control-label">数量:</label>
+                                    <input type="number" class="form-control" id="addLucky-counts" value="1" name="number" min="1">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-info" id="form-addLucky">添加</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="col-md-6" style="text-align: right;">
+            <p>共有数据:<strong id="luckyNumber">0</strong>条</p>
+        </div>
+    </div>
+
+
+    <div class="" id="bigdiv">
+        <table class="table table-bordered" style=" margin-bottom: 0px;">
+            <caption><strong style="color: #000000;">福袋列表</strong></caption>
+            <thead>
+                <tr class="biaojuzhong">
+                    <th>
+                        <input type="checkbox" id="checkbox-all">
+                    </th>
+                    <th>序号</th>
+                    <th>商品名称</th>
+                    <th>单价</th>
+                    <th>数量</th>
+                    <th>上架时间</th>
+                    <th>编辑</th>
+                </tr>
+            </thead>
+
+            <tbody class="myListTable">
+            </tbody>
+        </table>
+
+
+
+        <!-- 确定修改福袋 模态框 -->
+        <div class="modal fade" id="exampleModal-confirm" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" style="text-align: center;">确认添加福袋</h4>
+                    </div>
+                    <div class="modal-body">
+                        <h3 id="add-goodsname"></h3>
+                        <h3 id="add-counts"></h3>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-info" id="form-confirm">确认</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row" id="div3" style=" padding: 1% 0;">
+            <div class="col-md-12" style="text-align: left;">
+                <div class="text-center">
+                    <ul id="visible-pages-example"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <datalist id="itemlist">
+	</datalist> {% endblock %} {% block contentRight %}
+    <ol class="breadcrumb">
+        <li>
+            <a href="#"><i class="fa fa-dashboard"></i> Home</a>
+        </li>
+        <li class="active">福袋列表</li>
+    </ol>
+    {% endblock %} {% block contentLeft %} 福袋列表
+    <small>Version 5.0</small> {% endblock %} {% block script %}
+    <script type="text/javascript">
+        var luckyListPages = 3
+        var luckyCount = 1
+        var thispage = 1
+        var commName = ""
+        var updata_luckyid = ""
+        var timeBtnUp = 0
+
+
+        var mainData = []
+
+
+        function oneLucky(data, i) {
+            var luckyid = data["luckyid"];
+            var goodsid = data["goodsid"];
+            var goodsname = data["goodsname"];
+            var number = data["counts"];
+            var numbs = data["counts"];
+            var price = "￥" + data["price"]
+            var uptime = data["uptime"];
+            var listNumber = (thispage - 1) * 10 + i + 1
+            if (data["price"] == null) {
+                price = "未知"
+            }
+            var ele = '<tr class="biaojuzhong" goodsid=' + goodsid + ' zz=' + numbs + ' luckyid="' + luckyid + '"><td><input type="checkbox" class="checkbox-one"></td><th scope="row">' + listNumber + '</th><td>' + goodsname + '</td><td>' + price + '</td><td><div class="item-amount"><a href="#" class="J_Minus no-minus glyphicon glyphicon-minus decrease" name="-"></a><input sb=' + 　number + ' type="text" value="' + number + '" id="numbers" class="text text-amount J_ItemAmount counts" data-max="281" data-now="1" autocomplete="off"><a href="#" name="+" class="J_Plus plus glyphicon glyphicon-plus increase"></a></div></td><td>' + uptime + '</td><td><button sb=' + number + ' class="btn btn-default updata" type="button">保存</button><button class="btn btn-default delete" type="button"><span class="glyphicon glyphicon-trash"  aria-hidden="true"></span></button></td></tr>'
+            $(".myListTable").append(ele)
+
+        }
+
+        //解析数据到页面
+        function luckyListToPage(data, i) {
+
+            for (var i = 0; i < data.length; i++) {
+                oneLucky(data[i], i)
+            }
+            $(".updata").click(function() {
+
+                $(this).parents("tr").children("td").each(function(i, item) {
+                    if (i == 3) {
+                        var yuanlaide = $(item).children("div").children("input").attr("sb");
+                        var xianzaide = $(item).children("div").children("input").val();
+                        luckyid = $(this).parents("tr").attr("luckyid");
+                        if (yuanlaide != xianzaide) {
+                            var luckyid = $(this).parents("tr").attr("luckyid");
+                            $.post("/luckyManageJsonUpdata/", {
+                                    "luckyid": luckyid,
+                                    "num": xianzaide
+                                },
+                                function(data) {
+                                    if (data.status == "ok") {
+                                        $(this).parents("tr").children(".counts").val(xianzaide)
+                                        layer.msg("更新成功")
+                                        location.reload()
+                                    } else {
+                                        layer.msg("更新失败")
+                                    }
+                                }
+                            );
+                        } else {
+                            layer.msg("无需保存")
+                        }
+                    }
+
+                })
+            });
+
+            $(".delete").click(function() {
+                var that = $(this).parents("tr")
+                var luckyArr = [that.attr("luckyid")]
+                var goodsidArr = [that.attr("goodsid")]
+
+                $.ajax({
+                    url: HomeUrl + "luckyManageJsonDelete/",
+                    type: 'POST',
+                    data: {
+                        luckyids: luckyArr,
+                        goodsids: goodsidArr
+                    },
+                    traditional: true,
+                    success: function(data) {
+                        if (data["status"] == "ok") {
+                            var deleteCount = data['deleteCount']
+                            layer.msg("删除" + deleteCount + "条记录成功");
+                            window.location.reload()
+                        } else {
+                            layer.msg("删除失败")
+                        }
+                    }
+                });
+            });
+        }
+
+
+
+
+
+        $("#luckySelectBtn").click(function() {
+            thispage = 1
+            commName = $("#luckySelectName").val()
+            loaddata()
+        });
+
+
+        $('#deleteBtn').click(function() {
+            var luckyArr = []
+            var goodsArr = []
+            var checkboxs = $('.checkbox-one')
+            for (var i = 0; i < checkboxs.length; i++) {
+                if ($(checkboxs[i]).is(':checked')) {
+                    var luckyidOne = $(checkboxs[i]).parents("tr").attr("luckyid")
+                    luckyArr.push(luckyidOne)
+
+                    var goodsidOne = $(checkboxs[i]).parents("tr").attr("goodsid")
+                    goodsArr.push(goodsidOne)
+                }
+            }
+            $.ajax({
+                url: HomeUrl + "luckyManageJsonDelete/",
+                type: 'POST',
+                data: {
+                    luckyids: luckyArr,
+                    goodsids: goodsArr
+                },
+                traditional: true,
+                success: function(data) {
+                    if (data["status"] == "ok") {
+                        var deleteCount = data['deleteCount']
+                        loaddata()
+                        layer.msg("删除" + deleteCount + "条记录成功");
+                    } else {
+                        layer.msg("请选择一个进行删除")
+                    }
+                }
+            });
+        });
+
+
+        $('#checkbox-all').click(function() {
+            if ($('#checkbox-all').is(':checked')) {
+                $(".checkbox-one").prop("checked", true);
+            } else {
+                $(".checkbox-one").prop("checked", false);
+            }
+        });
+
+
+        function loaddata() {
+            myGet("luckyManageJsonQuery", function(data) {
+                luckyCount = data.data.length
+                luckyListPages = Math.ceil(parseInt(luckyCount) / 10)
+                $(".myListTable").empty()
+                mainData = data.data;
+                luckyListToPage(mainData)
+                $("#luckyNumber").text(luckyCount);
+                $("#visible-pages-example").children(".sumdiv").remove()
+                var spanele = '<span class="sumdiv">共' + luckyListPages + '页,当前第' + thispage + '页,共' + luckyCount + '条数据</span>'
+                $("#visible-pages-example").append($(spanele))
+                createPageNav('#visible-pages-example', luckyListPages, function(event, page) {
+                    thispage = page;
+                    loaddata();
+                });
+            }, function(err) {
+                layer.msg("查询失败，请检查网络。。。。。")
+            })
+        }
+
+
+
+        //添加模态框
+        function addLucky(form_goodsId, form_counts) {
+            $.ajax({
+                url: HomeUrl + "luckyManageJsonAdd/",
+                type: 'POST',
+                data: {
+                    goodsName: form_goodsId,
+                    counts: form_counts
+                },
+                success: function(data) {
+                    if (data["status"] == "ok") {
+                        layer.msg("商品添加成功")
+                        thispage = 1
+                        loaddata()
+                    } else {
+                        layer.msg("商品添加失败")
+                    }
+                }
+            });
+        }
+
+        $("#form-addLucky").click(function() {
+            var form_goodsValue = removeStringSpace($("#addLucky-goodsId").val())
+            if (form_goodsValue.split("---").length < 2) {
+                layer.msg("请选择正确的商品...")
+                return
+            }
+            var form_goodsName = removeStringSpace(form_goodsValue.split("---")[0])
+            var form_goodsid = removeStringSpace(form_goodsValue.split("---")[1])
+            var form_counts = removeStringSpace($("#addLucky-counts").val())
+
+            if (form_goodsValue == "" || form_goodsName == "" || form_goodsid == "" || form_counts == "" || form_counts <= 0) {
+                layer.msg("请选择正确的商品...")
+                return
+            }
+
+
+
+
+
+            var isHaveThisFudai = false
+            for (var i = 0; i < mainData.length; i++) {
+                if (mainData[i].goodsid == form_goodsid) {
+                    isHaveThisFudai = true
+                    break
+                }
+            }
+
+            if (isHaveThisFudai == false) {
+                myPost("luckyManageJsonAdd", {
+                    goodsName: form_goodsName,
+                    goodsId: form_goodsid,
+                    counts: form_counts
+                }, function(data) {
+                    layer.msg(data.message)
+                    if (data.status == "ok") {
+                        window.location.reload()
+                    } else {
+
+                    }
+                })
+            } else {
+                layer.msg("该商品已经在福袋中了...,请重新选择....")
+            }
+        });
+        $("#form-confirm").click(function() {
+            addLucky(form_goodsId, form_counts)
+            $("#exampleModal").modal('hide')
+            $("#exampleModal-confirm").modal('hide')
+            $("#addLucky-goodsId").val("")
+            $("#addLucky-counts").val(1)
+            $("#visible-pages-example").twbsPagination("destroy") //销毁分页栏
+        })
+
+        loaddata()
+
+        $("#timeBtn").click(function() {
+            if (timeBtnUp == 0) {
+                $(this).children("span").remove()
+                var ele = '<span class="glyphicon glyphicon-upload" aria-hidden="true">当前时间升序</span>'
+                $(this).append(ele)
+                timeBtnUp = 1
+            } else {
+                $(this).children("span").remove()
+                var ele = '<span class="glyphicon glyphicon-download" aria-hidden="true">当前时间降序</span>'
+                $(this).append(ele)
+                timeBtnUp = 0
+            }
+            thispage = 1
+            loaddata()
+            $("#visible-pages-example").twbsPagination("destroy") //销毁分页栏
+        });
+        $("#form-updataLucky").click(function() {
+            var updata_counts = $("#updataLucky-counts").val()
+            $.ajax({
+                url: HomeUrl + "luckyManageJsonUpdata/",
+                type: 'POST',
+                data: {
+                    counts: updata_counts,
+                    luckyid: updata_luckyid
+                },
+                success: function(data) {
+                    if (data["status"] == "ok") {
+                        $("#exampleModal-updata").modal('hide')
+                        loaddata()
+                        layer.msg("修改记录成功");
+                    } else {
+                        layer.msg("修改失败")
+                    }
+                }
+            });
+        });
+        $('.row').delegate('a', 'click', function(ev) {
+            b = $(this).attr("name");
+            var that = $(this).parents(".item-amount");
+            var a = $(that).parents(".row");
+            var luckyid = $(this).parents("tr").attr("luckyid");
+            var number = $(that.children(".counts")).val();
+            if (b == "-") {
+                if (number > 0) {
+                    number--;
+                    $(that.children(".counts")).val(number);
+                }
+            } else if (b == "+") {
+                if (number >= 0) {
+                    number++;
+                    $(that.children(".counts")).val(number);
+                }
+            }
+            number = document.getElementById("numbers");
+
+        });
+
+        var source = new Array();
+
+        $('#addLucky-goodsId').keyup(function() {
+            source.splice(0, source.length);
+            selectName = $(this).val()
+            $.ajax({
+                url: HomeUrl + "goodsNameSelect/",
+                type: 'POST',
+                data: {
+                    goodsName: selectName
+                },
+                success: function(data) {
+                    source.splice(0, source.length);
+                    $("#itemlist").children().remove()
+                    for (var i = 0; i < data.data.length; i++) {
+                        source.push(data.data[i].goodsname)
+                        var ele = '<option>' + data.data[i].goodsname + " --- " + data.data[i].goodsid + '</option>'
+                        $("#itemlist").append(ele)
+                        source.splice(0, source.length);
+                    }
+                },
+                error: function(msg) {
+                    layer.msg("获取数据失败")
+                }
+            });
+        });
+    </script>
+    {% endblock %}

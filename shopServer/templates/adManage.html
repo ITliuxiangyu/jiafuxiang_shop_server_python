@@ -1,0 +1,60 @@
+{% extends "home.html" %} {% block content %}
+<style>
+    .swiper-slide {
+        width: 500px;
+        height: 550px;
+    }
+    
+    .ads {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .deleteBtn {
+        float: right;
+    }
+</style>
+<div class="posts">
+
+    <div class="swiper-container">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide">
+                <button class="deleteBtn">删除</button>
+                <img class="ads" src="/static/myfile/2.jpg" alt="" />
+            </div>
+            <div class="swiper-slide">
+                <button class="deleteBtn">删除</button>
+                <img class="ads" src="/static/myfile/2.jpg" alt="" />
+            </div>
+            <div class="swiper-slide">
+                <button class="deleteBtn">删除</button>
+                <img class="ads" src="/static/myfile/3.jpg" alt="" />
+            </div>
+            <div class="swiper-slide">
+                <button class="deleteBtn">删除</button>
+                <img class="ads" src="/static/myfile/4.jpg" alt="" />
+            </div>
+            <div class="swiper-slide">
+                <button class="deleteBtn">删除</button>
+                <img class="ads" src="/static/myfile/5.jpg" alt="" />
+            </div>
+        </div>
+    </div>
+    <form action="/adManageJsonAdd/" method="post" enctype="multipart/form-data" name="upload_form">
+        <label>选择图片文件</label>
+        <input name="imgsFile" type="file" accept="image/gif, image/jpeg" /> {% csrf_token %}
+        <input type="submit" value="提交" />
+    </form>
+</div>
+
+{% endblock %} {% block script %}
+<script type="text/javascript">
+    $(function() {
+
+        var mySwiper = new Swiper('.swiper-container', {
+            autoplay: true, //可选选项，自动滑动
+            loop: true,
+        })
+    })
+</script>
+{% endblock %}

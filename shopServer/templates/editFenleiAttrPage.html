@@ -1,0 +1,245 @@
+{% extends "base.html" %} {% load staticfiles %} {% block css %}
+
+<style lang="">
+
+</style>
+<link rel="stylesheet" type="text/css" href="{% static 'css/dataTables.bootstrap.min.css' %}" /> {% endblock %} {% block contentRight %}
+
+<ol class="breadcrumb">
+    <li>
+        <a href="#"><i class="fa fa-dashboard"></i> Home</a>
+    </li>
+    <li class="head_active1111">添加商品</li>
+</ol>
+
+{% endblock %} {% block contentLeft %} 商品属性添加
+<small>Version 5.0</small> {% endblock %} {% block content %}
+
+
+<div class="content">
+    <div class="box">
+        <div class="box-header">
+            <!--<h3 class="box-title">Data Table With Full Features</h3>-->
+            <span>选择分类:</span>
+            <label>
+				<select name="example1_length" aria-controls="example1" class="form-control input-sm fenleiSelect" onchange="selectChangeFn(this)">
+					
+				</select>
+			</label>
+        </div>
+        <div class="box-body">
+            <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>属性名称</th>
+                        <th>商品类型</th>
+                        <th>可选值列表</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody class="myList">
+
+                </tbody>
+                <tfoot>
+                    <!--<tr>
+						<th></th>
+						<th></th>
+						<th></th>
+						<th></th>
+					</tr>-->
+                </tfoot>
+            </table>
+            <div style="text-align:right;">
+                <button type="button" class="btn btn-default btn-xs addAttrBtn"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 添加新属性</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %} {% block script %}
+
+<script>
+    // var myTable = $('#example1').DataTable()
+
+    var pageFenlei_id = getUrlParams("fenleiId")
+
+    // 分类 change 事件 
+    function selectChangeFn(that) {
+        pageFenlei_id = $(".fenleiSelect").val()
+
+        getFenleiAttrList()
+    }
+
+    // 添加新属性方法
+    $(".addAttrBtn").click(function() {
+
+        var fenleiId = $(".fenleiSelect").val()
+        var fenleiName = $(".fenleiSelect option:selected").text()
+
+        var tempEle = '<tr fenleiId="' + fenleiId + '" id=""><td><input type="text" value="" placeholder="属性名" /></td><td>' + fenleiName + '</td><td><input type="text" value="" placeholder="属性名" /></td><td><button type="button" onclick="attrEdit(this)" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> </button><button style="margin-left:10px;" type="button" onclick="attrDelete(this)" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> </button></td></tr>'
+        $(".myList").append(tempEle)
+        $('#example1').DataTable()
+    })
+
+
+
+    // 获取地址中的参数
+    function getUrlParams(paramName) {
+        var locationHref = window.location.href;
+        var location_arr = locationHref.split("?")
+        if (location_arr.length < 2) {
+            return ""
+        }
+
+        var params = location_arr[1]
+
+        var params_arr = params.split("&")
+        var result = ""
+        for (var i = 0; i < params_arr.length; i++) {
+            if (params_arr[i] == "") {
+                continue
+            }
+            var minArr = params_arr[i].split("=")
+            if (minArr[0] == paramName) {
+                result = minArr[1].replace("#", "")
+            }
+        }
+
+        return result;
+    }
+
+    // 列表上的编辑按钮
+    function attrEdit(that) {
+        var currentTr = $(that).parents("tr")
+        var editId = currentTr.attr("id")
+
+        var first_td = currentTr.children("td").eq(0)
+        var third_td = currentTr.children("td").eq(2)
+        var first_text;
+        var third_text;
+
+        if ($(that).children("span").hasClass("glyphicon-pencil")) {
+
+            first_text = first_td.text()
+            third_text = third_td.text()
+
+            first_td.empty()
+            third_td.empty()
+
+            var first_input = '<input type="text" value="' + first_text + '" />'
+            var third_input = '<input type="text" value="' + third_text + '" />'
+
+            first_td.append(first_input)
+            third_td.append(third_input)
+
+            $(that).children("span").removeClass("glyphicon-pencil")
+            $(that).children("span").addClass("glyphicon-ok")
+        } else {
+            first_text = first_td.find("input").val()
+            third_text = third_td.find("input").val()
+            var currentUrl = "modifyFenleiAttr"
+            var postData = {
+                attrId: editId,
+                attrName: first_text,
+                attrValue: third_text
+            }
+            if (editId == "") {
+                currentUrl = "addFenleiAttr"
+                postData = {
+                    fenleiId: $(".fenleiSelect").val(),
+                    fenleiName: $(".fenleiSelect option:selected").text(),
+                    attrName: first_text,
+                    attrValue: third_text
+                }
+            }
+            // 修改或添加小分类属性
+            myPost(currentUrl, postData, function(data) {
+                layer.msg(data.message)
+                if (data.status == "ok") {
+
+                    if (editId == "") {
+                        currentTr.attr("id", data.id)
+                    }
+
+
+                    first_td.empty()
+                    third_td.empty()
+
+                    first_td.text(first_text)
+                    third_td.text(third_text)
+
+                    $(that).children("span").removeClass("glyphicon-ok")
+                    $(that).children("span").addClass("glyphicon-pencil")
+                    $('#example1').DataTable()
+                }
+            })
+
+        }
+
+    }
+
+    // 列表上的删除按钮按钮
+    function attrDelete(that) {
+        var deleteId = $(that).parents("tr").attr("id")
+        var fenleiid = $(that).parents("tr").attr("fenleiid")
+
+        if (deleteId == "") {
+            $(that).parents("tr").remove()
+            $('#example1').DataTable()
+        } else {
+            myPost("deleteFenleiAttr", {
+                id: deleteId,
+                fenleiid: fenleiid
+            }, function(data) {
+                layer.msg(data.message)
+                if (data.status == "ok") {
+                    $(that).parents("tr").remove()
+                    $('#example1').DataTable()
+                }
+            })
+        }
+
+    }
+
+
+
+
+
+    // 获取一个小分类上的所有属性
+    function getFenleiAttrList() {
+        myPost("getFenleiAttr", {
+            fenleiId: pageFenlei_id
+        }, function(data) {
+            $(".myList").empty()
+            for (var i = 0; i < data.data.length; i++) {
+                var tempEle = '<tr fenleiId="' + data.data[i].fenleiId + '" id="' + data.data[i].id + '"><td>' + data.data[i].attrName + '</td><td>' + data.data[i].fenleiName + '</td><td>' + data.data[i].attrValue + '</td><td><button type="button" onclick="attrEdit(this)" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> </button><button style="margin-left:10px;" type="button" onclick="attrDelete(this)" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> </button></td></tr>'
+                $(".myList").append(tempEle)
+            }
+
+            $('#example1').DataTable()
+        })
+    }
+
+    if (pageFenlei_id != "") {
+
+        getFenleiAttrList()
+
+
+        // 获取所有的小分类
+        myPost("getAllXiaoFenlei", {
+
+        }, function(data) {
+            $(".fenleiSelect").empty()
+            for (var i = 0; i < data.length; i++) {
+                var tempEle = '<option value="' + data[i].id + '">' + data[i].name + '</option>'
+
+                $(".fenleiSelect").append(tempEle)
+            }
+
+            // $('#example1').DataTable()
+        })
+
+
+    }
+</script>
+{% endblock %}

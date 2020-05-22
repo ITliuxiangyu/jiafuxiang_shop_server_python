@@ -1,0 +1,3 @@
+goodsname,product_number,product_brand,market_price,shop_price,jifenprice,origin_image,product_image,product_thumb_image,keywords,product_brief_info,details,product_weight,counts,warning_counts,is_jingpin,is_rexiao,status,is_commen_product,is_entity_product,shopname
+华为,1111111,华为,2300,2100,10000,yunashi.jpg,tupian.jpg,thumb.jpg,我是关键字,简单描述,详细描述,100,125,123,0,1,1,1,0,海澜之家
+苹果5s,2342342,苹果,5666,5444,20000,原始图片,商品图片,缩略图,关键字,苹果简单描述,苹果详细描述,200,123,122,1,0,1,1,0,一号店

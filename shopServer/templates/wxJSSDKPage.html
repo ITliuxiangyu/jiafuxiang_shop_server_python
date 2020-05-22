@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    我是界面....
+
+    <button class="startluyin">开始录音</button>
+    <button class="stopluyin">停止录音</button>
+    <button class="playluyin">播放录音</button>
+    <button class="choseImage">选择图片</button>
+
+
+    <button class="clear">清楚缓存</button>
+
+    <button class="shouquqan">网页授权</button>
+
+</body>
+
+<script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+
+<script type="text/javascript">
+    // 微信 JS-SDK
+    $.get(
+        "/wxjssdk/", {
+            url: location.href
+        },
+        function(data) {
+            alert(JSON.stringify(data))
+            console.log("拿到结果了")
+            console.log(data)
+            wx.config({
+                debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                appId: "wx619c085e365678c4", // 必填，公众号的唯一标识
+                timestamp: data.timestamp + "", // 必填，生成签名的时间戳
+                nonceStr: data.nonceStr, // 必填，生成签名的随机串
+                signature: data.signature, // 必填，签名，见附录1
+                jsApiList: ['chooseImage', 'onMenuShareTimeline', 'startRecord', 'stopRecord', 'playVoice'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+            });
+
+
+            wx.ready(function() {
+                alert("weixinready 了")
+                wx.onMenuShareTimeline({
+                    title: '', // 分享标题
+                    link: '/wxjssdkPage/', // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    imgUrl: 'wode 第一次', // 分享图标
+                    success: function(confirm) {
+                        // 用户确认分享后执行的回调函数
+                        alert("confirm")
+                    },
+                    cancel: function(cancel) {
+                        alert("cancel")
+                    }
+                });
+            })
+
+            wx.error(function(res) {
+
+                // 清楚 access_token 和 jsapi_ticket
+                $.get("/clearAccess_tokenAndJsapi_ticket/", function(data) {
+                    alert(JSON.stringify(data))
+                })
+
+            })
+
+        }
+
+    );
+</script>
+
+</html>
